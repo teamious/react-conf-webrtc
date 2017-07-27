@@ -1,0 +1,26 @@
+{
+  "name": "react-conf-webrtc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./dist/index.js",
+  "scripts": {
+    "clean": "rimraf dist",
+    "build": "tsc",
+    "publish:patch": "npm run clean && npm run build && npm version patch -f && npm publish"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/react": "15.0.39",
+    "cross-env": "5.0.1",
+    "rimraf": "^2.6.1",
+    "typescript": "2.4.2"
+  },
+  "peerDependencies": {
+    "react": "^15.6.1"
+  },
+  "files": [
+    "dist/"
+  ],
+  "typings": "./dist/index.d.ts"
+}
