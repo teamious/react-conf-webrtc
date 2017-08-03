@@ -45,3 +45,14 @@ npm run start:no-docker
 ```
 
 This system requires that you manually start and stop your spreed server.
+
+# Servers
+
+Regardless if you start with/without Docker, your frontend server is available on https://localhost:8080
+and your backend Spreed server is available on https://localhost:8443. Since both servers
+use self-signed certificates you will need to manually accepts and bypass the warnings on your client machines
+before developing.
+
+Both servers listen on 0.0.0.0, therefore you can connect to the servers on your network
+by knowing your host's IP address (eg. navigating to https://192.168.220.116:8080 you will find Andrew's dev server).
+This lets you test your server with multiple machines on the same network.
