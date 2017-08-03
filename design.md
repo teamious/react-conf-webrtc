@@ -35,7 +35,6 @@ create a Spreed + react-web-rtc conference.
 
 ```tsx
 import * as React from 'react'
-import { SpreedConn, SpreedAdapter } from 'react-conf-webrtc'
 import { Conference, ConferenceMessage SpreedConn, SpreedAdapter } from 'react-conf-webrtc';
 
 export class App extends React.Component<{}, {}> {
@@ -46,7 +45,7 @@ export class App extends React.Component<{}, {}> {
         super();
         this.conn = new SpreedConn('wss://localhost:8443/ws');
         this.adapter = new SpreedAdapter(this.conn);
-        conn.onMessage = (msg: SpreedMessage) => {
+        this.conn.onMessage = (msg: SpreedMessage) => {
             this.adapter.onMessage(msg)
         }
     }
