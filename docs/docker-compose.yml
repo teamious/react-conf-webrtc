@@ -1,0 +1,10 @@
+version: '3'
+services:
+  react-conf-webrtc-docs:
+    image: "react-conf-webrtc-docs"
+    ports:
+      - "8081:80"
+    depends_on:
+      - "spreed-webrtc"
+  spreed-webrtc:
+    image: ""
