@@ -7,7 +7,7 @@ npm install
 ```
 
 You can develop in one of two ways: with docker or without docker. The recommended dev environment
-is to use Docker on your machine however, it is still possible to develop the docs website with Docker.
+is to use Docker on your machine. You can still develop even if you can't run Docker on your machine.
 
 ## With Docker
 
