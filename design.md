@@ -44,7 +44,7 @@ export class App extends React.Component<{}, {}> {
 
     render() {
         return (
-            <Conference connect={this.connect}/>
+            <Conference room='main' connect={this.connect}/>
         );
     }
 }
@@ -87,6 +87,7 @@ export class Conference extends React.Component<IProps, IState> {
         super();
         this.connection = this.props.connect();
         this.connection.subscribe(this.handleIncomingMessage);
+        this.joinRoom(this.props.room);
     }
 
     private handleIncomingMessage(msg: MessageIncoming) {
@@ -95,7 +96,7 @@ export class Conference extends React.Component<IProps, IState> {
         }
     }
 
-    private handleOutgoingMessage(msg: MessageOutgoing) {
+    private sendMessage(msg: MessageOutgoing) {
         this.connection.publish(msg);
     }
 }
