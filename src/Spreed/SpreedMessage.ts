@@ -1,37 +1,10 @@
-// NOTE(andrews): This file contains most of the messages that
-// are sent to your client via the Spreed WebSocket connection.
-// There are messages that this file does not cover because they exist outside
-// the scope of our requirements (for now).
-// This file does not cover the following message types:
+// NOTE(andrews): This file is responsible for defining the messages of the Spreed API.
+// Some message types are only found in outgoing messages (such as Hello).
+// This file does not define the following message types:
 // - Screenshare
 // - YouTubeVideo
 // - Presentation
 // - Chat
-
-// NOTE(andrews): SpreedMessage represents any message sent from the Spreed WSS.
-// The Data member contains the type of event as well as the relevant payload.
-export interface SpreedMessage {
-    Data: SpreedMessageData;
-    From?: SpreedUserID;
-    To?: SpreedUserID;
-    Iid?: string;
-    A?: string;
-}
-
-// NOTE(andrews): SpreedMessageData is a discriminated union type.
-// See https://www.typescriptlang.org/docs/handbook/advanced-types.html
-// for more information on Discriminated Union types.
-export type SpreedMessageData =
-SpreedMessageSelf |
-SpreedMessageOffer |
-SpreedMessageWelcome |
-SpreedMessageLeft |
-SpreedMessageBye |
-SpreedMessageJoined |
-SpreedMessageStatus |
-SpreedMessageAnswer |
-SpreedMessageConference |
-SpreedMessageCandidate;
 
 // NOTE(andrews): SpreedUserID is an alias of the string type but
 // it serves as a better way to distinguish the meaning of the type.
@@ -167,4 +140,13 @@ export interface SpreedUserStatus {
     buddyPicture: any; // TODO(andrews): Determine type
     displayName: string;
     message: string;
+}
+
+// NOTE(andrews): SpreedMessageHello joins a room by Name.
+// This message is only used in requests.
+export interface SpreedMessageHello {
+    Name: string;
+    Type: 'Conference';
+    Ua: string;
+    Version: string;
 }
