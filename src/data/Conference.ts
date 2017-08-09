@@ -1,17 +1,17 @@
 // NOTE(yunsi): This file contains most of the incoming and outgoing messages of the conference component.
 export type IConfIncomingMessage =
     IConfMessageConference |
-    IConfMessageCandidate |
-    IConfMessageOffer |
-    IConfMessageAnswer |
+    IConfIncomingMessageCandidate |
+    IConfIncomingMessageOffer |
+    IConfIncomingMessageAnswer |
     IConfMessageAddPeer |
     IConfMessageRemovePeer
 
 export type IConfOutgoingMessage =
     IConfMessageJoin |
-    IConfMessageCandidate |
-    IConfMessageOffer |
-    IConfMessageAnswer |
+    IConfOutgoingMessageCandidate |
+    IConfOutgoingMessageOffer |
+    IConfOutgoingMessageAnswer |
     IConfMessageBye
 
 // NOTE(yunsi): IConfMessageJoin is sent out when you try to join a conference room.
@@ -26,28 +26,49 @@ export interface IConfMessageConference {
     conference: ConfUserID[];
 }
 
-// NOTE(yunsi): IConfMessageCandidate contains the IceCandidate information you sent to or received from other clients.
 export interface IConfMessageCandidate {
     type: 'Candidate';
-    to?: ConfUserID;
-    from?: ConfUserID;
     candidate: RTCIceCandidate;
 }
 
-// NOTE(yunsi): IConfMessageOffer contains the offer you sent to or received from other clients.
+// NOTE(yunsi): IConfIncomingMessageCandidate contains the IceCandidate information you received from other clients.
+export interface IConfIncomingMessageCandidate extends IConfMessageCandidate {
+    from: ConfUserID;
+}
+
+// NOTE(yunsi): IConfIncomingMessageCandidate contains the IceCandidate information you sent to other clients.
+export interface IConfOutgoingMessageCandidate extends IConfMessageCandidate {
+    to: ConfUserID;
+}
+
 export interface IConfMessageOffer {
     type: 'Offer';
-    to?: ConfUserID;
-    from?: ConfUserID;
     sessionDescription: RTCSessionDescription;
 }
 
-// NOTE(yunsi): IConfMessageAnswer contains the answer you sent to or received from other clients.
+// NOTE(yunsi): IConfIncomingMessageOffer contains the offer you received from other clients.
+export interface IConfIncomingMessageOffer extends IConfMessageOffer {
+    from: ConfUserID;
+}
+
+// NOTE(yunsi): IConfOutgoingMessageOffer contains the offer you sent to other clients.
+export interface IConfOutgoingMessageOffer extends IConfMessageOffer {
+    to: ConfUserID;
+}
+
 export interface IConfMessageAnswer {
     type: 'Answer';
-    to?: ConfUserID;
-    from?: ConfUserID;
     sessionDescription: RTCSessionDescription;
+}
+
+// NOTE(yunsi): IConfIncomingMessageAnswer contains the answer you received from other clients.
+export interface IConfIncomingMessageAnswer extends IConfMessageAnswer{
+    from: ConfUserID;
+}
+
+// NOTE(yunsi): IConfOutgoingMessageAnswer contains the answer you sent to other clients.
+export interface IConfOutgoingMessageAnswer extends IConfMessageAnswer{
+    to: ConfUserID;
 }
 
 // NOTE(yunsi): IConMessageAddPeer is received when you need to create and send an offer.
