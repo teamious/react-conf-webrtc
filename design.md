@@ -35,35 +35,76 @@ create a Spreed + react-web-rtc conference.
 
 ```tsx
 import * as React from 'react'
-import { Conference, ConferenceMessage SpreedConn, SpreedAdapter } from 'react-conf-webrtc';
+import { Conference, connectToSpreed, Connection } from 'react-conf-webrtc';
 
 export class App extends React.Component<{}, {}> {
-    private conn: SpreedConn;
-    private adapter: SpreedAdapter;
-
-    constructor() {
-        super();
-        this.conn = new SpreedConn('wss://localhost:8443/ws');
-        this.adapter = new SpreedAdapter(this.conn);
-        this.conn.onMessage = (msg: SpreedMessage) => {
-            this.adapter.onMessage(msg)
-        }
-    }
-
-    private refConference(room: Conference) {
-        this.adapter.setRoom(room);
-    }
-
-    private onSend(message: ConferenceMessage) {
-        this.adapter.send(message);
+    private connect(): Connection {
+        return connectToSpreed();
     }
 
     render() {
         return (
-            <Conference
-                send={this.onSend}
-                ref={this.refConference}/>
+            <Conference connect={this.connect}/>
         );
     }
 }
 ```
+
+The first important interface to understand is the `Connection` interface. The Connection
+interface allows us to return any implementation of connection:
+
+```ts
+interface Connection {
+    subscribe: (subscriber: (message: MessageIncoming): void): void
+    publish: (message: MessageOutgoing): void;
+}
+```
+
+The Connection interface has only two methods: `subscribe` and `publish`. When the conference room calls the connect prop,
+it will keep a reference to the return object and subscribe to it. This is how the Connection should signal events to the Conference room.
+
+Likewise, when the Conference room needs to communicate with the Connection, it will use the `publish` method. The publish method
+let's the conference room publish it's events for the consumer to listen and react to.
+
+Note that the examples uses a `connectToSpreed()` method to get a connection. It is a convenience method for wiring up a
+`SpreedConnection` and `SpreedAdapter` object.
+
+Inside of the Conference room this is what is roughly happening:
+
+```tsx
+import * as React from 'react';
+import { Connection } from '../data'
+
+export interface IProps {
+    connect: () => Connection;
+    room: string;
+}
+
+export class Conference extends React.Component<IProps, IState> {
+    private connection: Connection;
+
+    constructor() {
+        super();
+        this.connection = this.props.connect();
+        this.connection.subscribe(this.handleIncomingMessage);
+    }
+
+    private handleIncomingMessage(msg: MessageIncoming) {
+        switch (msg.type) {
+            // Do WebRTC business logic
+        }
+    }
+
+    private handleOutgoingMessage(msg: MessageOutgoing) {
+        this.connection.publish(msg);
+    }
+}
+```
+
+### Managing the connection lifecycle
+
+The Conference exposes an API for managing the lifecycle of the connection. For example, in Jingoal's backend architecture, the life of a connection only exists for one room. If you change rooms,
+you may be required to connect to a different server. This presents a problem because the Conference room only calls the `connect` method once in order to establish a connection.
+
+In order to accomodate as many scenarios as possible, the Conference room exposes a connection lifecycle API. For example, suppose you must re-connect to a different server. In this scenario you can send an event such as NEW_CONNECTION to the Conference room. NEW_CONNECTION will perform the logic necessary for establishing a new connection and subscribe to it.
+
