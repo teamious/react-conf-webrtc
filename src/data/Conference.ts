@@ -26,11 +26,11 @@ export interface IConfMessageConference {
     conference: ConfUserID[];
 }
 
-export interface IIncomingInterface {
+export interface IConfIncomingMessageId {
     from: ConfUserID;
 }
 
-export interface IOutgoingInterface {
+export interface IConfOutgoingMessageId {
     to: ConfUserID;
 }
 
@@ -40,10 +40,10 @@ export interface IConfMessageCandidate {
 }
 
 // NOTE(yunsi): IConfIncomingMessageCandidate contains the IceCandidate information you received from other clients.
-export interface IConfIncomingMessageCandidate extends IConfMessageCandidate, IIncomingInterface { }
+export interface IConfIncomingMessageCandidate extends IConfMessageCandidate, IConfIncomingMessageId { }
 
 // NOTE(yunsi): IConfIncomingMessageCandidate contains the IceCandidate information you sent to other clients.
-export interface IConfOutgoingMessageCandidate extends IConfMessageCandidate, IOutgoingInterface { }
+export interface IConfOutgoingMessageCandidate extends IConfMessageCandidate, IConfOutgoingMessageId { }
 
 export interface IConfMessageOffer {
     type: 'Offer';
@@ -51,10 +51,10 @@ export interface IConfMessageOffer {
 }
 
 // NOTE(yunsi): IConfIncomingMessageOffer contains the offer you received from other clients.
-export interface IConfIncomingMessageOffer extends IConfMessageOffer, IIncomingInterface { }
+export interface IConfIncomingMessageOffer extends IConfMessageOffer, IConfIncomingMessageId { }
 
 // NOTE(yunsi): IConfOutgoingMessageOffer contains the offer you sent to other clients.
-export interface IConfOutgoingMessageOffer extends IConfMessageOffer, IOutgoingInterface { }
+export interface IConfOutgoingMessageOffer extends IConfMessageOffer, IConfOutgoingMessageId { }
 
 export interface IConfMessageAnswer {
     type: 'Answer';
@@ -62,10 +62,10 @@ export interface IConfMessageAnswer {
 }
 
 // NOTE(yunsi): IConfIncomingMessageAnswer contains the answer you received from other clients.
-export interface IConfIncomingMessageAnswer extends IConfMessageAnswer, IIncomingInterface { }
+export interface IConfIncomingMessageAnswer extends IConfMessageAnswer, IConfIncomingMessageId { }
 
 // NOTE(yunsi): IConfOutgoingMessageAnswer contains the answer you sent to other clients.
-export interface IConfOutgoingMessageAnswer extends IConfMessageAnswer, IOutgoingInterface { }
+export interface IConfOutgoingMessageAnswer extends IConfMessageAnswer, IConfOutgoingMessageId { }
 
 // NOTE(yunsi): IConMessageAddPeer is received when you need to create and send an offer.
 export interface IConfMessageAddPeer {
