@@ -106,5 +106,6 @@ export class Conference extends React.Component<IProps, IState> {
 The Conference exposes an API for managing the lifecycle of the connection. For example, in Jingoal's backend architecture, the life of a connection only exists for one room. If you change rooms,
 you may be required to connect to a different server. This presents a problem because the Conference room only calls the `connect` method once in order to establish a connection.
 
-In order to accomodate as many scenarios as possible, the Conference room exposes a connection lifecycle API. For example, suppose you must re-connect to a different server. In this scenario you can send an event such as NEW_CONNECTION to the Conference room. NEW_CONNECTION will perform the logic necessary for establishing a new connection and subscribe to it.
+In order to accomodate as many scenarios as possible, the Conference room exposes a connection lifecycle API. For example, if you must establish a new connection you can send a NEW_CONNECTION event to the
+Conference room and it will take care of establishing a new connection.
 
