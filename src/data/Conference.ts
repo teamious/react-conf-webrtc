@@ -26,8 +26,11 @@ export interface IConfMessageConference {
     conference: ConfUserID[];
 }
 
+// NOTE(yunsi): IConfMessageCandidate contains the IceCandidate information you sent to or received from other clients.
 export interface IConfMessageCandidate {
     type: 'Candidate';
+    to?: ConfUserID;
+    from?: ConfUserID;
     candidate: RTCIceCandidate;
 }
 
