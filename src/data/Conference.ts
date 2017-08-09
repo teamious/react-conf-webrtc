@@ -1,11 +1,5 @@
 // NOTE(yunsi): This file contains most of the incoming and outgoing messages of the conference component.
-
-export interface IConfIncomingMessage {
-    Data: ConfIncomingMessageData;
-    From?: ConfUserID;
-}
-
-export type ConfIncomingMessageData =
+export type IConfIncomingMessage =
     IConfMessageConference |
     IConfMessageCandidate |
     IConfMessageOffer |
@@ -13,27 +7,18 @@ export type ConfIncomingMessageData =
     IConfMessageAddPeer |
     IConfMessageRemovePeer
 
-export interface IConfOutgoingMessage {
-    Data: ConfOutgoingMessageData;
-    To?: ConfUserID;
-}
-
-export type ConfOutgoingMessageData =
+export type IConfOutgoingMessage =
     IConfMessageJoin |
     IConfMessageCandidate |
     IConfMessageOffer |
     IConfMessageAnswer |
     IConfMessageBye
 
-export type ConfUserID = string;
-
 // NOTE(yunsi): IConfMessageJoin is sent out when you try to join a conference room.
 export interface IConfMessageJoin {
     type: 'Join';
     room: ConfRoom;
 }
-
-export type ConfRoom = string;
 
 // NOTE(yunsi): IConfMessageConference is received when you joind a conference room, it contains an array of the id of users in the conference room.
 export interface IConfMessageConference {
@@ -49,12 +34,16 @@ export interface IConfMessageCandidate {
 // NOTE(yunsi): IConfMessageOffer contains the offer you sent to or received from other clients.
 export interface IConfMessageOffer {
     type: 'Offer';
+    to?: ConfUserID;
+    from?: ConfUserID;
     sessionDescription: RTCSessionDescription;
 }
 
 // NOTE(yunsi): IConfMessageAnswer contains the answer you sent to or received from other clients.
 export interface IConfMessageAnswer {
     type: 'Answer';
+    to?: ConfUserID;
+    from?: ConfUserID;
     sessionDescription: RTCSessionDescription;
 }
 
@@ -74,3 +63,7 @@ export interface IConfMessageRemovePeer {
 export interface IConfMessageBye {
     type: 'Bye';
 }
+
+export type ConfRoom = string;
+
+export type ConfUserID = string;
