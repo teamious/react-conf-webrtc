@@ -22,7 +22,6 @@ export class SpreedConnection {
     }
 
     private onConnOpen() {
-        this.processResponses();
         this.processRequests();
     }
 
@@ -52,9 +51,13 @@ export class SpreedConnection {
         // TODO(andrews): Figure out how to handle closed connections.
     }
 
+    // NOTE(andrews): send is used to send messages to the WebSocket connection.
+    // It expects that any message being is a SpreedRequest type. If the connection
+    // is not open, this function will queue the requests in the this.requests array.
     private send(message: SpreedRequest) {
         if (this.hasOpenConnection()) {
             this.conn.send(JSON.stringify(message));
+            return
         }
         this.requests.push(message);
     }
@@ -63,6 +66,10 @@ export class SpreedConnection {
         this.conn.readyState === this.conn.OPEN;
     }
 
+    // NOTE(andrews): onConnMessage is called whenever the WebSocket connection
+    // receives a MessageEvent. It parses the message from the server and
+    // sends it to the function assigned via the onmessage setter. If no
+    // function has been set, it will queue the message in the this.responses array.
     private onConnMessage(event: MessageEvent) {
         const message: SpreedResponse = JSON.parse(event.data);
         if (this.onMessageHandler) {
@@ -72,6 +79,9 @@ export class SpreedConnection {
         this.responses.push(message);
     }
 
+    // NOTE(andrews): onmessage is a setter for the class that you can use to subscribe
+    // to any messages that the connection received. If there are any queued messages, they
+    // will be processed immediately.
     set onmessage(handler: SpreedResponseHandler) {
         this.onMessageHandler = handler;
         this.processResponses();
