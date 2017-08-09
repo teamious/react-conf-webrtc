@@ -1,19 +1,29 @@
 // NOTE(yunsi): This file contains most of the incoming and outgoing messages of the conference component.
 
-export interface IConfMessage {
-    Data: ConfMessageData;
+export interface IConfIncomingMessage {
+    Data: ConfIncomingMessageData;
     From?: ConfUserID;
-    To?: ConfUserID;
 }
 
-export type ConfMessageData =
-    IConfMessageJoin |
+export type ConfIncomingMessageData =
     IConfMessageConference |
     IConfMessageCandidate |
     IConfMessageOffer |
     IConfMessageAnswer |
     IConfMessageAddPeer |
     IConfMessageRemovePeer
+
+export interface IConfOutgoingMessage {
+    Data: ConfOutgoingMessageData;
+    To?: ConfUserID;
+}
+
+export type ConfOutgoingMessageData =
+    IConfMessageJoin |
+    IConfMessageCandidate |
+    IConfMessageOffer |
+    IConfMessageAnswer |
+    IConfMessageBye
 
 export type ConfUserID = string;
 
@@ -58,4 +68,9 @@ export interface IConfMessageAddPeer {
 export interface IConfMessageRemovePeer {
     type: 'RemovePeer';
     Id: ConfUserID;
+}
+
+// NOTE(yunsi): IConfMessageBye is sent out whe you leave a conference room.
+export interface IConfMessageBye {
+    type: 'Bye';
 }
