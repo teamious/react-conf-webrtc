@@ -44,7 +44,6 @@ export class Conference extends React.Component<IConferenceProps, void> {
         this.getUserMedia();
 
         this.handleIncomingMessage = this.handleIncomingMessage.bind(this);
-        this.gotStream = this.gotStream.bind(this);
     }
 
     // TODO(yunsi): Complete display view.
@@ -73,7 +72,7 @@ export class Conference extends React.Component<IConferenceProps, void> {
     }
 
     private getUserMedia() {
-        navigator.mediaDevices.getUserMedia(userMediaConfig).then(this.gotStream)
+        navigator.mediaDevices.getUserMedia(userMediaConfig).then(stream => this.gotStream(stream))
     }
 
     private gotStream(stream: MediaStream) {
