@@ -35,14 +35,16 @@ export class Conference extends React.Component<IConferenceProps, void> {
     private localStream: MediaStream;
     private remoteStreams: { [id: string]: MediaStream };
     private localId: string;
+    private candidates: { [id: string]: RTCIceCandidate[] }
 
     constructor() {
         super();
         this.connection = this.props.connect();
-        this.connection.subscribe(this.handleIncomingMessage);
-        this.handleIncomingMessage.bind(this);
         this.joinRoom(this.props.room);
         this.getUserMedia();
+
+        this.handleIncomingMessage = this.handleIncomingMessage.bind(this);
+        this.gotStream = this.gotStream.bind(this);
     }
 
     // TODO(yunsi): Complete display view.
@@ -71,10 +73,12 @@ export class Conference extends React.Component<IConferenceProps, void> {
     }
 
     private getUserMedia() {
-        navigator.mediaDevices.getUserMedia(userMediaConfig).then(stream => {
-            // TODO(yunsi): Send MediaStream to Local stream component.
-            this.localStream = stream;
-        })
+        navigator.mediaDevices.getUserMedia(userMediaConfig).then(this.gotStream)
+    }
+
+    private gotStream(stream: MediaStream) {
+        this.localStream = stream;
+        this.connection.subscribe(this.handleIncomingMessage);
     }
 
     private handleIncomingMessage(message: IConfIncomingMessage) {
@@ -106,10 +110,11 @@ export class Conference extends React.Component<IConferenceProps, void> {
         const peerConnection = this.createPeerConnectionById(id);
 
         // NOTE(yunsi): When two clients both recieved an AddPeer event with the other client's id, they will do a compare to see who should create and send the offer.
-        if (this.localId.localeCompare(id)) {
+        if (this.localId.localeCompare(id) === 1) {
             peerConnection.createOffer(
                 sessionDescription => this.setLocalAndSendMessage(sessionDescription, 'Offer', id)
             )
+            // TODO(yunsi): Add error handling.
         }
     }
 
@@ -146,6 +151,7 @@ export class Conference extends React.Component<IConferenceProps, void> {
 
         if (peerConnection && message) {
             peerConnection.setLocalDescription(sessionDescription);
+            // TODO(yunsi): Add error handling.
             this.sendMessage(message);
         }
     }
@@ -176,6 +182,12 @@ export class Conference extends React.Component<IConferenceProps, void> {
 
         if (peerConnection && peerConnection.remoteDescription) {
             peerConnection.addIceCandidate(message.candidate);
+        } else {
+            if (this.candidates[id]) {
+                this.candidates[id].push(message.candidate);
+            } else {
+                this.candidates[id] = [message.candidate];
+            }
         }
     }
 
@@ -185,10 +197,14 @@ export class Conference extends React.Component<IConferenceProps, void> {
         const peerConnection = this.getPeerConnectionById(id);
 
         if (peerConnection) {
-            peerConnection.setRemoteDescription(message.sessionDescription);
-            peerConnection.createAnswer(
-                sessionDescription => this.setLocalAndSendMessage(sessionDescription, 'Answer', id)
-            )
+            peerConnection.setRemoteDescription(message.sessionDescription, () => {
+                this.processCandidates(id);
+                peerConnection.createAnswer(
+                    sessionDescription => this.setLocalAndSendMessage(sessionDescription, 'Answer', id)
+                )
+                // TODO(yunsi): Add error handling.
+            });
+            // TODO(yunsi): Add error handling.
         }
     }
 
@@ -197,7 +213,23 @@ export class Conference extends React.Component<IConferenceProps, void> {
         const peerConnection = this.getPeerConnectionById(id);
 
         if (peerConnection) {
-            peerConnection.setRemoteDescription(message.sessionDescription);
+            peerConnection.setRemoteDescription(message.sessionDescription, () => {
+                this.processCandidates(id);
+            });
+            // TODO(yunsi): Add error handling.
+        }
+    }
+
+    private processCandidates(id: string) {
+        const peerConnection = this.getPeerConnectionById(id);
+
+        if (peerConnection && this.candidates[id]) {
+            while (this.candidates[id].length > 0) {
+                const candidate = this.candidates[id].shift();
+                if (candidate) {
+                    peerConnection.addIceCandidate(candidate);
+                }
+            }
         }
     }
 
