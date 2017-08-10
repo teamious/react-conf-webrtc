@@ -26,7 +26,7 @@ export class SpreedAdapter {
         this.sendConferenceMessage(msg);
     }
 
-    // NOTE(andrews): handleSpreedMessage should be called whenever you want to translate a message from conference -> spreed.
+    // NOTE(andrews): handleConferenceMessage should be called whenever you want to translate a message from conference -> spreed.
     public handleConferenceMessage(message: IConfOutgoingMessage): void {
         const msg = TranslateConferenceMessage(message);
         if (!msg) {
