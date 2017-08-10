@@ -22,7 +22,7 @@ export interface IConfMessageJoin {
 
 // NOTE(yunsi): IConfMessageConference is received when you joind a conference room, it contains an array of the id of users in the conference room.
 export interface IConfMessageConference {
-    type: 'Conference'
+    type: 'Conference';
     conference: ConfUserID[];
 }
 

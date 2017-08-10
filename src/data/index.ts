@@ -1,2 +1,2 @@
-export * from './Conference';
+export * from './ConferenceMessage';
 export * from './ConferenceConnection';
