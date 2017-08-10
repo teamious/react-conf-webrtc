@@ -11,7 +11,6 @@ export function Connect(url: string): ConferenceConnection {
 class Connection implements ConferenceConnection {
     private conn: SpreedConnection;
     private adapter: SpreedAdapter;
-    private handler: ConferenceConnectionSubscriber;
 
     constructor(url: string) {
         this.conn = new SpreedConnection(url);
