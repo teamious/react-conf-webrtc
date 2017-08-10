@@ -54,7 +54,7 @@ export class SpreedConnection {
     // NOTE(andrews): send is used to send messages to the WebSocket connection.
     // It expects that any message being is a SpreedRequest type. If the connection
     // is not open, this function will queue the requests in the this.requests array.
-    private send(message: SpreedRequest) {
+    public send(message: SpreedRequest) {
         if (this.hasOpenConnection()) {
             this.conn.send(JSON.stringify(message));
             return
