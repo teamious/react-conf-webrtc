@@ -20,6 +20,10 @@ import {
     SpreedRequestHello,
 } from './SpreedRequest'
 
+// NOTE(andrews): TranslateConferenceMessage delegates the work of translating the message
+// to individual functions based on the message type. Not all message types need to be translated
+// into an IConfIncomingMessage. In such cases, this function will return undefined.
+// TODO(andrews): Figure out if we need to handle "Bye" message / or if it's necessary
 export function TranslateConferenceMessage(message: IConfOutgoingMessage): SpreedRequest | undefined {
     switch (message.type) {
         case 'Join':

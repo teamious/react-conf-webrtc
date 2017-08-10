@@ -15,7 +15,7 @@ import {
     SpreedMessageLeft,
 } from './SpreedMessage';
 
-// NOTE(andrews): translateSpreedMessage delegates the work of translating the message
+// NOTE(andrews): TranslateSpreedMessage delegates the work of translating the message
 // to individual functions based on the message type. Not all message types need to be translated
 // into an IConfIncomingMessage. In such cases, this function will return undefined.
 export function TranslateSpreedMessage(message: SpreedResponse): IConfIncomingMessage | undefined {
