@@ -16,13 +16,13 @@ export type IConfOutgoingMessage =
 
 // NOTE(yunsi): IConfMessageJoin is sent out when you try to join a conference room.
 export interface IConfMessageJoin {
-    type: 'Join';
+    type: string;
     room: ConfRoom;
 }
 
 // NOTE(yunsi): IConfMessageConference is received when you joind a conference room, it contains an array of the id of users in the conference room.
 export interface IConfMessageConference {
-    type: 'Conference';
+    type: string
     conference: ConfUserID[];
 }
 
@@ -35,7 +35,7 @@ export interface IConfOutgoingMessageId {
 }
 
 export interface IConfMessageCandidate {
-    type: 'Candidate';
+    type: string;
     candidate: RTCIceCandidate;
 }
 
@@ -46,7 +46,7 @@ export interface IConfIncomingMessageCandidate extends IConfMessageCandidate, IC
 export interface IConfOutgoingMessageCandidate extends IConfMessageCandidate, IConfOutgoingMessageId { }
 
 export interface IConfMessageOffer {
-    type: 'Offer';
+    type: string;
     sessionDescription: RTCSessionDescription;
 }
 
@@ -57,7 +57,7 @@ export interface IConfIncomingMessageOffer extends IConfMessageOffer, IConfIncom
 export interface IConfOutgoingMessageOffer extends IConfMessageOffer, IConfOutgoingMessageId { }
 
 export interface IConfMessageAnswer {
-    type: 'Answer';
+    type: string;
     sessionDescription: RTCSessionDescription;
 }
 
@@ -69,19 +69,19 @@ export interface IConfOutgoingMessageAnswer extends IConfMessageAnswer, IConfOut
 
 // NOTE(yunsi): IConMessageAddPeer is received when you need to create and send an offer.
 export interface IConfMessageAddPeer {
-    type: 'AddPeer';
+    type: string;
     Id: ConfUserID;
 }
 
 // NOTE(yunsi): IConMessageRemovePeer is received when someone left the conference room.
 export interface IConfMessageRemovePeer {
-    type: 'RemovePeer';
+    type: string;
     Id: ConfUserID;
 }
 
 // NOTE(yunsi): IConfMessageBye is sent out whe you leave a conference room.
 export interface IConfMessageBye {
-    type: 'Bye';
+    type: string;
 }
 
 export type ConfRoom = string;
