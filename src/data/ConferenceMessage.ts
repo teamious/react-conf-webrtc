@@ -1,5 +1,6 @@
 // NOTE(yunsi): This file contains most of the incoming and outgoing messages of the conference component.
 export type IConfIncomingMessage =
+    IConfMessageSelf |
     IConfMessageConference |
     IConfIncomingMessageCandidate |
     IConfIncomingMessageOffer |
@@ -13,6 +14,12 @@ export type IConfOutgoingMessage =
     IConfOutgoingMessageOffer |
     IConfOutgoingMessageAnswer |
     IConfMessageBye
+
+// NOTE(yunsi): IConfMessageSelf is received after the connection is created.
+export interface IConfMessageSelf {
+    type: 'Self';
+    Id: ConfUserID;
+}
 
 // NOTE(yunsi): IConfMessageJoin is sent out when you try to join a conference room.
 export interface IConfMessageJoin {

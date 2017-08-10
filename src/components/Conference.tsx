@@ -3,6 +3,7 @@ import * as React from 'react';
 import {
     ConferenceConnection,
     IConfIncomingMessage,
+    IConfMessageSelf,
     IConfIncomingMessageCandidate,
     IConfIncomingMessageOffer,
     IConfIncomingMessageAnswer,
@@ -10,6 +11,13 @@ import {
     IConfMessageRemovePeer,
     IConfOutgoingMessage
 } from '../data';
+import {
+    createOutgoingMessageJoin,
+    createOutgoingMessageCandidate,
+    createOutgoingMessageOffer,
+    createOutgoingMessageAnswer,
+    createOutgoingMessageBye
+} from '../services/ConferenceService';
 
 export interface IConferenceProps {
     connect: () => ConferenceConnection;
@@ -24,11 +32,15 @@ const userMediaConfig = {
 export class Conference extends React.Component<IConferenceProps, void> {
     private connection: ConferenceConnection;
     private peerConnections: { [id: string]: RTCPeerConnection };
+    private localStream: MediaStream;
+    private remoteStreams: { [id: string]: MediaStream };
+    private localId: string;
 
     constructor() {
         super();
         this.connection = this.props.connect();
         this.connection.subscribe(this.handleIncomingMessage);
+        this.handleIncomingMessage.bind(this);
         this.joinRoom(this.props.room);
         this.getUserMedia();
     }
@@ -40,7 +52,7 @@ export class Conference extends React.Component<IConferenceProps, void> {
         )
     }
 
-    public componentWillMount() {
+    public componentWillUnmount() {
         this.leaveRoom()
     }
 
@@ -49,28 +61,26 @@ export class Conference extends React.Component<IConferenceProps, void> {
     }
 
     private joinRoom(room: string) {
-        const message = {
-            type: 'Join',
-            room: room,
-        } as IConfOutgoingMessage;
+        const message = createOutgoingMessageJoin(room);
         this.sendMessage(message);
     }
 
     private leaveRoom() {
-        const message = {
-            type: 'Bye',
-        } as IConfOutgoingMessage;
+        const message = createOutgoingMessageBye()
         this.sendMessage(message);
     }
 
     private getUserMedia() {
         navigator.mediaDevices.getUserMedia(userMediaConfig).then(stream => {
             // TODO(yunsi): Send MediaStream to Local stream component.
+            this.localStream = stream;
         })
     }
 
     private handleIncomingMessage(message: IConfIncomingMessage) {
         switch (message.type) {
+            case 'Self':
+                return this.handleSelfMessage(message);
             case 'AddPeer':
                 return this.handleAddPeerMessage(message);
             case 'RemovePeer':
@@ -86,12 +96,17 @@ export class Conference extends React.Component<IConferenceProps, void> {
         }
     }
 
+    private handleSelfMessage(message: IConfMessageSelf) {
+        this.localId = message.Id;
+    }
+
     // NOTE(yunsi): When received an AddPeer event, conference will create a new PeerConnection and add it to the connection list.
     private handleAddPeerMessage(message: IConfMessageAddPeer) {
         const id = message.Id;
         const peerConnection = this.createPeerConnectionById(id);
 
-        if (peerConnection) {
+        // NOTE(yunsi): When two clients both recieved an AddPeer event with the other client's id, they will do a compare to see who should create and send the offer.
+        if (this.localId.localeCompare(id)) {
             peerConnection.createOffer(
                 sessionDescription => this.setLocalAndSendMessage(sessionDescription, 'Offer', id)
             )
@@ -99,50 +114,47 @@ export class Conference extends React.Component<IConferenceProps, void> {
     }
 
     private createPeerConnectionById(id: string) {
-        try {
-            // TODO(yunsi): Add RTCPeerConnection config.
-            const peerConnection = new RTCPeerConnection({});
-            peerConnection.onicecandidate = (event) => {
-                this.handleIceCandidate(event, id)
-            };
-            peerConnection.onaddstream = (event) => {
-                this.handleRemoteStreamAdded(event, id)
-            };
-            this.peerConnections[id] = peerConnection;
+        // TODO(yunsi): Add RTCPeerConnection config.
+        const peerConnection = new RTCPeerConnection({});
+        peerConnection.onicecandidate = (event) => {
+            this.handleIceCandidate(event, id)
+        };
+        peerConnection.onaddstream = (event) => {
+            this.handleRemoteStreamAdded(event, id)
+        };
+        peerConnection.addStream(this.localStream);
+        this.peerConnections[id] = peerConnection;
 
-            return peerConnection;
-        } catch (err) {
-            console.log('Can not create PeerConnection by id: ' + id);
-        }
+        return peerConnection;
     }
 
     private handleIceCandidate(event: RTCPeerConnectionIceEvent, id: string) {
         if (event.candidate) {
-            const message = {
-                type: 'Candidate',
-                candidate: event.candidate,
-                to: id,
-            } as IConfOutgoingMessage;
+            const message = createOutgoingMessageCandidate(event.candidate, id);
             this.sendMessage(message);
         }
     }
 
     private setLocalAndSendMessage(sessionDescription: RTCSessionDescription, type: string, id: string) {
         const peerConnection = this.getPeerConnectionById(id);
-        const outgoingMessage = {
-            type: type,
-            sessionDescription: sessionDescription,
-            to: id
-        } as IConfOutgoingMessage
+        let message;
+        if (type === 'Offer') {
+            message = createOutgoingMessageOffer(sessionDescription, id);
+        } else if (type === 'Answer') {
+            message = createOutgoingMessageAnswer(sessionDescription, id);
+        }
 
-        if (peerConnection) {
+        if (peerConnection && message) {
             peerConnection.setLocalDescription(sessionDescription);
-            this.sendMessage(outgoingMessage);
+            this.sendMessage(message);
         }
     }
 
     private handleRemoteStreamAdded(event: MediaStreamEvent, id: string) {
         // TODO(yunsi): Send MediaStream to Remote stream component.
+        if (event.stream) {
+            this.remoteStreams[id] = event.stream
+        }
     }
 
     // NOTE(yunsi): When received a RemovePeer event, conference will close that PeerConnection and remove it from the connection list.
@@ -152,23 +164,25 @@ export class Conference extends React.Component<IConferenceProps, void> {
 
         if (peerConnection) {
             peerConnection.close();
-            delete this.peerConnections[id];
         }
+
+        delete this.peerConnections[id];
+        delete this.remoteStreams[id];
     }
 
     private handleCandidateMessage(message: IConfIncomingMessageCandidate) {
         const id = message.from;
         const peerConnection = this.getPeerConnectionById(id);
 
-        if (peerConnection) {
+        if (peerConnection && peerConnection.remoteDescription) {
             peerConnection.addIceCandidate(message.candidate);
         }
     }
 
-    // NOTE(yunsi): When received an Offer event, conference will create a new PeerConnection and add it to the connection list, then create an answer to the offer.
+    // NOTE(yunsi): When received an Offer event, conference will set it as RemoteDescription and create an answer to the offer.
     private handleOfferMessage(message: IConfIncomingMessageOffer) {
         const id = message.from;
-        const peerConnection = this.createPeerConnectionById(id);
+        const peerConnection = this.getPeerConnectionById(id);
 
         if (peerConnection) {
             peerConnection.setRemoteDescription(message.sessionDescription);
