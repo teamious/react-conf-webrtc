@@ -6,6 +6,39 @@ To start developing, first make sure you have installed all of the dependencies:
 npm install
 ```
 
+Next, you should link your local package. This lets you develop + test your packages locally.
+To link `react-conf-webrtc` first CD into the main project directory.
+
+```
+$ cd /path/to/react-conf-webrtc
+```
+
+Then run:
+
+```
+# You might need sudo
+npm link
+```
+
+After that, change into the docs directory:
+
+```
+cd docs
+```
+
+and link the package:
+
+```
+npm link react-conf-webrtc
+```
+
+You will need to run a build in order to test with npm link:
+
+```
+cd  ~/react-conf-webrtc
+npm run build
+```
+
 You can develop in one of two ways: with docker or without docker. The recommended dev environment
 is to use Docker on your machine. You can still develop even if you can't run Docker on your machine.
 

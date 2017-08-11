@@ -32,6 +32,7 @@
     "style-loader": "0.18.2",
     "typescript": "2.4.2",
     "webpack": "3.4.1",
-    "webpack-dev-server": "2.6.1"
+    "webpack-dev-server": "2.6.1",
+    "webrtc-adapter": "4.2.2"
   }
 }
