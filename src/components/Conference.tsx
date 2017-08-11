@@ -207,10 +207,10 @@ export class Conference extends React.Component<IConferenceProps, {}> {
                 .setRemoteDescription(message.sessionDescription)
                 .then(() => {
                     this.processCandidates(id);
-                    peerConnection.createAnswer()
-                        .then(sessionDescription => this.setLocalAndSendMessage(sessionDescription, 'Answer', id))
-                    // TODO(yunsi): Add error handling.
-                });
+                    return peerConnection.createAnswer()
+                })
+                .then(sessionDescription => this.setLocalAndSendMessage(sessionDescription, 'Answer', id))
+            // TODO(yunsi): Add error handling.);
             // TODO(yunsi): Add error handling.
         }
     }
