@@ -106,6 +106,11 @@ export class Conference extends React.Component<IConferenceProps, void> {
     // NOTE(yunsi): When received an AddPeer event, conference will create a new PeerConnection and add it to the connection list.
     private handleAddPeerMessage(message: IConfMessageAddPeer) {
         const id = message.Id;
+
+        if (this.getPeerConnectionById(id)) {
+            console.log('PeerConneciont is already established for the given ID: ' + id);
+            return
+        }
         const peerConnection = this.createPeerConnectionById(id);
 
         // NOTE(yunsi): When two clients both recieved an AddPeer event with the other client's id, they will do a compare to see who should create and send the offer.
