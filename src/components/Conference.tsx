@@ -107,6 +107,7 @@ export class Conference extends React.Component<IConferenceProps, void> {
     private handleAddPeerMessage(message: IConfMessageAddPeer) {
         const id = message.Id;
 
+        // NOTE(yunsi): Check if a PeerConnection is already established for the given ID.
         if (this.getPeerConnectionById(id)) {
             console.log('PeerConneciont is already established for the given ID: ' + id);
             return
