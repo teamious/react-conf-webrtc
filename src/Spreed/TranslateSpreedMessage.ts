@@ -6,7 +6,7 @@ import {
     IConfIncomingMessageCandidate,
     IConfMessageAddPeer,
     IConfMessageRemovePeer,
-} from '../data/Conference'
+} from '../data/ConferenceMessage'
 import {
     SpreedMessageOffer,
     SpreedMessageAnswer,
