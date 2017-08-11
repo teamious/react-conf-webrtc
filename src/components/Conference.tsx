@@ -37,8 +37,8 @@ export class Conference extends React.Component<IConferenceProps, void> {
     private localId: string;
     private candidates: { [id: string]: RTCIceCandidate[] }
 
-    constructor() {
-        super();
+    constructor(props: IConferenceProps) {
+        super(props);
         this.connection = this.props.connect();
         this.joinRoom(this.props.room);
         this.getUserMedia();
