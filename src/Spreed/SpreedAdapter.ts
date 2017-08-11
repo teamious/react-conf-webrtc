@@ -3,7 +3,7 @@ import { SpreedResponse } from './SpreedResponse';
 import {
     IConfOutgoingMessage,
     IConfIncomingMessage,
-} from '../data/Conference'
+} from '../data/ConferenceMessage'
 import { TranslateSpreedMessage } from './TranslateSpreedMessage';
 import { TranslateConferenceMessage } from './TranslateConferenceMessage';
 

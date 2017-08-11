@@ -1,5 +1,5 @@
 import { ConferenceConnection, ConferenceConnectionSubscriber } from '../data/ConferenceConnection';
-import { IConfIncomingMessage, IConfOutgoingMessage } from '../data/Conference';
+import { IConfIncomingMessage, IConfOutgoingMessage } from '../data/ConferenceMessage';
 import { SpreedConnection } from './SpreedConnection';
 import { SpreedAdapter } from './SpreedAdapter';
 

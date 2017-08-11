@@ -11,7 +11,7 @@ import {
     IConfOutgoingMessageOffer,
     IConfOutgoingMessageAnswer,
     IConfMessageJoin,
-} from '../data/Conference';
+} from '../data/ConferenceMessage';
 import {
     SpreedRequest,
     SpreedRequestCandidate,
