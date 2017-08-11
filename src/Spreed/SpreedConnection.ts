@@ -35,7 +35,7 @@ export class SpreedConnection {
     }
 
     private processRequests() {
-        while (this.responses.length > 0) {
+        while (this.requests.length > 0) {
             const req = this.requests.shift();
             if (req) {
                 this.send(req);
@@ -62,8 +62,8 @@ export class SpreedConnection {
         this.requests.push(message);
     }
 
-    private hasOpenConnection() {
-        this.conn.readyState === this.conn.OPEN;
+    private hasOpenConnection(): boolean {
+        return this.conn.readyState === this.conn.OPEN;
     }
 
     // NOTE(andrews): onConnMessage is called whenever the WebSocket connection

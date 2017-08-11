@@ -6,6 +6,7 @@ import {
     IConfIncomingMessageCandidate,
     IConfMessageAddPeer,
     IConfMessageRemovePeer,
+    IConfMessageSelf,
 } from '../data/ConferenceMessage'
 import {
     SpreedMessageOffer,
@@ -14,6 +15,8 @@ import {
     SpreedMessageJoined,
     SpreedMessageLeft,
     SpreedMessageWelcome,
+    SpreedMessageSelf,
+    SpreedMessageConference,
 } from './SpreedMessage';
 
 // NOTE(andrews): TranslateSpreedMessage delegates the work of translating the message
@@ -34,6 +37,10 @@ export function TranslateSpreedMessage(message: SpreedResponse): IConfIncomingMe
             return translateLeftMessage(message.Data, message);
         case 'Welcome':
             return translateWelcomeMessage(message.Data, message);
+        case 'Self':
+            return translateSelfMessage(message.Data, message);
+        case 'Conference':
+            return translateConferenceMessage(message.Data, message);
         default:
             return undefined;
     }
@@ -46,6 +53,22 @@ function translateWelcomeMessage(data: SpreedMessageWelcome, message: SpreedResp
             Id: u.Id,
         }
     });
+}
+
+function translateConferenceMessage(data: SpreedMessageConference, message: SpreedResponse): IConfMessageAddPeer[] | undefined {
+    return data.Conference.map<IConfMessageAddPeer>(Id => {
+        return {
+            type: 'AddPeer',
+            Id,
+        }
+    })
+}
+
+function translateSelfMessage(data: SpreedMessageSelf, message: SpreedResponse): IConfMessageSelf | undefined {
+    return {
+        type: 'Self',
+        Id: data.Id,
+    }
 }
 
 function translateLeftMessage(data: SpreedMessageLeft, message: SpreedResponse): IConfMessageRemovePeer | undefined {
