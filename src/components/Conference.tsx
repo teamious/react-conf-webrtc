@@ -187,7 +187,8 @@ export class Conference extends React.Component<IConferenceProps, {}> {
 
         // NOTE(yunsi): Check if remoteDescription exist before call addIceCandidate, if remoteDescription doesn't exist put candidate information in a queue.
         if (peerConnection && peerConnection.remoteDescription) {
-            peerConnection.addIceCandidate(message.candidate);
+            const rtcIceCandidate = this.createRTCIceCandidate(message.candidate);
+            peerConnection.addIceCandidate(rtcIceCandidate);
         } else {
             if (this.candidates[id]) {
                 this.candidates[id].push(message.candidate);
@@ -197,14 +198,21 @@ export class Conference extends React.Component<IConferenceProps, {}> {
         }
     }
 
+    // NOTE(yunsi): Convert the RTCIceCandidate JSON object to an actual RTCIceCandidate object.
+    // TODO(yunsi): Find a better solution besides type cast.
+    private createRTCIceCandidate(candidate: RTCIceCandidate) {
+        return new RTCIceCandidate(candidate as RTCIceCandidateInit)
+    }
+
     // NOTE(yunsi): When received an Offer event, conference will set it as RemoteDescription and create an answer to the offer.
     private handleOfferMessage(message: IConfIncomingMessageOffer) {
         const id = message.from;
         const peerConnection = this.getPeerConnectionById(id);
 
         if (peerConnection) {
+            const rtcSessionDescription = this.createRTCSessionDescription(message.sessionDescription)
             peerConnection
-                .setRemoteDescription(message.sessionDescription)
+                .setRemoteDescription(rtcSessionDescription)
                 .then(() => {
                     this.processCandidates(id);
                     return peerConnection.createAnswer()
@@ -214,13 +222,19 @@ export class Conference extends React.Component<IConferenceProps, {}> {
         }
     }
 
+    // NOTE(yunsi): Convert the RTCSessionDescription JSON object to an actual RTCSessionDescription object.
+    private createRTCSessionDescription(sessionDescription: RTCSessionDescription) {
+        return new RTCSessionDescription(sessionDescription as RTCSessionDescriptionInit)
+    }
+
     private handleAnswerMessage(message: IConfIncomingMessageAnswer) {
         const id = message.from;
         const peerConnection = this.getPeerConnectionById(id);
 
         if (peerConnection) {
+            const rtcSessionDescription = this.createRTCSessionDescription(message.sessionDescription)
             peerConnection
-                .setRemoteDescription(message.sessionDescription)
+                .setRemoteDescription(rtcSessionDescription)
                 .then(() => this.processCandidates(id));
             // TODO(yunsi): Add error handling.
         }
@@ -233,7 +247,8 @@ export class Conference extends React.Component<IConferenceProps, {}> {
             while (this.candidates[id].length > 0) {
                 const candidate = this.candidates[id].shift();
                 if (candidate) {
-                    peerConnection.addIceCandidate(candidate);
+                    const rtcIceCandidate = this.createRTCIceCandidate(candidate);
+                    peerConnection.addIceCandidate(rtcIceCandidate);
                 }
             }
         }
