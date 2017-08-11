@@ -27,7 +27,9 @@ export class SpreedAdapter {
             msg.forEach(m => {
                 this.sendConferenceMessage(m);
             });
+            return
         }
+        this.sendConferenceMessage(msg);
     }
 
     // NOTE(andrews): handleConferenceMessage should be called whenever you want to translate a message from conference -> spreed.
