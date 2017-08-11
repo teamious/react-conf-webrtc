@@ -23,7 +23,11 @@ export class SpreedAdapter {
             console.log('handleSpreedMessage(): No translation was found for SpreedResponse type: %s', message.Data.Type);
             return;
         }
-        this.sendConferenceMessage(msg);
+        if (msg instanceof Array) {
+            msg.forEach(m => {
+                this.sendConferenceMessage(m);
+            });
+        }
     }
 
     // NOTE(andrews): handleConferenceMessage should be called whenever you want to translate a message from conference -> spreed.

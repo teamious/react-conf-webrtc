@@ -13,12 +13,14 @@ import {
     SpreedMessageCandidate,
     SpreedMessageJoined,
     SpreedMessageLeft,
+    SpreedMessageWelcome,
 } from './SpreedMessage';
 
 // NOTE(andrews): TranslateSpreedMessage delegates the work of translating the message
 // to individual functions based on the message type. Not all message types need to be translated
 // into an IConfIncomingMessage. In such cases, this function will return undefined.
-export function TranslateSpreedMessage(message: SpreedResponse): IConfIncomingMessage | undefined {
+// Note that some spreed messages may translate to an array of Conference messages.
+export function TranslateSpreedMessage(message: SpreedResponse): IConfIncomingMessage[] | IConfIncomingMessage | undefined {
     switch (message.Data.Type) {
         case 'Offer':
             return translateOfferMessage(message.Data, message)
@@ -30,9 +32,20 @@ export function TranslateSpreedMessage(message: SpreedResponse): IConfIncomingMe
             return translateJoinedMessage(message.Data, message);
         case 'Left':
             return translateLeftMessage(message.Data, message);
+        case 'Welcome':
+            return translateWelcomeMessage(message.Data, message);
         default:
             return undefined;
     }
+}
+
+function translateWelcomeMessage(data: SpreedMessageWelcome, message: SpreedResponse): IConfMessageAddPeer[] | undefined {
+    return data.Users.map<IConfMessageAddPeer>(u => {
+        return {
+            type: 'AddPeer',
+            Id: u.Id,
+        }
+    });
 }
 
 function translateLeftMessage(data: SpreedMessageLeft, message: SpreedResponse): IConfMessageRemovePeer | undefined {
