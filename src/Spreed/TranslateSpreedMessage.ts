@@ -6,6 +6,7 @@ import {
     IConfIncomingMessageCandidate,
     IConfMessageAddPeer,
     IConfMessageRemovePeer,
+    IConfMessageSelf,
 } from '../data/ConferenceMessage'
 import {
     SpreedMessageOffer,
@@ -13,6 +14,7 @@ import {
     SpreedMessageCandidate,
     SpreedMessageJoined,
     SpreedMessageLeft,
+    SpreedMessageSelf,
 } from './SpreedMessage';
 
 // NOTE(andrews): TranslateSpreedMessage delegates the work of translating the message
@@ -30,8 +32,17 @@ export function TranslateSpreedMessage(message: SpreedResponse): IConfIncomingMe
             return translateJoinedMessage(message.Data, message);
         case 'Left':
             return translateLeftMessage(message.Data, message);
+        case 'Self':
+            return translateSelfMessage(message.Data, message);
         default:
             return undefined;
+    }
+}
+
+function translateSelfMessage(data: SpreedMessageSelf, message: SpreedResponse): IConfMessageSelf | undefined {
+    return {
+        type: 'Self',
+        Id: data.Id,
     }
 }
 
