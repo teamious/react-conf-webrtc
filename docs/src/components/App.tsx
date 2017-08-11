@@ -2,9 +2,16 @@ import 'webrtc-adapter';
 import * as React from 'react';
 import { Conference, Connect } from 'react-conf-webrtc';
 
+const config: RTCConfiguration = {
+    'iceServers': [
+        {'urls': 'stun:stun.services.mozilla.com'},
+        {'urls': 'stun:stun.l.google.com:19302'}
+    ]
+};
+
 export const App = () => {
     return (
-        <Conference connect={connect} room='conference/main'/>
+        <Conference connect={connect} room='conference/main' peerConnectionConfig={}/>
     );
 }
 
