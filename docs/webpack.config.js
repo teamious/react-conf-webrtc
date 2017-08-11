@@ -35,6 +35,10 @@ envConfig['NODE_ENV'] = JSON.stringify(NODE_ENV);
 // NOTE(andrews): Eliminate double quoted string for FAVICON_URL.
 var faviconUrl = JSON.parse(envConfig['FAVICON_URL'])
 
+var alias = {
+    'react': path.resolve(__dirname, 'node_modules', 'react'),
+}
+
 module.exports = {
     entry: './src/index.tsx',
     output: {
@@ -46,7 +50,11 @@ module.exports = {
     devtool: 'source-map',
 
     resolve: {
-        extensions: ['.ts', '.tsx', '.js', '.json']
+        extensions: ['.ts', '.tsx', '.js', '.json'],
+        modules: [
+            'node_modules'
+        ],
+        alias: alias,
     },
 
     devServer: {

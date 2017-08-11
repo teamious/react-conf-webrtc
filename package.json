@@ -6,6 +6,7 @@
   "scripts": {
     "clean": "rimraf dist",
     "build": "tsc",
+    "build:watch": "tsc -w",
     "publish:patch": "npm run clean && npm run build && npm version patch -f && npm publish"
   },
   "author": "",
