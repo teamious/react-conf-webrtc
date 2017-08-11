@@ -35,7 +35,7 @@ export class Conference extends React.Component<IConferenceProps, {}> {
     private localId: string;
     private peerConnections: { [id: string]: RTCPeerConnection } = {};
     private remoteStreams: { [id: string]: MediaStream } = {};
-    private candidates: { [id: string]: RTCIceCandidate[] } ={};
+    private candidates: { [id: string]: RTCIceCandidate[] } = {};
 
     constructor(props: IConferenceProps) {
         super(props);
@@ -116,9 +116,9 @@ export class Conference extends React.Component<IConferenceProps, {}> {
 
         // NOTE(yunsi): When two clients both recieved an AddPeer event with the other client's id, they will do a compare to see who should create and send the offer.
         if (this.localId.localeCompare(id) === 1) {
-            peerConnection.createOffer(
-                sessionDescription => this.setLocalAndSendMessage(sessionDescription, 'Offer', id)
-            )
+            peerConnection
+                .createOffer()
+                .then(sessionDescription => this.setLocalAndSendMessage(sessionDescription, 'Offer', id))
             // TODO(yunsi): Add error handling.
         }
     }
@@ -185,6 +185,7 @@ export class Conference extends React.Component<IConferenceProps, {}> {
         const id = message.from;
         const peerConnection = this.getPeerConnectionById(id);
 
+        // NOTE(yunsi): Check if remoteDescription exist before call addIceCandidate, if remoteDescription doesn't exist put candidate information in a queue.
         if (peerConnection && peerConnection.remoteDescription) {
             peerConnection.addIceCandidate(message.candidate);
         } else {
@@ -202,13 +203,13 @@ export class Conference extends React.Component<IConferenceProps, {}> {
         const peerConnection = this.getPeerConnectionById(id);
 
         if (peerConnection) {
-            peerConnection.setRemoteDescription(message.sessionDescription, () => {
-                this.processCandidates(id);
-                peerConnection.createAnswer(
-                    sessionDescription => this.setLocalAndSendMessage(sessionDescription, 'Answer', id)
-                )
-                // TODO(yunsi): Add error handling.
-            });
+            peerConnection
+                .setRemoteDescription(message.sessionDescription)
+                .then(() => {
+                    this.processCandidates(id);
+                    return peerConnection.createAnswer()
+                })
+                .then(sessionDescription => this.setLocalAndSendMessage(sessionDescription, 'Answer', id))
             // TODO(yunsi): Add error handling.
         }
     }
@@ -218,9 +219,9 @@ export class Conference extends React.Component<IConferenceProps, {}> {
         const peerConnection = this.getPeerConnectionById(id);
 
         if (peerConnection) {
-            peerConnection.setRemoteDescription(message.sessionDescription, () => {
-                this.processCandidates(id);
-            });
+            peerConnection
+                .setRemoteDescription(message.sessionDescription)
+                .then(() => this.processCandidates(id));
             // TODO(yunsi): Add error handling.
         }
     }
