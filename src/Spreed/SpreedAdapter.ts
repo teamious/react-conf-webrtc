@@ -23,6 +23,12 @@ export class SpreedAdapter {
             console.log('handleSpreedMessage(): No translation was found for SpreedResponse type: %s', message.Data.Type);
             return;
         }
+        if (msg instanceof Array) {
+            msg.forEach(m => {
+                this.sendConferenceMessage(m);
+            });
+            return
+        }
         this.sendConferenceMessage(msg);
     }
 
