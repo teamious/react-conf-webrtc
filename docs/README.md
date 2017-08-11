@@ -36,7 +36,7 @@ You will need to run a build in order to test with npm link:
 
 ```
 cd  ~/react-conf-webrtc
-npm run build
+npm run build:watch
 ```
 
 You can develop in one of two ways: with docker or without docker. The recommended dev environment
