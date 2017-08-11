@@ -22,6 +22,7 @@ import {
 export interface IConferenceProps {
     connect: () => ConferenceConnection;
     room: string;
+    peerConnectionConfig: RTCConfiguration;
 }
 
 const userMediaConfig = {
@@ -125,7 +126,7 @@ export class Conference extends React.Component<IConferenceProps, {}> {
 
     private createPeerConnectionById(id: string) {
         // TODO(yunsi): Add RTCPeerConnection config.
-        const peerConnection = new RTCPeerConnection({});
+        const peerConnection = new RTCPeerConnection(this.props.peerConnectionConfig);
         peerConnection.onicecandidate = (event) => {
             this.handleIceCandidate(event, id)
         };
