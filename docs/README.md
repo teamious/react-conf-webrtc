@@ -50,6 +50,8 @@ With Docker installed on your machine you can start the dev environment with the
 npm start
 ```
 
+**NOTE: This script assumes you are able to run docker with non-root access (you don't need to use `sudo docker ...`). You can learn how to do that here https://askubuntu.com/questions/477551/how-can-i-use-docker-without-sudo**
+
 This does the following:
 - start webpack-dev-server
 - pull the spreed/webrtc image from Docker registry
