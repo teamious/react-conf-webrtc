@@ -35,7 +35,7 @@ export class SpreedConnection {
     }
 
     private processRequests() {
-        while (this.responses.length > 0) {
+        while (this.requests.length > 0) {
             const req = this.requests.shift();
             if (req) {
                 this.send(req);
