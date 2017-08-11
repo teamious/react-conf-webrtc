@@ -29,13 +29,13 @@ const userMediaConfig = {
     video: true,
 }
 
-export class Conference extends React.Component<IConferenceProps, void> {
+export class Conference extends React.Component<IConferenceProps, {}> {
     private connection: ConferenceConnection;
-    private peerConnections: { [id: string]: RTCPeerConnection };
     private localStream: MediaStream;
-    private remoteStreams: { [id: string]: MediaStream };
     private localId: string;
-    private candidates: { [id: string]: RTCIceCandidate[] }
+    private peerConnections: { [id: string]: RTCPeerConnection } = {};
+    private remoteStreams: { [id: string]: MediaStream } = {};
+    private candidates: { [id: string]: RTCIceCandidate[] } ={};
 
     constructor(props: IConferenceProps) {
         super(props);
