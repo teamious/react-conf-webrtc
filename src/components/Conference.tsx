@@ -210,7 +210,6 @@ export class Conference extends React.Component<IConferenceProps, {}> {
                     return peerConnection.createAnswer()
                 })
                 .then(sessionDescription => this.setLocalAndSendMessage(sessionDescription, 'Answer', id))
-            // TODO(yunsi): Add error handling.);
             // TODO(yunsi): Add error handling.
         }
     }
