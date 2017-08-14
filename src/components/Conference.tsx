@@ -262,6 +262,7 @@ export class Conference extends React.Component<IConferenceProps, {}> {
         const peerConnection = this.getPeerConnectionById(id);
         if (!peerConnection) {
             console.warn('processCandidates(): Missing connection Id: %s', id);
+            return
         }
 
         if (this.candidates[id]) {
