@@ -13,7 +13,7 @@ export function createOutgoingMessageJoin(room: string): IConfMessageJoin {
     }
 }
 
-export function createOutgoingMessageCandidate(candidate: RTCIceCandidate, id: string): IConfOutgoingMessageCandidate {
+export function createOutgoingMessageCandidate(candidate: RTCIceCandidateInit, id: string): IConfOutgoingMessageCandidate {
     return {
         type: 'Candidate',
         candidate: candidate,
@@ -21,7 +21,7 @@ export function createOutgoingMessageCandidate(candidate: RTCIceCandidate, id: s
     }
 }
 
-export function createOutgoingMessageOffer(sessionDescription: RTCSessionDescription, id: string): IConfOutgoingMessageOffer {
+export function createOutgoingMessageOffer(sessionDescription: RTCSessionDescriptionInit, id: string): IConfOutgoingMessageOffer {
     return {
         type: 'Offer',
         sessionDescription: sessionDescription,
@@ -29,7 +29,7 @@ export function createOutgoingMessageOffer(sessionDescription: RTCSessionDescrip
     }
 }
 
-export function createOutgoingMessageAnswer(sessionDescription: RTCSessionDescription, id: string): IConfOutgoingMessageAnswer {
+export function createOutgoingMessageAnswer(sessionDescription: RTCSessionDescriptionInit, id: string): IConfOutgoingMessageAnswer {
     return {
         type: 'Answer',
         sessionDescription: sessionDescription,

@@ -43,7 +43,7 @@ export interface IConfOutgoingMessageId {
 
 export interface IConfMessageCandidate {
     type: 'Candidate';
-    candidate: RTCIceCandidate;
+    candidate: RTCIceCandidateInit;
 }
 
 // NOTE(yunsi): IConfIncomingMessageCandidate contains the IceCandidate information you received from other clients.
@@ -54,7 +54,7 @@ export interface IConfOutgoingMessageCandidate extends IConfMessageCandidate, IC
 
 export interface IConfMessageOffer {
     type: 'Offer';
-    sessionDescription: RTCSessionDescription;
+    sessionDescription: RTCSessionDescriptionInit;
 }
 
 // NOTE(yunsi): IConfIncomingMessageOffer contains the offer you received from other clients.
@@ -65,7 +65,7 @@ export interface IConfOutgoingMessageOffer extends IConfMessageOffer, IConfOutgo
 
 export interface IConfMessageAnswer {
     type: 'Answer';
-    sessionDescription: RTCSessionDescription;
+    sessionDescription: RTCSessionDescriptionInit;
 }
 
 // NOTE(yunsi): IConfIncomingMessageAnswer contains the answer you received from other clients.
