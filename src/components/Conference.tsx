@@ -37,7 +37,7 @@ export class Conference extends React.Component<IConferenceProps, {}> {
     private localId: string;
     private peerConnections: { [id: string]: RTCPeerConnection } = {};
     private remoteStreams: { [id: string]: MediaStream } = {};
-    private candidates: { [id: string]: RTCIceCandidate[] } = {};
+    private candidates: { [id: string]: RTCIceCandidateInit[] } = {};
 
     constructor(props: IConferenceProps) {
         super(props);
@@ -110,10 +110,13 @@ export class Conference extends React.Component<IConferenceProps, {}> {
     // NOTE(yunsi): When received an AddPeer event, conference will create a new PeerConnection and add it to the connection list.
     private handleAddPeerMessage(message: IConfMessageAddPeer) {
         const id = message.Id;
+        if (id === this.localId) {
+            return;
+        }
 
         // NOTE(yunsi): Check if a PeerConnection is already established for the given ID.
         if (this.getPeerConnectionById(id)) {
-            console.log('PeerConneciont is already established for the given ID: ' + id);
+            console.log('PeerConnection is already established for the given ID: ' + id);
             return
         }
         const peerConnection = this.createPeerConnectionById(id);
@@ -144,21 +147,26 @@ export class Conference extends React.Component<IConferenceProps, {}> {
 
     private handleIceCandidate(event: RTCPeerConnectionIceEvent, id: string) {
         if (event.candidate) {
-            const message = createOutgoingMessageCandidate(event.candidate, id);
+            const message = createOutgoingMessageCandidate(event.candidate.toJSON(), id);
             this.sendMessage(message);
         }
     }
 
     private setLocalAndSendMessage(sessionDescription: RTCSessionDescription, type: string, id: string) {
         const peerConnection = this.getPeerConnectionById(id);
-        let message;
-        if (type === 'Offer') {
-            message = createOutgoingMessageOffer(sessionDescription, id);
-        } else if (type === 'Answer') {
-            message = createOutgoingMessageAnswer(sessionDescription, id);
+        if (!peerConnection) {
+            console.warn('setLocalAndSendMessage(): Missing connection Id: %s');
+            return
         }
 
-        if (peerConnection && message) {
+        let message;
+        if (type === 'Offer') {
+            message = createOutgoingMessageOffer(sessionDescription.toJSON(), id);
+        } else if (type === 'Answer') {
+            message = createOutgoingMessageAnswer(sessionDescription.toJSON(), id);
+        }
+
+        if (message) {
             peerConnection.setLocalDescription(sessionDescription);
             // TODO(yunsi): Add error handling.
             this.sendMessage(message);
@@ -179,6 +187,8 @@ export class Conference extends React.Component<IConferenceProps, {}> {
 
         if (peerConnection) {
             peerConnection.close();
+        } else {
+            console.warn('handleRemovePeerMessage(): Missing connection Id: %s', id);
         }
 
         delete this.peerConnections[id];
@@ -188,9 +198,13 @@ export class Conference extends React.Component<IConferenceProps, {}> {
     private handleCandidateMessage(message: IConfIncomingMessageCandidate) {
         const id = message.from;
         const peerConnection = this.getPeerConnectionById(id);
+        if (!peerConnection) {
+            console.warn('handleCandidateMessage(): Missing connection Id: %s');
+            return
+        }
 
         // NOTE(yunsi): Check if remoteDescription exist before call addIceCandidate, if remoteDescription doesn't exist put candidate information in a queue.
-        if (peerConnection && peerConnection.remoteDescription) {
+        if (peerConnection.remoteDescription) {
             const rtcIceCandidate = this.createRTCIceCandidate(message.candidate);
             peerConnection.addIceCandidate(rtcIceCandidate);
         } else {
@@ -204,8 +218,8 @@ export class Conference extends React.Component<IConferenceProps, {}> {
 
     // NOTE(yunsi): Convert the RTCIceCandidate JSON object to an actual RTCIceCandidate object.
     // TODO(yunsi): Find a better solution besides type cast.
-    private createRTCIceCandidate(candidate: RTCIceCandidate) {
-        return new RTCIceCandidate(candidate as RTCIceCandidateInit)
+    private createRTCIceCandidate(candidate: RTCIceCandidateInit) {
+        return new RTCIceCandidate(candidate)
     }
 
     // NOTE(yunsi): When received an Offer event, conference will set it as RemoteDescription and create an answer to the offer.
@@ -213,41 +227,51 @@ export class Conference extends React.Component<IConferenceProps, {}> {
         const id = message.from;
         const peerConnection = this.getPeerConnectionById(id);
 
-        if (peerConnection) {
-            const rtcSessionDescription = this.createRTCSessionDescription(message.sessionDescription)
-            peerConnection
-                .setRemoteDescription(rtcSessionDescription)
-                .then(() => {
-                    this.processCandidates(id);
-                    return peerConnection.createAnswer()
-                })
-                .then(sessionDescription => this.setLocalAndSendMessage(sessionDescription, 'Answer', id))
-            // TODO(yunsi): Add error handling.
+        if (!peerConnection) {
+            console.warn('handleOfferMessage(): Missing connection Id: %s', id);
+            return
         }
+
+        const rtcSessionDescription = this.createRTCSessionDescription(message.sessionDescription)
+        peerConnection
+            .setRemoteDescription(rtcSessionDescription)
+            .then(() => {
+                this.processCandidates(id);
+                return peerConnection.createAnswer()
+            })
+            .then(sessionDescription => this.setLocalAndSendMessage(sessionDescription, 'Answer', id))
+        // TODO(yunsi): Add error handling.
     }
 
     // NOTE(yunsi): Convert the RTCSessionDescription JSON object to an actual RTCSessionDescription object.
-    private createRTCSessionDescription(sessionDescription: RTCSessionDescription) {
-        return new RTCSessionDescription(sessionDescription as RTCSessionDescriptionInit)
+    private createRTCSessionDescription(sessionDescription: RTCSessionDescriptionInit) {
+        return new RTCSessionDescription(sessionDescription)
     }
 
     private handleAnswerMessage(message: IConfIncomingMessageAnswer) {
         const id = message.from;
         const peerConnection = this.getPeerConnectionById(id);
 
-        if (peerConnection) {
-            const rtcSessionDescription = this.createRTCSessionDescription(message.sessionDescription)
-            peerConnection
-                .setRemoteDescription(rtcSessionDescription)
-                .then(() => this.processCandidates(id));
-            // TODO(yunsi): Add error handling.
+        if (!peerConnection) {
+            console.warn('handleAnswerMessage(): Missing connection Id: %s', id);
+            return
         }
+
+        const rtcSessionDescription = this.createRTCSessionDescription(message.sessionDescription)
+        peerConnection
+            .setRemoteDescription(rtcSessionDescription)
+            .then(() => this.processCandidates(id));
+        // TODO(yunsi): Add error handling.
     }
 
     private processCandidates(id: string) {
         const peerConnection = this.getPeerConnectionById(id);
+        if (!peerConnection) {
+            console.warn('processCandidates(): Missing connection Id: %s', id);
+            return
+        }
 
-        if (peerConnection && this.candidates[id]) {
+        if (this.candidates[id]) {
             while (this.candidates[id].length > 0) {
                 const candidate = this.candidates[id].shift();
                 if (candidate) {
@@ -259,10 +283,6 @@ export class Conference extends React.Component<IConferenceProps, {}> {
     }
 
     private getPeerConnectionById(id: string) {
-        if (this.peerConnections[id]) {
-            return this.peerConnections[id]
-        } else {
-            console.log('Can not find PeerConneciotn by id: ' + id);
-        }
+        return this.peerConnections[id]
     }
 }

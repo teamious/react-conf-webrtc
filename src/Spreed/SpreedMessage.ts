@@ -19,7 +19,7 @@ export interface SpreedMessageCandidate {
 }
 
 // NOTE(andrews): SpreedICECandidate extends the RTCIceCandidate interface.
-export interface SpreedICECandidate extends RTCIceCandidate {
+export interface SpreedICECandidate extends RTCIceCandidateInit {
     type: 'candidate';
 }
 
@@ -44,7 +44,7 @@ export interface SpreedMessageWelcome {
 export interface SpreedMessageAnswer {
     Type: 'Answer';
     To: SpreedUserID;
-    Answer: RTCSessionDescription;
+    Answer: RTCSessionDescriptionInit;
 }
 
 // NOTE(andrews): SpreedMessageLeft is triggered and sent to all clients when a user has left the room.
@@ -102,7 +102,7 @@ export interface SpreedMessageJoined {
 // an offer.
 export interface SpreedMessageOffer {
     Type: 'Offer';
-    Offer: RTCSessionDescription;
+    Offer: RTCSessionDescriptionInit;
     To: SpreedUserID;
 }
 
