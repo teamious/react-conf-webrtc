@@ -178,11 +178,13 @@ export class Conference extends React.Component<IConferenceProps, {}> {
     private handleRemovePeerMessage(message: IConfMessageRemovePeer) {
         const id = message.Id;
         const peerConnection = this.getPeerConnectionById(id);
-        if (!peerConnection) {
-            console.log('handleRemovePeerMessage(): Missing connection Id: %s', id);
-            return
+
+        if (peerConnection) {
+            peerConnection.close();
+        } else {
+            console.warn('handleRemovePeerMessage(): Missing connection Id: %s', id);
         }
-        peerConnection.close();
+
         delete this.peerConnections[id];
         delete this.remoteStreams[id];
     }
