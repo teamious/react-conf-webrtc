@@ -18,6 +18,7 @@ import {
     createOutgoingMessageAnswer,
     createOutgoingMessageBye
 } from '../services/ConferenceService';
+import { MediaControl } from './controls/MediaControl';
 
 export interface IConferenceProps {
     connect: () => ConferenceConnection;
@@ -45,12 +46,16 @@ export class Conference extends React.Component<IConferenceProps, {}> {
         this.getUserMedia();
 
         this.handleIncomingMessage = this.handleIncomingMessage.bind(this);
+        this.onToggleLocalMute = this.onToggleLocalMute.bind(this);
+        this.onToggleLocalDisable = this.onToggleLocalDisable.bind(this);
     }
 
     // TODO(yunsi): Complete display view.
     public render() {
         return (
-            <div />
+            <div className='conference'>
+                <MediaControl onToggleMute={this.onToggleLocalMute} onToggleDisable={this.onToggleLocalDisable} />
+            </div>
         )
     }
 
@@ -281,5 +286,21 @@ export class Conference extends React.Component<IConferenceProps, {}> {
 
     private getPeerConnectionById(id: string) {
         return this.peerConnections[id]
+    }
+
+    private onToggleLocalMute(event: any) {
+        if (!this.localStream) {
+            console.warn('No local stream');
+            return;
+        }
+        this.localStream.getAudioTracks()[0].enabled = !this.localStream.getAudioTracks()[0].enabled
+    }
+
+    private onToggleLocalDisable(event: any) {
+        if (!this.localStream) {
+            console.warn('No local stream');
+            return;
+        }
+        this.localStream.getVideoTracks()[0].enabled = !this.localStream.getVideoTracks()[0].enabled
     }
 }
