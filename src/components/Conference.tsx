@@ -1,6 +1,5 @@
 import * as React from 'react';
 
-import { ConferenceView } from './ConferenceView';
 import {
     ConferenceConnection,
     IConfIncomingMessage,
@@ -19,6 +18,8 @@ import {
     createOutgoingMessageAnswer,
     createOutgoingMessageBye
 } from '../services/ConferenceService';
+import { LocalStream } from './controls/LocalStream';
+import { RemoteStream } from './controls/RemoteStream';
 
 export interface IConferenceProps {
     connect: () => ConferenceConnection;
@@ -48,11 +49,11 @@ export class Conference extends React.Component<IConferenceProps, {}> {
         this.handleIncomingMessage = this.handleIncomingMessage.bind(this);
     }
 
-    // TODO(yunsi): Complete display view.
     public render() {
         return (
-            <div>
-                <ConferenceView localStream={this.localStream} remoteStreams={this.remoteStreams}/>
+            <div className='conference'>
+                <LocalStream localStream={this.localStream} />
+                <RemoteStream remoteStream={this.remoteStreams} />
             </div>
         )
     }
