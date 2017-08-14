@@ -36,7 +36,7 @@ export class Conference extends React.Component<IConferenceProps, {}> {
     private localId: string;
     private peerConnections: { [id: string]: RTCPeerConnection } = {};
     private remoteStreams: { [id: string]: MediaStream } = {};
-    private candidates: { [id: string]: RTCIceCandidate[] } = {};
+    private candidates: { [id: string]: RTCIceCandidateInit[] } = {};
 
     constructor(props: IConferenceProps) {
         super(props);
@@ -141,7 +141,7 @@ export class Conference extends React.Component<IConferenceProps, {}> {
 
     private handleIceCandidate(event: RTCPeerConnectionIceEvent, id: string) {
         if (event.candidate) {
-            const message = createOutgoingMessageCandidate(event.candidate, id);
+            const message = createOutgoingMessageCandidate(event.candidate.toJSON(), id);
             this.sendMessage(message);
         }
     }
@@ -150,9 +150,9 @@ export class Conference extends React.Component<IConferenceProps, {}> {
         const peerConnection = this.getPeerConnectionById(id);
         let message;
         if (type === 'Offer') {
-            message = createOutgoingMessageOffer(sessionDescription, id);
+            message = createOutgoingMessageOffer(sessionDescription.toJSON(), id);
         } else if (type === 'Answer') {
-            message = createOutgoingMessageAnswer(sessionDescription, id);
+            message = createOutgoingMessageAnswer(sessionDescription.toJSON(), id);
         }
 
         if (peerConnection && message) {
@@ -201,8 +201,8 @@ export class Conference extends React.Component<IConferenceProps, {}> {
 
     // NOTE(yunsi): Convert the RTCIceCandidate JSON object to an actual RTCIceCandidate object.
     // TODO(yunsi): Find a better solution besides type cast.
-    private createRTCIceCandidate(candidate: RTCIceCandidate) {
-        return new RTCIceCandidate(candidate as RTCIceCandidateInit)
+    private createRTCIceCandidate(candidate: RTCIceCandidateInit) {
+        return new RTCIceCandidate(candidate)
     }
 
     // NOTE(yunsi): When received an Offer event, conference will set it as RemoteDescription and create an answer to the offer.
@@ -224,8 +224,8 @@ export class Conference extends React.Component<IConferenceProps, {}> {
     }
 
     // NOTE(yunsi): Convert the RTCSessionDescription JSON object to an actual RTCSessionDescription object.
-    private createRTCSessionDescription(sessionDescription: RTCSessionDescription) {
-        return new RTCSessionDescription(sessionDescription as RTCSessionDescriptionInit)
+    private createRTCSessionDescription(sessionDescription: RTCSessionDescriptionInit) {
+        return new RTCSessionDescription(sessionDescription)
     }
 
     private handleAnswerMessage(message: IConfIncomingMessageAnswer) {

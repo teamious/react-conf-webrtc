@@ -68,7 +68,7 @@ function translateOfferMessage(message: IConfOutgoingMessageOffer): SpreedReques
 
 function translateCandidateMessage(message: IConfOutgoingMessageCandidate): SpreedRequestCandidate {
     const Candidate: SpreedICECandidate = {
-        ...message.candidate.toJSON(),
+        ...message.candidate,
         type: 'candidate',
     }
     return createCandidateRequest({
