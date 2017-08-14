@@ -1,5 +1,6 @@
 import * as React from 'react';
 
+import { ConferenceView } from './ConferenceView';
 import {
     ConferenceConnection,
     IConfIncomingMessage,
@@ -50,7 +51,9 @@ export class Conference extends React.Component<IConferenceProps, {}> {
     // TODO(yunsi): Complete display view.
     public render() {
         return (
-            <div />
+            <div>
+                <ConferenceView localStream={this.localStream} remoteStreams={this.remoteStreams}/>
+            </div>
         )
     }
 
