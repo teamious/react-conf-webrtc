@@ -5,7 +5,7 @@ export interface IStreamProps {
     // TODO(yunsi): Need to figure out if we want
     // 1: each client get their own audioActivityLevel and send to other clients through RTCDataChannel.
     // or 2: each client get the remote clients' audioActivityLevel from the remote stream.
-    audioActivityLevel?: number;
+    // audioActivityLevel?: number;
 };
 
 export interface IStreamState { };
