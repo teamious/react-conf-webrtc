@@ -11,7 +11,7 @@ const config: RTCConfiguration = {
 
 export const App = () => {
     return (
-        <Conference connect={connect} room='conference/main' peerConnectionConfig={}/>
+        <Conference connect={connect} room='conference/main' peerConnectionConfig={config}/>
     );
 }
 
