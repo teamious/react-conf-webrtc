@@ -18,8 +18,7 @@ import {
     createOutgoingMessageAnswer,
     createOutgoingMessageBye
 } from '../services/ConferenceService';
-import { LocalStream } from './controls/LocalStream';
-import { RemoteStream } from './controls/RemoteStream';
+import { Stream } from './controls/Stream';
 
 export interface IConferenceProps {
     connect: () => ConferenceConnection;
@@ -52,8 +51,14 @@ export class Conference extends React.Component<IConferenceProps, {}> {
     public render() {
         return (
             <div className='conference'>
-                <LocalStream localStream={this.localStream} />
-                <RemoteStream remoteStream={this.remoteStreams} />
+                <div className='local-media-stream'>
+                    <Stream className='local-media-stream-component'stream={this.localStream} />
+                </div>
+                <div className='remote-media-stream'>
+                    {Object.keys(this.remoteStreams).map(id => {
+                        return <Stream className='remote-media-stream-component'stream={this.remoteStreams[id]} />
+                    })}
+                </div>
             </div>
         )
     }
