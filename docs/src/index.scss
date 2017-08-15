@@ -1,0 +1,51 @@
+* {
+    box-sizing: border-box;
+}
+
+.docs-conf {
+    height: 100%;
+    width: 100%;
+    background: black;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    .docs-conf-stream-controls {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: #000;
+        text-align: center;
+        padding: 25px;
+    }
+    .docs-conf-local-stream {
+        width: 100%;
+        height: auto;
+        overflow: auto;
+        video {
+            width: 100%;
+            height: auto;
+        }
+    }
+    .docs-conf-remote-streams {
+        width: 20%;
+        position: fixed;
+        top: 0;
+        right: 0;
+        padding: 25px;
+    }
+    .docs-conf-remote-stream {
+        &.rcw-stream {
+            border: 5px solid rgba(0,0,0,0.1);
+        }
+        video {
+            width: 100%;
+            height: auto;
+        }
+    }
+}
+
+video {
+    vertical-align: bottom;
+}

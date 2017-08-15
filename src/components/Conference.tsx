@@ -9,7 +9,8 @@ import {
     IConfIncomingMessageAnswer,
     IConfMessageAddPeer,
     IConfMessageRemovePeer,
-    IConfOutgoingMessage
+    IConfOutgoingMessage,
+    ConfUserID,
 } from '../data';
 import {
     createOutgoingMessageJoin,
@@ -21,10 +22,21 @@ import {
 import { MediaStreamControl } from './controls/MediaStreamControl';
 import { Stream } from './controls/Stream';
 
+export interface ConferenceStream {
+    id: ConfUserID,
+    stream: MediaStream,
+    local: boolean;
+}
+
+export interface ConferenceRenderer {
+    (localStream: ConferenceStream | undefined, remoteStreams: ConferenceStream[]): JSX.Element | null | false;
+}
+
 export interface IConferenceProps {
     connect: () => ConferenceConnection;
     room: string;
     peerConnectionConfig: RTCConfiguration;
+    render?: ConferenceRenderer;
 }
 
 const userMediaConfig = {
@@ -33,21 +45,23 @@ const userMediaConfig = {
 }
 
 export interface IConferenceState {
+    localId: ConfUserID | undefined;
     localStream: MediaStream | undefined;
     remoteStreams: { [id: string]: MediaStream };
 }
 
 export class Conference extends React.Component<IConferenceProps, IConferenceState> {
     private connection: ConferenceConnection;
-    private localId: string;
+    private localId: string | undefined;
     private peerConnections: { [id: string]: RTCPeerConnection } = {};
     private candidates: { [id: string]: RTCIceCandidateInit[] } = {};
 
     constructor(props: IConferenceProps) {
         super(props);
         this.handleIncomingMessage = this.handleIncomingMessage.bind(this);
-        this.renderRemoteStream = this.renderRemoteStream.bind(this);
+        this.renderStream = this.renderStream.bind(this);
         this.state = {
+            localId: undefined,
             localStream: undefined,
             remoteStreams: {},
         }
@@ -58,17 +72,23 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     public render() {
-        const { localStream, remoteStreams } = this.state;
+        const remoteStreams = this.getRemoteConferenceStreams();
+        const localStream  = this.getLocalConferenceStream();
+        const { render } = this.props;
+
+        if (render) {
+            return render(localStream, remoteStreams);
+        }
 
         if (!localStream) {
-            return <div/>
+            return null;
         }
 
         return (
             <div className='rcw-conference'>
-                <MediaStreamControl stream={localStream} />
-                <Stream className='rcw-local-stream' stream={localStream} />
-                {Object.keys(remoteStreams).map(this.renderRemoteStream)}
+                {this.renderStream(localStream)}
+                {remoteStreams.map(this.renderStream)}
+                <MediaStreamControl stream={localStream.stream} />
             </div>
         )
     }
@@ -77,12 +97,38 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         this.leaveRoom()
     }
 
-    private renderRemoteStream(id: string) {
+    private getLocalConferenceStream(): ConferenceStream | undefined {
+        if (!this.state.localStream || !this.state.localId) {
+            return;
+        }
+        return {
+            id: this.state.localId,
+            stream: this.state.localStream,
+            local: true,
+        }
+    }
+
+    private getRemoteConferenceStreams(): ConferenceStream[] {
+        return Object.keys(this.state.remoteStreams).map<ConferenceStream>((id: string) => {
+            return {
+                id,
+                stream: this.state.remoteStreams[id],
+                local: false,
+            }
+        });
+    }
+
+    private renderStream(stream: ConferenceStream) {
+        let className = 'rcw-remote-stream';
+        if (stream.local) {
+            className = 'rcw-local-stream';
+        }
+
         return (
             <Stream
-                key={id}
-                className='rcw-remote-stream'
-                stream={this.state.remoteStreams[id]}
+                key={stream.id}
+                className={className}
+                stream={stream.stream}
             />
         )
     }
@@ -132,13 +178,20 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     private handleSelfMessage(message: IConfMessageSelf) {
-        this.localId = message.Id;
+        this.setState({
+            localId: message.Id
+        });
     }
 
     // NOTE(yunsi): When received an AddPeer event, conference will create a new PeerConnection and add it to the connection list.
     private handleAddPeerMessage(message: IConfMessageAddPeer) {
         const id = message.Id;
-        if (id === this.localId) {
+        if (!this.state.localId) {
+            console.warn('handleAddPeerMessage(): localId is not set.')
+            return
+        }
+
+        if (id === this.state.localId) {
             return;
         }
 
@@ -150,7 +203,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         const peerConnection = this.createPeerConnectionById(id);
 
         // NOTE(yunsi): When two clients both recieved an AddPeer event with the other client's id, they will do a compare to see who should create and send the offer.
-        if (this.localId.localeCompare(id) === 1) {
+        if (this.state.localId.localeCompare(id) === 1) {
             peerConnection
                 .createOffer()
                 .then(sessionDescription => this.setLocalAndSendMessage(sessionDescription, 'Offer', id))
