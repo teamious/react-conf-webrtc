@@ -18,6 +18,7 @@ import {
     createOutgoingMessageAnswer,
     createOutgoingMessageBye
 } from '../services/ConferenceService';
+import { MediaStreamControl } from './controls/MediaStreamControl';
 import { Stream } from './controls/Stream';
 
 export interface IConferenceProps {
@@ -51,6 +52,7 @@ export class Conference extends React.Component<IConferenceProps, {}> {
     public render() {
         return (
             <div className='conference'>
+                <MediaStreamControl stream={this.localStream} />
                 <div className='local-media-stream'>
                     <Stream className='local-media-stream-component'stream={this.localStream} />
                 </div>
