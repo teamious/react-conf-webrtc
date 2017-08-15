@@ -18,6 +18,7 @@ import {
     createOutgoingMessageAnswer,
     createOutgoingMessageBye
 } from '../services/ConferenceService';
+import { Stream } from './controls/Stream';
 
 export interface IConferenceProps {
     connect: () => ConferenceConnection;
@@ -47,10 +48,18 @@ export class Conference extends React.Component<IConferenceProps, {}> {
         this.handleIncomingMessage = this.handleIncomingMessage.bind(this);
     }
 
-    // TODO(yunsi): Complete display view.
     public render() {
         return (
-            <div />
+            <div className='conference'>
+                <div className='local-media-stream'>
+                    <Stream className='local-media-stream-component'stream={this.localStream} />
+                </div>
+                <div className='remote-media-stream'>
+                    {Object.keys(this.remoteStreams).map(id => {
+                        return <Stream className='remote-media-stream-component'stream={this.remoteStreams[id]} />
+                    })}
+                </div>
+            </div>
         )
     }
 
