@@ -1,4 +1,5 @@
 import * as React from 'react';
+import * as classnames from 'classnames';
 
 export interface IStreamProps {
     stream: MediaStream;
@@ -17,8 +18,8 @@ export class Stream extends React.PureComponent<IStreamProps, IStreamState> {
         const srcURL = URL.createObjectURL(stream);
 
         return (
-            <div className={className}>
-                <video src={srcURL} />
+            <div className={classnames(this.props.className, 'rcw-stream')}>
+                <video className='rcw-stream-video' autoPlay={true} src={srcURL} />
             </div>
         )
     }

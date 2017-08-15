@@ -32,41 +32,59 @@ const userMediaConfig = {
     video: true,
 }
 
-export class Conference extends React.Component<IConferenceProps, {}> {
+export interface IConferenceState {
+    localStream: MediaStream | undefined;
+    remoteStreams: { [id: string]: MediaStream };
+}
+
+export class Conference extends React.Component<IConferenceProps, IConferenceState> {
     private connection: ConferenceConnection;
-    private localStream: MediaStream;
     private localId: string;
     private peerConnections: { [id: string]: RTCPeerConnection } = {};
-    private remoteStreams: { [id: string]: MediaStream } = {};
     private candidates: { [id: string]: RTCIceCandidateInit[] } = {};
 
     constructor(props: IConferenceProps) {
         super(props);
+        this.handleIncomingMessage = this.handleIncomingMessage.bind(this);
+        this.renderRemoteStream = this.renderRemoteStream.bind(this);
+        this.state = {
+            localStream: undefined,
+            remoteStreams: {},
+        }
+
         this.connection = this.props.connect();
         this.joinRoom(this.props.room);
         this.getUserMedia();
-
-        this.handleIncomingMessage = this.handleIncomingMessage.bind(this);
     }
 
     public render() {
+        const { localStream, remoteStreams } = this.state;
+
+        if (!localStream) {
+            return <div/>
+        }
+
         return (
-            <div className='conference'>
-                <MediaStreamControl stream={this.localStream} />
-                <div className='local-media-stream'>
-                    <Stream className='local-media-stream-component'stream={this.localStream} />
-                </div>
-                <div className='remote-media-stream'>
-                    {Object.keys(this.remoteStreams).map(id => {
-                        return <Stream className='remote-media-stream-component'stream={this.remoteStreams[id]} />
-                    })}
-                </div>
+            <div className='rcw-conference'>
+                <MediaStreamControl stream={localStream} />
+                <Stream className='rcw-local-stream' stream={localStream} />
+                {Object.keys(remoteStreams).map(this.renderRemoteStream)}
             </div>
         )
     }
 
     public componentWillUnmount() {
         this.leaveRoom()
+    }
+
+    private renderRemoteStream(id: string) {
+        return (
+            <Stream
+                key={id}
+                className='rcw-remote-stream'
+                stream={this.state.remoteStreams[id]}
+            />
+        )
     }
 
     private sendMessage(message: IConfOutgoingMessage) {
@@ -88,7 +106,9 @@ export class Conference extends React.Component<IConferenceProps, {}> {
     }
 
     private gotStream(stream: MediaStream) {
-        this.localStream = stream;
+        this.setState({
+            localStream: stream,
+        })
         this.connection.subscribe(this.handleIncomingMessage);
     }
 
@@ -147,7 +167,9 @@ export class Conference extends React.Component<IConferenceProps, {}> {
         peerConnection.onaddstream = (event) => {
             this.handleRemoteStreamAdded(event, id)
         };
-        peerConnection.addStream(this.localStream);
+        if (this.state.localStream) {
+            peerConnection.addStream(this.state.localStream);
+        }
         this.peerConnections[id] = peerConnection;
 
         return peerConnection;
@@ -182,9 +204,13 @@ export class Conference extends React.Component<IConferenceProps, {}> {
     }
 
     private handleRemoteStreamAdded(event: MediaStreamEvent, id: string) {
-        // TODO(yunsi): Send MediaStream to Remote stream component.
         if (event.stream) {
-            this.remoteStreams[id] = event.stream
+            this.setState({
+                remoteStreams: {
+                    ...this.state.remoteStreams,
+                    [id]: event.stream,
+                }
+            });
         }
     }
 
@@ -200,7 +226,13 @@ export class Conference extends React.Component<IConferenceProps, {}> {
         }
 
         delete this.peerConnections[id];
-        delete this.remoteStreams[id];
+        const remoteStreams = {
+            ...this.state.remoteStreams
+        }
+        delete remoteStreams[id];
+        this.setState({
+            remoteStreams
+        })
     }
 
     private handleCandidateMessage(message: IConfIncomingMessageCandidate) {

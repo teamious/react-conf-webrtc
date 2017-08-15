@@ -17,9 +17,9 @@ export class MediaStreamControl extends React.PureComponent<IMediaControlProps, 
     // TODO(yunsi): Accept JSX.Element from props and let user customize the button style or button label.
     public render() {
         return (
-            <div className='media-stream-control'>
-                <button className='media-stream-control-mute-audio-button' onClick={this.onMuteButtonClick}>Mute Audio</button>
-                <button className='media-stream-control-disable-video-button' onClick={this.onDisableButtonClick}>Disable Video</button>
+            <div className='rcw-stream-controls'>
+                <button className='rcw-stream-control-mute' onClick={this.onMuteButtonClick}>Mute Audio</button>
+                <button className='rcw-stream-control-disable' onClick={this.onDisableButtonClick}>Disable Video</button>
             </div>
         )
     }
