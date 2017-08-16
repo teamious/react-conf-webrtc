@@ -26,6 +26,7 @@
   ],
   "typings": "./dist/index.d.ts",
   "dependencies": {
-    "classnames": "^2.0.0"
+    "classnames": "^2.0.0",
+    "detectrtc": "^1.3.5"
   }
 }

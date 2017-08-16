@@ -4,8 +4,8 @@ import { Conference, Connect, ConferenceStream, Stream, MediaStreamControl } fro
 
 const config: RTCConfiguration = {
     'iceServers': [
-        {'urls': 'stun:stun.services.mozilla.com'},
-        {'urls': 'stun:stun.l.google.com:19302'}
+        { 'urls': 'stun:stun.services.mozilla.com' },
+        { 'urls': 'stun:stun.l.google.com:19302' }
     ]
 };
 
@@ -13,6 +13,7 @@ export class App extends React.Component<{}, {}> {
     constructor() {
         super();
         this.renderConferenceRoom = this.renderConferenceRoom.bind(this);
+        this.onError = this.onError.bind(this);
     }
 
     render() {
@@ -22,13 +23,14 @@ export class App extends React.Component<{}, {}> {
                 connect={connect}
                 room='conference/main'
                 peerConnectionConfig={config}
+                onError={this.onError}
             />
         );
     }
 
     private renderRemoteStream(stream: ConferenceStream) {
         return (
-            <Stream className='docs-conf-remote-stream' key={stream.id} stream={stream.stream}/>
+            <Stream className='docs-conf-remote-stream' key={stream.id} stream={stream.stream} />
         )
     }
 
@@ -37,7 +39,7 @@ export class App extends React.Component<{}, {}> {
             <div className='docs-conf'>
                 {localStream ? (
                     <div className='docs-conf-local-stream'>
-                        <Stream stream={localStream.stream}/>
+                        <Stream stream={localStream.stream} />
                     </div>
                 ) : null}
 
@@ -47,11 +49,24 @@ export class App extends React.Component<{}, {}> {
 
                 {localStream ? (
                     <div className='docs-conf-stream-controls'>
-                        <MediaStreamControl stream={localStream.stream}/>
+                        <MediaStreamControl stream={localStream.stream} />
                     </div>
                 ) : null}
             </div>
         )
+    }
+
+    private onError(error: any) {
+        switch (error) {
+            case 'support':
+                return console.warn('WebRTC is not supported, use Chrome or Firefox')
+            case 'noWebCamPermission':
+                return console.warn('No webcam permission')
+            case 'noMicPermission':
+                return console.warn('No mic permission')
+            default:
+                return console.warn(error)
+        }
     }
 }
 
