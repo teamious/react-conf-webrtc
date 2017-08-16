@@ -1,4 +1,5 @@
 import * as React from 'react';
+import * as DetectRTC from 'detectrtc';
 
 import {
     ConferenceConnection,
@@ -37,6 +38,7 @@ export interface IConferenceProps {
     room: string;
     peerConnectionConfig: RTCConfiguration;
     render?: ConferenceRenderer;
+    onError?: (error: any) => void;
 }
 
 const userMediaConfig = {
@@ -65,7 +67,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             localStream: undefined,
             remoteStreams: {},
         }
-
+        this.checkBrowserSupport();
         this.connection = this.props.connect();
         this.joinRoom(this.props.room);
         this.getUserMedia();
@@ -73,7 +75,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
 
     public render() {
         const remoteStreams = this.getRemoteConferenceStreams();
-        const localStream  = this.getLocalConferenceStream();
+        const localStream = this.getLocalConferenceStream();
         const { render } = this.props;
 
         if (render) {
@@ -95,6 +97,20 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
 
     public componentWillUnmount() {
         this.leaveRoom()
+    }
+
+    private checkBrowserSupport() {
+        if (DetectRTC.isWebRTCSupported === false) {
+            // TODO(yunsi): Define a better error message.
+            this.onError('support');
+        }
+    }
+
+    private onError(error: any) {
+        if (!this.props.onError) {
+            return console.warn(error)
+        }
+        this.props.onError(error);
     }
 
     private getLocalConferenceStream(): ConferenceStream | undefined {
@@ -148,6 +164,17 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     private getUserMedia() {
+        // NOTE(yunsi): DetectRTC.load() makes sure that all devices are captured and valid result is set for relevant properties.
+        DetectRTC.load(() => {
+            if (DetectRTC.isWebsiteHasWebcamPermissions === false) {
+                // TODO(yunsi): Define a better error message.
+                this.onError('noWebCamPermission');
+            }
+            if (DetectRTC.isWebsiteHasMicrophonePermissions === false) {
+                // TODO(yunsi): Define a better error message.
+                this.onError('noMicPermission');
+            }
+        })
         navigator.mediaDevices.getUserMedia(userMediaConfig).then(stream => this.gotStream(stream))
     }
 
