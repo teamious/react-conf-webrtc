@@ -13,6 +13,7 @@ export class App extends React.Component<{}, {}> {
     constructor() {
         super();
         this.renderConferenceRoom = this.renderConferenceRoom.bind(this);
+        this.onError = this.onError.bind(this);
     }
 
     render() {
