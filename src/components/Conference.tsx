@@ -67,7 +67,11 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             localStream: undefined,
             remoteStreams: {},
         }
-        this.checkBrowserSupport();
+
+        if (!this.checkBrowserSupport()) {
+            return;
+        };
+
         this.connection = this.props.connect();
         this.joinRoom(this.props.room);
         this.getUserMedia();
@@ -103,7 +107,9 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         if (DetectRTC.isWebRTCSupported === false) {
             // TODO(yunsi): Define a better error message.
             this.onError('support');
+            return false;
         }
+        return true;
     }
 
     private onError(error: any) {
