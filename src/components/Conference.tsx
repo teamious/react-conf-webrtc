@@ -103,7 +103,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         this.leaveRoom()
     }
 
-    private checkBrowserSupport() {
+    private checkBrowserSupport(): boolean {
         if (DetectRTC.isWebRTCSupported === false) {
             // TODO(yunsi): Define a better error message.
             this.onError('support');
@@ -408,7 +408,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         }
     }
 
-    private getPeerConnectionById(id: string) {
+    private getPeerConnectionById(id: string): RTCPeerConnection {
         return this.peerConnections[id]
     }
 }
