@@ -142,8 +142,10 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
 
     private renderStream(stream: ConferenceStream) {
         let className = 'rcw-remote-stream';
+        let muted;
         if (stream.local) {
             className = 'rcw-local-stream';
+            muted = true;
         }
 
         return (
@@ -151,6 +153,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                 key={stream.id}
                 className={className}
                 stream={stream.stream}
+                muted={muted}
             />
         )
     }
