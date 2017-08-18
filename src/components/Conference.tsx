@@ -329,14 +329,34 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     private handleDataChannelMessage(event: MessageEvent, id: string) {
-        if (event.data && event.data === 'speaking') {
-            this.setState({
-                microphoneActivities: {
-                    ...this.state.microphoneActivities,
-                    [id]: true;
-                }
-            })
+        if (event.data) {
+            switch (event.data) {
+                case 'speaking':
+                    return this.handleSpeakingMessage(id);
+                case 'stopped_speaking':
+                    return this.handleStoppedSpeakingMessage(id);
+                default:
+                    return console.log('Unkonw message')
+            }
         }
+    }
+
+    private handleSpeakingMessage(id: string) {
+        this.setState({
+            microphoneActivities: {
+                ...this.state.microphoneActivities,
+                [id]: true,
+            }
+        })
+    }
+
+    private handleStoppedSpeakingMessage(id: string) {
+        this.setState({
+            microphoneActivities: {
+                ...this.state.microphoneActivities,
+                [id]: false,
+            }
+        })
     }
 
     // NOTE(yunsi): When received a RemovePeer event, conference will close that PeerConnection and remove it from the connection list.
