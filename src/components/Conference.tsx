@@ -61,6 +61,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     constructor(props: IConferenceProps) {
         super(props);
         this.handleIncomingMessage = this.handleIncomingMessage.bind(this);
+        this.handleMediaException = this.handleMediaException.bind(this);
         this.renderStream = this.renderStream.bind(this);
         this.state = {
             localId: undefined,
@@ -181,7 +182,12 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                 this.onError('noMicPermission');
             }
         })
-        navigator.mediaDevices.getUserMedia(userMediaConfig).then(stream => this.gotStream(stream))
+        navigator.mediaDevices.getUserMedia(userMediaConfig).then(stream => this.gotStream(stream)).catch(this.handleMediaException)
+    }
+
+    private handleMediaException(exception: DOMException) {
+        // Exception type list: https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
+        this.onError(exception.name);
     }
 
     private gotStream(stream: MediaStream) {
