@@ -54,7 +54,7 @@ export interface IConferenceState {
     localId: ConfUserID | undefined;
     localStream: MediaStream | undefined;
     remoteStreams: { [id: string]: MediaStream };
-    microphoneActivities: { [id: string]: boolean };
+    remoteIsSpeaking: { [id: string]: boolean };
 }
 
 export class Conference extends React.Component<IConferenceProps, IConferenceState> {
@@ -62,7 +62,8 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     private localId: string | undefined;
     private peerConnections: { [id: string]: RTCPeerConnection } = {};
     private candidates: { [id: string]: RTCIceCandidateInit[] } = {};
-    private dataChannel: { [id: string]: RTCDataChannel } = {};
+    private sendChannels: { [id: string]: RTCDataChannel } = {};
+    private receiveChannels: { [id: string]: RTCDataChannel } = {};
 
     constructor(props: IConferenceProps) {
         super(props);
@@ -72,7 +73,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             localId: undefined,
             localStream: undefined,
             remoteStreams: {},
-            microphoneActivities: {},
+            remoteIsSpeaking: {},
         }
 
         if (!this.checkBrowserSupport()) {
@@ -196,15 +197,26 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             localStream: stream,
         })
 
+        // NOTE(yunsi): Add an audio monitor to listion to the speaking change of local stream.
         let audioMonitor = Hark(this.state.localStream);
         audioMonitor.on('speaking', () => {
-            console.log('speaking')
+            this.broadcastDataChannelMessage('speaking')
         })
         audioMonitor.on('stopped_speaking', () => {
-            console.log('stopped_speaking')
+            this.broadcastDataChannelMessage('stopped_speaking')
         })
 
         this.connection.subscribe(this.handleIncomingMessage);
+    }
+
+    // NOTE(yunsi): Send the speaking message to all clients through data channels
+    private broadcastDataChannelMessage(message: string) {
+        Object.keys(this.sendChannels).forEach((id: string) => {
+            const sendChannel = this.getSendChannelById(id);
+            if (sendChannel) {
+                sendChannel.send(message);
+            }
+        });
     }
 
     private handleIncomingMessage(message: IConfIncomingMessage) {
@@ -263,7 +275,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     private createPeerConnectionById(id: string) {
         const peerConnection = new RTCPeerConnection(this.props.peerConnectionConfig);
         // TODO(yunsi): Add data channel config
-        const dataChannel = peerConnection.createDataChannel('dataChannel');
+        const sendChannels = peerConnection.createDataChannel('dataChannel');
         peerConnection.onicecandidate = (event) => {
             this.handleIceCandidate(event, id)
         };
@@ -277,7 +289,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             peerConnection.addStream(this.state.localStream);
         }
         this.peerConnections[id] = peerConnection;
-        this.dataChannel[id] = dataChannel;
+        this.sendChannels[id] = sendChannels;
 
         return peerConnection;
     }
@@ -324,37 +336,31 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     private handleReceiveChannel(event: RTCDataChannelEvent, id: string) {
         if (event.channel) {
             const receiveChannel = event.channel;
-            receiveChannel.onmessage = (messageEvent) => { this.handleDataChannelMessage(messageEvent, id) };
+            receiveChannel.onmessage = (messageEvent) => { this.handleReceiveChannelMessage(messageEvent, id) };
+            this.receiveChannels[id] = receiveChannel;
         }
     }
 
-    private handleDataChannelMessage(event: MessageEvent, id: string) {
+    private handleReceiveChannelMessage(event: MessageEvent, id: string) {
         if (event.data) {
             switch (event.data) {
                 case 'speaking':
-                    return this.handleSpeakingMessage(id);
+                    return this.handleIncomingSpeakingMessage(id, true);
                 case 'stopped_speaking':
-                    return this.handleStoppedSpeakingMessage(id);
+                    return this.handleIncomingSpeakingMessage(id, false);
                 default:
-                    return console.log('Unkonw message')
+                    return console.log('Unkonw data channel message')
             }
         }
     }
 
-    private handleSpeakingMessage(id: string) {
+    private handleIncomingSpeakingMessage(id: string, isSpeaking: boolean) {
+        console.log('Remote: ' + id + ' is speaking: ', isSpeaking)
+        // TODO(yunsi): Add UI to show microphone activity for remote stream
         this.setState({
-            microphoneActivities: {
-                ...this.state.microphoneActivities,
-                [id]: true,
-            }
-        })
-    }
-
-    private handleStoppedSpeakingMessage(id: string) {
-        this.setState({
-            microphoneActivities: {
-                ...this.state.microphoneActivities,
-                [id]: false,
+            remoteIsSpeaking: {
+                ...this.state.remoteIsSpeaking,
+                [id]: isSpeaking,
             }
         })
     }
@@ -363,6 +369,8 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     private handleRemovePeerMessage(message: IConfMessageRemovePeer) {
         const id = message.Id;
         const peerConnection = this.getPeerConnectionById(id);
+        const sendChannel = this.getSendChannelById(id);
+        const receiveChannel = this.getReceiveChannelById(id);
 
         if (peerConnection) {
             peerConnection.close();
@@ -370,7 +378,21 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             console.warn('handleRemovePeerMessage(): Missing connection Id: %s', id);
         }
 
+        if (sendChannel) {
+            sendChannel.close();
+        } else {
+            console.warn('handleRemovePeerMessage(): Missing sendChannel Id: %s', id);
+        }
+
+        if (receiveChannel) {
+            receiveChannel.close();
+        } else {
+            console.warn('handleRemovePeerMessage(): Missing receiveChannel Id: %s', id);
+        }
+
         delete this.peerConnections[id];
+        delete this.sendChannels[id];
+        delete this.receiveChannels[id];
         const remoteStreams = {
             ...this.state.remoteStreams
         }
@@ -469,5 +491,13 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
 
     private getPeerConnectionById(id: string): RTCPeerConnection {
         return this.peerConnections[id]
+    }
+
+    private getSendChannelById(id: string): RTCDataChannel {
+        return this.sendChannels[id]
+    }
+
+    private getReceiveChannelById(id: string): RTCDataChannel {
+        return this.receiveChannels[id]
     }
 }
