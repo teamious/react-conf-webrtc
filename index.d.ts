@@ -13,6 +13,7 @@ interface RTCDataChannel {
     onmessage: (event: MessageEvent) => void;
     onopen: (event: RTCDataChannelEvent) => void;
     onclose: (event: RTCDataChannelEvent) => void;
+    readyState: 'connecting' | 'open' | 'closing' | 'closed';
 }
 
 interface RTCPeerConnection extends EventTarget {

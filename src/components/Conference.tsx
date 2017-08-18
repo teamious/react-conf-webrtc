@@ -200,7 +200,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             localStream: stream,
         })
 
-        // NOTE(yunsi): Add an audio monitor to listion to the speaking change of local stream.
+        // NOTE(yunsi): Add an audio monitor to listen to the speaking change of local stream.
         let audioMonitor = Hark(this.state.localStream);
         audioMonitor.on('speaking', () => {
             this.broadcastDataChannelMessage('speaking')
@@ -216,7 +216,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     private broadcastDataChannelMessage(message: string) {
         Object.keys(this.sendChannels).forEach((id: string) => {
             const sendChannel = this.getSendChannelById(id);
-            if (sendChannel) {
+            if (sendChannel.readyState === 'open') {
                 sendChannel.send(message);
             }
         });
@@ -278,7 +278,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     private createPeerConnectionById(id: string) {
         const peerConnection = new RTCPeerConnection(this.props.peerConnectionConfig);
         // TODO(yunsi): Add data channel config
-        const sendChannels = peerConnection.createDataChannel('dataChannel');
+        const sendChannel = peerConnection.createDataChannel('dataChannel');
         peerConnection.onicecandidate = (event) => {
             this.handleIceCandidate(event, id)
         };
@@ -292,7 +292,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             peerConnection.addStream(this.state.localStream);
         }
         this.peerConnections[id] = peerConnection;
-        this.sendChannels[id] = sendChannels;
+        this.sendChannels[id] = sendChannel;
 
         return peerConnection;
     }
