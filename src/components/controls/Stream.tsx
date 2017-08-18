@@ -19,7 +19,7 @@ export class Stream extends React.PureComponent<IStreamProps, IStreamState> {
 
         return (
             <div className={classnames(this.props.className, 'rcw-stream')}>
-                <video className='rcw-stream-video' autoPlay={true} src={srcURL} />
+                <video className='rcw-stream-video' autoPlay={true} src={srcURL}  />
             </div>
         )
     }

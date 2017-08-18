@@ -1,0 +1,25 @@
+interface RTCDataChannelInit {
+    ordered: boolean;
+    maxPacketLifeTime: number;
+    maxRetransmits: number;
+    protocol: string;
+    negotiated: boolean;
+    id: number;
+}
+
+interface RTCDataChannel {
+    close(): void;
+    send(data: any): void;
+    onmessage: (event: MessageEvent) => void;
+    onopen: (event: RTCDataChannelEvent) => void;
+    onclose: (event: RTCDataChannelEvent) => void;
+}
+
+interface RTCPeerConnection extends EventTarget {
+    createDataChannel(label: string, options?: RTCDataChannelInit): RTCDataChannel;
+    ondatachannel: (event: RTCDataChannelEvent) => void;
+}
+
+interface RTCDataChannelEvent {
+    readonly channel: RTCDataChannel;
+}

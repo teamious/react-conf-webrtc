@@ -1,5 +1,6 @@
 import * as React from 'react';
 import * as DetectRTC from 'detectrtc';
+import * as Hark from 'hark';
 
 import {
     ConferenceConnection,
@@ -46,10 +47,14 @@ const userMediaConfig = {
     video: true,
 }
 
+// TODO(yunsi): Add data channel config
+// var dataChannelConfig: RTCDataChannelInit = {}
+
 export interface IConferenceState {
     localId: ConfUserID | undefined;
     localStream: MediaStream | undefined;
     remoteStreams: { [id: string]: MediaStream };
+    microphoneActivities: { [id: string]: boolean };
 }
 
 export class Conference extends React.Component<IConferenceProps, IConferenceState> {
@@ -57,6 +62,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     private localId: string | undefined;
     private peerConnections: { [id: string]: RTCPeerConnection } = {};
     private candidates: { [id: string]: RTCIceCandidateInit[] } = {};
+    private dataChannel: { [id: string]: RTCDataChannel } = {};
 
     constructor(props: IConferenceProps) {
         super(props);
@@ -66,6 +72,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             localId: undefined,
             localStream: undefined,
             remoteStreams: {},
+            microphoneActivities: {},
         }
 
         if (!this.checkBrowserSupport()) {
@@ -188,6 +195,15 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         this.setState({
             localStream: stream,
         })
+
+        let audioMonitor = Hark(this.state.localStream);
+        audioMonitor.on('speaking', () => {
+            console.log('speaking')
+        })
+        audioMonitor.on('stopped_speaking', () => {
+            console.log('stopped_speaking')
+        })
+
         this.connection.subscribe(this.handleIncomingMessage);
     }
 
@@ -245,18 +261,23 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     private createPeerConnectionById(id: string) {
-        // TODO(yunsi): Add RTCPeerConnection config.
         const peerConnection = new RTCPeerConnection(this.props.peerConnectionConfig);
+        // TODO(yunsi): Add data channel config
+        const dataChannel = peerConnection.createDataChannel('dataChannel');
         peerConnection.onicecandidate = (event) => {
             this.handleIceCandidate(event, id)
         };
         peerConnection.onaddstream = (event) => {
             this.handleRemoteStreamAdded(event, id)
         };
+        peerConnection.ondatachannel = (event) => {
+            this.handleReceiveChannel(event, id)
+        }
         if (this.state.localStream) {
             peerConnection.addStream(this.state.localStream);
         }
         this.peerConnections[id] = peerConnection;
+        this.dataChannel[id] = dataChannel;
 
         return peerConnection;
     }
@@ -297,6 +318,24 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                     [id]: event.stream,
                 }
             });
+        }
+    }
+
+    private handleReceiveChannel(event: RTCDataChannelEvent, id: string) {
+        if (event.channel) {
+            const receiveChannel = event.channel;
+            receiveChannel.onmessage = (messageEvent) => { this.handleDataChannelMessage(messageEvent, id) };
+        }
+    }
+
+    private handleDataChannelMessage(event: MessageEvent, id: string) {
+        if (event.data && event.data === 'speaking') {
+            this.setState({
+                microphoneActivities: {
+                    ...this.state.microphoneActivities,
+                    [id]: true;
+                }
+            })
         }
     }
 

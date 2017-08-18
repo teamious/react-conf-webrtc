@@ -52,6 +52,7 @@
   },
   "include": [
       "./src/**/*",
-      "./custom.d.ts"
+      "./custom.d.ts",
+      "./index.d.ts"
   ]
 }
