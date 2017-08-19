@@ -14,18 +14,27 @@ export interface IStreamProps {
 export interface IStreamState { };
 
 export class Stream extends React.PureComponent<IStreamProps, IStreamState> {
-    videoRef: HTMLVideoElement;
+    private videoElement: HTMLVideoElement;
+
+    constructor(props: IStreamProps) {
+        super(props);
+        this.refVideo = this.refVideo.bind(this);
+    }
 
     public componentDidMount() {
-        this.videoRef.srcObject = this.props.stream;
+        this.videoElement.srcObject = this.props.stream;
     }
 
     public componentDidUpdate(nextProps: IStreamProps) {
         if (nextProps.stream !== this.props.stream) {
             // NOTE(denggl): Not running here now.
             // But in future, maybe it will switch the stream and reload the video.
-            this.videoRef.srcObject = this.props.stream;
+            this.videoElement.srcObject = this.props.stream;
         }
+    }
+
+    private refVideo(element: HTMLVideoElement) {
+        this.videoElement = this.videoElement = element;
     }
 
     public render() {
@@ -35,7 +44,7 @@ export class Stream extends React.PureComponent<IStreamProps, IStreamState> {
             <div className={classnames(this.props.className, 'rcw-stream')}>
                 <video
                     className='rcw-stream-video'
-                    ref={(node: HTMLVideoElement) => this.videoRef = node}
+                    ref={this.refVideo}
                     autoPlay={true}
                     muted={muted}
                 />
