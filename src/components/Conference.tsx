@@ -13,7 +13,8 @@ import {
     IConfMessageRemovePeer,
     IConfOutgoingMessage,
     ConfUserID,
-    IDataChannelMessage
+    IDataChannelMessage,
+    DataChannelReadyState
 } from '../data';
 import {
     createOutgoingMessageJoin,
@@ -228,7 +229,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
 
     private sendMessageToDataChannel(message: IDataChannelMessage, id: string) {
         const dataChannel = this.getDataChannelById(id);
-        if (dataChannel && dataChannel.readyState === 'open') {
+        if (dataChannel && dataChannel.readyState === DataChannelReadyState.OPEN) {
             dataChannel.send(message);
         }
     }
@@ -366,8 +367,8 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     private handleDataChannelMessage(event: MessageEvent, id: string) {
-        const message = event.data as IDataChannelMessage;
-        if (message) {
+        if (event.data) {
+            const message = event.data as IDataChannelMessage;
             switch (message.type) {
                 case 'Speech':
                     return this.handleSpeechMessage(id, message.isSpeaking);
