@@ -231,7 +231,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     private sendMessageToDataChannel(message: IDataChannelMessage, id: string) {
         const dataChannel = this.getDataChannelById(id);
         if (dataChannel && dataChannel.readyState === DataChannelReadyState.OPEN) {
-            dataChannel.send(message);
+            dataChannel.send(JSON.stringify(message));
         }
     }
 
@@ -369,7 +369,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
 
     private handleDataChannelMessage(event: MessageEvent, id: string) {
         if (event.data) {
-            const message = event.data as IDataChannelMessage;
+            const message: IDataChannelMessage = JSON.parse(event.data);
             switch (message.type) {
                 case 'Speech':
                     return this.handleSpeechMessage(id, message);
