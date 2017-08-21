@@ -230,9 +230,17 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
 
     private sendMessageToDataChannel(message: IDataChannelMessage, id: string) {
         const dataChannel = this.getDataChannelById(id);
-        if (dataChannel && dataChannel.readyState === DataChannelReadyState.OPEN) {
-            dataChannel.send(JSON.stringify(message));
+
+        if (!dataChannel) {
+            console.log(`Data channel for id ${id} does not exist`);
+            return
         }
+        if (dataChannel.readyState !== DataChannelReadyState.OPEN) {
+            console.log(`Data channel for id ${id} is not ready yet`);
+            return
+        }
+
+        dataChannel.send(JSON.stringify(message));
     }
 
     private handleIncomingMessage(message: IConfIncomingMessage) {
