@@ -14,6 +14,7 @@ import {
     IConfOutgoingMessage,
     ConfUserID,
     IDataChannelMessage,
+    IDataChannelMessageSpeech,
     DataChannelReadyState
 } from '../data';
 import {
@@ -371,20 +372,20 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             const message = event.data as IDataChannelMessage;
             switch (message.type) {
                 case 'Speech':
-                    return this.handleSpeechMessage(id, message.isSpeaking);
+                    return this.handleSpeechMessage(id, message);
                 default:
                     return console.log('Unkonw data channel message')
             }
         }
     }
 
-    private handleSpeechMessage(id: string, isSpeaking: boolean) {
-        console.log('Remote: ' + id + ' is speaking: ', isSpeaking)
+    private handleSpeechMessage(id: string, message: IDataChannelMessageSpeech) {
+        console.log('Remote: ' + id + ' is speaking: ', message.isSpeaking)
         // TODO(yunsi): Add UI to show microphone activity for remote stream
         this.setState({
             remoteIsSpeaking: {
                 ...this.state.remoteIsSpeaking,
-                [id]: isSpeaking,
+                [id]: message.isSpeaking,
             }
         })
     }
