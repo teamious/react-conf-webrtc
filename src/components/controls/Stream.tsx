@@ -34,7 +34,7 @@ export class Stream extends React.PureComponent<IStreamProps, IStreamState> {
     }
 
     private refVideo(element: HTMLVideoElement) {
-        this.videoElement = this.videoElement = element;
+        this.videoElement = element;
     }
 
     public render() {
