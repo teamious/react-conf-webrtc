@@ -14,13 +14,40 @@ export interface IStreamProps {
 export interface IStreamState { };
 
 export class Stream extends React.PureComponent<IStreamProps, IStreamState> {
+    private videoElement: HTMLVideoElement;
+
+    constructor(props: IStreamProps) {
+        super(props);
+        this.refVideo = this.refVideo.bind(this);
+    }
+
+    public componentDidMount() {
+        this.videoElement.srcObject = this.props.stream;
+    }
+
+    public componentDidUpdate(nextProps: IStreamProps) {
+        if (nextProps.stream !== this.props.stream) {
+            // NOTE(denggl): Not running here now.
+            // But in future, maybe it will switch the stream and reload the video.
+            this.videoElement.srcObject = this.props.stream;
+        }
+    }
+
+    private refVideo(element: HTMLVideoElement) {
+        this.videoElement = element;
+    }
+
     public render() {
-        const { stream, className, muted } = this.props;
-        const srcURL = URL.createObjectURL(stream);
+        const { className, muted } = this.props;
 
         return (
             <div className={classnames(this.props.className, 'rcw-stream')}>
-                <video className='rcw-stream-video' autoPlay={true} src={srcURL} muted={muted} />
+                <video
+                    className='rcw-stream-video'
+                    ref={this.refVideo}
+                    autoPlay={true}
+                    muted={muted}
+                />
             </div>
         )
     }
