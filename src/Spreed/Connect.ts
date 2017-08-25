@@ -16,14 +16,14 @@ export function Connect(url: string): Connection {
 export class Connection implements ConferenceConnection {
     private conn: SpreedConnection;
     private adapter: SpreedAdapter;
-    private connSubscriber?: SpreedConnectionSubscriber;
+    private onConnMessageHandler?: SpreedConnectionMessageHandler;
 
     constructor(url: string) {
         this.conn = new SpreedConnection(url);
         this.adapter = new SpreedAdapter();
         this.conn.onmessage = (msg) => {
-            if (this.connSubscriber) {
-                this.connSubscriber(msg, () => {
+            if (this.onConnMessageHandler) {
+                this.onConnMessageHandler(msg, () => {
                     this.adapter.handleSpreedMessage(msg);
                 })
                 return
@@ -39,8 +39,8 @@ export class Connection implements ConferenceConnection {
     // stream from the SpreedConnection class. Note that done() must be called
     // by your handler if you want the message to continue through to the
     // connection.
-    set onconnmessage(handler: SpreedConnectionSubscriber) {
-        this.connSubscriber = handler;
+    set onconnmessage(handler: SpreedConnectionMessageHandler) {
+        this.onConnMessageHandler = handler;
     }
 
     public subscribe(handler: ConferenceConnectionSubscriber) {
@@ -54,6 +54,6 @@ export class Connection implements ConferenceConnection {
     }
 }
 
-export interface SpreedConnectionSubscriber {
+export interface SpreedConnectionMessageHandler {
     (message: SpreedResponse, done: () => void): void
 }
