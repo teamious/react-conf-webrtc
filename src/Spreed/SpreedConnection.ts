@@ -7,6 +7,8 @@ import { SpreedRequest } from './SpreedRequest';
 // Likewise, messages from the client are only processed once the WebSocket connection is open.
 export class SpreedConnection {
     private conn: WebSocket;
+    private onCloseHandler: SpreedConnCloseHandler;
+    private onErrorHandler: SpreedConnErrorHandler;
     private onMessageHandler: SpreedResponseHandler;
     // queue of server -> client messages
     private responses: SpreedResponse[] = [];
@@ -44,11 +46,15 @@ export class SpreedConnection {
     }
 
     private onConnError(event: Event) {
-        // TODO(andrews): Figure out how to handle connection error.
+        if (this.onErrorHandler) {
+            this.onErrorHandler(event);
+        }
     }
 
     private onConnClose(event: CloseEvent) {
-        // TODO(andrews): Figure out how to handle closed connections.
+        if (this.onCloseHandler) {
+            this.onCloseHandler(event);
+        }
     }
 
     // NOTE(andrews): send is used to send messages to the WebSocket connection.
@@ -86,8 +92,24 @@ export class SpreedConnection {
         this.onMessageHandler = handler;
         this.processResponses();
     }
+
+    set onclose(handler: SpreedConnCloseHandler) {
+        this.onCloseHandler = handler;
+    }
+
+    set onerror(handler: SpreedConnErrorHandler) {
+        this.onErrorHandler = handler;
+    }
 }
 
 export interface SpreedResponseHandler {
     (message: SpreedResponse): void;
+}
+
+export interface SpreedConnCloseHandler {
+    (event: CloseEvent): any;
+}
+
+export interface SpreedConnErrorHandler {
+    (event: Event): any;
 }
