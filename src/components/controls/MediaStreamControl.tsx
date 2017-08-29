@@ -1,10 +1,10 @@
 import * as React from 'react';
 
 export interface IMediaStreamControlHandle {
-    getDisable: () => boolean;
-    setDisable: (disableState: boolean) => void;
-    getMute: () => boolean;
-    setMute: (muteState: boolean) => void;
+    getAudioEnabled: () => boolean;
+    setAudioEnabled: (enabled: boolean) => void;
+    getVideoEnabled: () => boolean;
+    setVideoEnabled: (enabled: boolean) => void;
 }
 
 export interface IMediaStreamControlRenderer {
@@ -24,17 +24,21 @@ export class MediaStreamControl extends React.PureComponent<IMediaControlProps, 
 
         this.onMuteButtonClick = this.onMuteButtonClick.bind(this);
         this.onDisableButtonClick = this.onDisableButtonClick.bind(this);
+        this.getAudioEnabled = this.getAudioEnabled.bind(this);
+        this.setAudioEnabled = this.setAudioEnabled.bind(this);
+        this.getVideoEnabled = this.getVideoEnabled.bind(this);
+        this.setVideoEnabled = this.setVideoEnabled.bind(this);
     }
 
     // TODO(yunsi): Accept JSX.Element from props and let user customize the button style or button label.
     public render() {
         const { render } = this.props;
         if (render) {
-            render({
-                getDisable: this.getDisable,
-                setDisable: this.setDisable,
-                getMute: this.getMute,
-                setMute: this.setMute,
+            return render({
+                getAudioEnabled: this.getAudioEnabled,
+                setAudioEnabled: this.setAudioEnabled,
+                getVideoEnabled: this.getVideoEnabled,
+                setVideoEnabled: this.setVideoEnabled,
             });
         }
         return (
@@ -45,20 +49,20 @@ export class MediaStreamControl extends React.PureComponent<IMediaControlProps, 
         )
     }
 
-    private getMute(): boolean {
+    private getAudioEnabled(): boolean {
         return this.props.stream.getAudioTracks()[0].enabled;
     }
 
-    private setMute(state: boolean) {
-        return this.props.stream.getAudioTracks()[0].enabled = state;
+    private setAudioEnabled(enabled: boolean) {
+        return this.props.stream.getAudioTracks()[0].enabled = enabled;
     }
 
-    private getDisable(): boolean {
+    private getVideoEnabled(): boolean {
         return this.props.stream.getVideoTracks()[0].enabled;
     }
 
-    private setDisable(state: boolean) {
-        return this.props.stream.getVideoTracks()[0].enabled = state;
+    private setVideoEnabled(enabled: boolean) {
+        return this.props.stream.getVideoTracks()[0].enabled = enabled;
     }
 
     private onMuteButtonClick(event: any) {
@@ -67,8 +71,8 @@ export class MediaStreamControl extends React.PureComponent<IMediaControlProps, 
             return;
         }
         // TODO(yunsi): Save the audioEnabled information for later use, E.g. send it to other clients as a remote stream status information.
-        const audioEnabled = this.getMute();
-        this.setMute(!audioEnabled);
+        const audioEnabled = this.getAudioEnabled();
+        this.setAudioEnabled(!audioEnabled);
     }
 
     private onDisableButtonClick(event: any) {
@@ -77,7 +81,7 @@ export class MediaStreamControl extends React.PureComponent<IMediaControlProps, 
             return;
         }
         // TODO(yunsi): Save the videoEnabled information for later use, E.g. send it to other clients as a remote stream status information.
-        const videoEnabled = this.getDisable();
-        this.setDisable(!videoEnabled);
+        const videoEnabled = this.getVideoEnabled();
+        this.setVideoEnabled(!videoEnabled);
     }
 }
