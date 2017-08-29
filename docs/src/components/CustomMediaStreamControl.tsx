@@ -11,7 +11,7 @@ export interface ICustomMediaStreamControlStates {
     isVideoEnabled: boolean
 }
 
-export default class CustomMediaStreamControl extends React.Component<ICustomMediaStreamControlProps, ICustomMediaStreamControlStates> {
+export default class CustomMediaStreamControl extends React.PureComponent<ICustomMediaStreamControlProps, ICustomMediaStreamControlStates> {
     constructor(props: ICustomMediaStreamControlProps) {
         super(props);
 

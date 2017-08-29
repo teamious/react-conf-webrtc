@@ -30,7 +30,6 @@ export class MediaStreamControl extends React.PureComponent<IMediaControlProps, 
         this.setVideoEnabled = this.setVideoEnabled.bind(this);
     }
 
-    // TODO(yunsi): Accept JSX.Element from props and let user customize the button style or button label.
     public render() {
         const { render } = this.props;
         if (render) {
