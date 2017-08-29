@@ -50,19 +50,27 @@ export class MediaStreamControl extends React.PureComponent<IMediaControlProps, 
     }
 
     private getAudioEnabled(): boolean {
-        return this.props.stream.getAudioTracks()[0].enabled;
+        const track = this.props.stream.getAudioTracks()[0];
+        return track ? track.enabled : false;
     }
 
-    private setAudioEnabled(enabled: boolean) {
-        return this.props.stream.getAudioTracks()[0].enabled = enabled;
+    private setAudioEnabled(enabled: boolean): void {
+        const track = this.props.stream.getAudioTracks()[0];
+        if (track) {
+            track.enabled = enabled;
+        }
     }
 
     private getVideoEnabled(): boolean {
-        return this.props.stream.getVideoTracks()[0].enabled;
+        const track = this.props.stream.getVideoTracks()[0];
+        return track ? track.enabled : false;
     }
 
-    private setVideoEnabled(enabled: boolean) {
-        return this.props.stream.getVideoTracks()[0].enabled = enabled;
+    private setVideoEnabled(enabled: boolean): void {
+        const track = this.props.stream.getVideoTracks()[0];
+        if (track) {
+            track.enabled = enabled;
+        }
     }
 
     private onMuteButtonClick(event: any) {
