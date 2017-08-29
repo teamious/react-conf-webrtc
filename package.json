@@ -10,7 +10,7 @@
     "publish:patch": "npm run clean && npm run build && npm version patch -f && npm publish"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "@types/classnames": "2.2.1",
     "@types/react": "15.0.39",
