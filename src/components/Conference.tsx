@@ -15,7 +15,8 @@ import {
     ConfUserID,
     IDataChannelMessage,
     IDataChannelMessageSpeech,
-    DataChannelReadyState
+    DataChannelReadyState,
+    ConferenceError,
 } from '../data';
 import {
     createOutgoingMessageJoin,
@@ -23,7 +24,16 @@ import {
     createOutgoingMessageOffer,
     createOutgoingMessageAnswer,
     createOutgoingMessageBye,
-    createDataChannelMessageSpeech
+    createDataChannelMessageSpeech,
+
+    createConferenceErrorCreateAnswer,
+    createConferenceErrorCreateOffer,
+    createConferenceErrorGetUserMedia,
+    createConferenceErrorMicPermissions,
+    createConferenceErrorSetLocalDescription,
+    createConferenceErrorSetRemoteDescription,
+    createConferenceErrorWebcamPermissions,
+    createConferenceErrorWebRTCNotSupported,
 } from '../services';
 import { MediaStreamControl } from './controls/MediaStreamControl';
 import { Stream } from './controls/Stream';
@@ -43,7 +53,7 @@ export interface IConferenceProps {
     room: string;
     peerConnectionConfig: RTCConfiguration;
     render?: ConferenceRenderer;
-    onError?: (error: any) => void;
+    onError?: (error: ConferenceError) => void;
 }
 
 const userMediaConfig = {
@@ -118,14 +128,13 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
 
     private checkBrowserSupport(): boolean {
         if (DetectRTC.isWebRTCSupported === false) {
-            // TODO(yunsi): Define a better error message.
-            this.onError('support');
+            this.onError(createConferenceErrorWebRTCNotSupported());
             return false;
         }
         return true;
     }
 
-    private onError(error: any) {
+    private onError(error: ConferenceError) {
         if (!this.props.onError) {
             return console.warn(error)
         }
@@ -189,15 +198,17 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         // NOTE(yunsi): DetectRTC.load() makes sure that all devices are captured and valid result is set for relevant properties.
         DetectRTC.load(() => {
             if (DetectRTC.isWebsiteHasWebcamPermissions === false) {
-                // TODO(yunsi): Define a better error message.
-                this.onError('noWebCamPermission');
+                this.onError(createConferenceErrorWebcamPermissions())
             }
             if (DetectRTC.isWebsiteHasMicrophonePermissions === false) {
-                // TODO(yunsi): Define a better error message.
-                this.onError('noMicPermission');
+                this.onError(createConferenceErrorMicPermissions())
             }
         })
-        navigator.mediaDevices.getUserMedia(userMediaConfig).then(stream => this.gotStream(stream))
+        navigator.mediaDevices.getUserMedia(userMediaConfig)
+            .then(stream => this.gotStream(stream))
+            .catch(err => {
+                this.onError(createConferenceErrorGetUserMedia(err));
+            })
     }
 
     private gotStream(stream: MediaStream) {
@@ -295,7 +306,9 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             peerConnection
                 .createOffer()
                 .then(sessionDescription => this.setLocalAndSendMessage(sessionDescription, 'Offer', id))
-            // TODO(yunsi): Add error handling.
+                .catch(err => {
+                    this.onError(createConferenceErrorCreateOffer(err, id));
+                })
         }
     }
 
@@ -352,8 +365,10 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         }
 
         if (message) {
-            peerConnection.setLocalDescription(sessionDescription);
-            // TODO(yunsi): Add error handling.
+            peerConnection.setLocalDescription(sessionDescription)
+                .catch(err => {
+                    this.onError(createConferenceErrorSetLocalDescription(err, id))
+                })
             this.sendMessage(message);
         }
     }
@@ -469,7 +484,11 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             .setRemoteDescription(rtcSessionDescription)
             .then(() => {
                 this.processCandidates(id);
-                return peerConnection.createAnswer()
+                const promise = peerConnection.createAnswer()
+                promise.catch(err => {
+                    this.onError(createConferenceErrorCreateAnswer(err, id));
+                })
+                return promise;
             })
             .then(sessionDescription => this.setLocalAndSendMessage(sessionDescription, 'Answer', id))
         // TODO(yunsi): Add error handling.
@@ -492,8 +511,10 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         const rtcSessionDescription = this.createRTCSessionDescription(message.sessionDescription)
         peerConnection
             .setRemoteDescription(rtcSessionDescription)
-            .then(() => this.processCandidates(id));
-        // TODO(yunsi): Add error handling.
+            .then(() => this.processCandidates(id))
+            .catch(err => {
+                this.onError(createConferenceErrorSetRemoteDescription(err, id));
+            })
     }
 
     private processCandidates(id: string) {
