@@ -6,7 +6,7 @@ import {
     ConferenceStream,
     Stream,
     MediaStreamControl,
-    IMediaStreamControlHandle,
+    IMediaStreamControlProps,
 } from 'react-conf-webrtc';
 import CustomMediaStreamControl from './CustomMediaStreamControl'
 
@@ -42,8 +42,8 @@ export class App extends React.Component<{}, {}> {
         )
     }
 
-    private renderMediaStreamControl(handle: IMediaStreamControlHandle) {
-        return <CustomMediaStreamControl handle={handle} />
+    private renderMediaStreamControl(props: IMediaStreamControlProps) {
+        return <CustomMediaStreamControl {...props} />
     }
 
     private renderConferenceRoom(localStream: ConferenceStream | undefined, remoteStreams: ConferenceStream[]): JSX.Element | null | false {

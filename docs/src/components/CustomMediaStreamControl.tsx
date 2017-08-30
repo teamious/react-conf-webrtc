@@ -1,25 +1,21 @@
 import 'webrtc-adapter';
 import * as React from 'react';
-import { IMediaStreamControlHandle } from 'react-conf-webrtc';
-
-export interface ICustomMediaStreamControlProps {
-    handle: IMediaStreamControlHandle;
-}
+import { IMediaStreamControlProps } from 'react-conf-webrtc';
 
 export interface ICustomMediaStreamControlStates {
     isAudioEnabled: boolean;
     isVideoEnabled: boolean
 }
 
-export default class CustomMediaStreamControl extends React.PureComponent<ICustomMediaStreamControlProps, ICustomMediaStreamControlStates> {
-    constructor(props: ICustomMediaStreamControlProps) {
+export default class CustomMediaStreamControl extends React.PureComponent<IMediaStreamControlProps, ICustomMediaStreamControlStates> {
+    constructor(props: IMediaStreamControlProps) {
         super(props);
 
-        const { handle } = props;
+        const { getAudioEnabled, getVideoEnabled } = props;
 
         this.state = {
-            isAudioEnabled: handle.getAudioEnabled(),
-            isVideoEnabled: handle.getVideoEnabled(),
+            isAudioEnabled: getAudioEnabled(),
+            isVideoEnabled: getVideoEnabled(),
         }
 
         this.handleToggleAudio = this.handleToggleAudio.bind(this);
@@ -27,7 +23,6 @@ export default class CustomMediaStreamControl extends React.PureComponent<ICusto
     }
 
     render() {
-        const { handle } = this.props;
         const { isAudioEnabled, isVideoEnabled } = this.state;
 
         const muteText = isAudioEnabled ? 'Mute Audio' : 'Unmute Audio';
@@ -42,18 +37,18 @@ export default class CustomMediaStreamControl extends React.PureComponent<ICusto
     }
 
     private handleToggleAudio() {
-        const { handle } = this.props;
+        const { setAudioEnabled } = this.props;
         const { isAudioEnabled } = this.state;
 
         this.setState({isAudioEnabled: !isAudioEnabled});
-        handle.setAudioEnabled(!isAudioEnabled);
+        setAudioEnabled(!isAudioEnabled);
     }
 
     private handleToggleVideo() {
-        const { handle } = this.props;
+        const { setVideoEnabled } = this.props;
         const { isVideoEnabled } = this.state;
 
         this.setState({isVideoEnabled: !isVideoEnabled});
-        handle.setVideoEnabled(!isVideoEnabled);
+        setVideoEnabled(!isVideoEnabled);
     }
 }

@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-export interface IMediaStreamControlHandle {
+export interface IMediaStreamControlProps {
     getAudioEnabled: () => boolean;
     setAudioEnabled: (enabled: boolean) => void;
     getVideoEnabled: () => boolean;
@@ -8,7 +8,7 @@ export interface IMediaStreamControlHandle {
 }
 
 export interface IMediaStreamControlRenderer {
-    (handle: IMediaStreamControlHandle): JSX.Element | null | false;
+    (props: IMediaStreamControlProps): JSX.Element | null | false;
 }
 
 export interface IMediaControlProps {
