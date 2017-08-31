@@ -1,14 +1,14 @@
 import * as React from 'react';
 
-export interface IMediaStreamControlProps {
-    getAudioEnabled: () => boolean;
+export interface IMediaStreamControlRendererProps {
+    audioEnabled: boolean;
+    videoEnabled: boolean;
     setAudioEnabled: (enabled: boolean) => void;
-    getVideoEnabled: () => boolean;
     setVideoEnabled: (enabled: boolean) => void;
 }
 
 export interface IMediaStreamControlRenderer {
-    (props: IMediaStreamControlProps): JSX.Element | null | false;
+    (props: IMediaStreamControlRendererProps): JSX.Element | null | false;
 }
 
 export interface IMediaControlProps {
@@ -16,9 +16,7 @@ export interface IMediaControlProps {
     render? : IMediaStreamControlRenderer
 }
 
-export interface IMediaControlState { }
-
-export class MediaStreamControl extends React.PureComponent<IMediaControlProps, IMediaControlState> {
+export class MediaStreamControl extends React.PureComponent<IMediaControlProps, {}> {
     constructor(props: IMediaControlProps) {
         super(props);
 
@@ -34,9 +32,9 @@ export class MediaStreamControl extends React.PureComponent<IMediaControlProps, 
         const { render } = this.props;
         if (render) {
             return render({
-                getAudioEnabled: this.getAudioEnabled,
+                audioEnabled: this.getAudioEnabled(),
+                videoEnabled: this.getVideoEnabled(),
                 setAudioEnabled: this.setAudioEnabled,
-                getVideoEnabled: this.getVideoEnabled,
                 setVideoEnabled: this.setVideoEnabled,
             });
         }
@@ -53,10 +51,15 @@ export class MediaStreamControl extends React.PureComponent<IMediaControlProps, 
         return track ? track.enabled : false;
     }
 
-    private setAudioEnabled(enabled: boolean): void {
+    private setAudioEnabled(audioEnabled: boolean): void {
+        if (!this.verifyStream()) {
+            return;
+        }
         const track = this.props.stream.getAudioTracks()[0];
         if (track) {
-            track.enabled = enabled;
+            // TODO(yunsi): Save the audioEnabled information for later use, E.g. send it to other clients as a remote stream status information.
+            track.enabled = audioEnabled;
+            this.forceUpdate();
         }
     }
 
@@ -65,30 +68,39 @@ export class MediaStreamControl extends React.PureComponent<IMediaControlProps, 
         return track ? track.enabled : false;
     }
 
-    private setVideoEnabled(enabled: boolean): void {
+    private setVideoEnabled(videoEnabled: boolean): void {
+        if (!this.verifyStream()) {
+            return;
+        }
         const track = this.props.stream.getVideoTracks()[0];
         if (track) {
-            track.enabled = enabled;
+            // TODO(yunsi): Save the videoEnabled information for later use, E.g. send it to other clients as a remote stream status information.
+            track.enabled = videoEnabled;
+            this.forceUpdate();
         }
     }
 
     private onMuteButtonClick(event: any) {
-        if (!this.props.stream) {
-            console.warn('No local stream');
+        if (!this.verifyStream()) {
             return;
         }
-        // TODO(yunsi): Save the audioEnabled information for later use, E.g. send it to other clients as a remote stream status information.
         const audioEnabled = this.getAudioEnabled();
         this.setAudioEnabled(!audioEnabled);
     }
 
     private onDisableButtonClick(event: any) {
-        if (!this.props.stream) {
-            console.warn('No local stream');
+        if (!this.verifyStream()) {
             return;
         }
-        // TODO(yunsi): Save the videoEnabled information for later use, E.g. send it to other clients as a remote stream status information.
         const videoEnabled = this.getVideoEnabled();
         this.setVideoEnabled(!videoEnabled);
+    }
+
+    private verifyStream(): boolean {
+        if (!this.props.stream) {
+            console.warn('No local stream');
+            return false;
+        }
+        return true;
     }
 }

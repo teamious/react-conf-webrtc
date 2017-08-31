@@ -1,32 +1,20 @@
 import 'webrtc-adapter';
 import * as React from 'react';
-import { IMediaStreamControlProps } from 'react-conf-webrtc';
+import { IMediaStreamControlRendererProps } from 'react-conf-webrtc';
 
-export interface ICustomMediaStreamControlStates {
-    isAudioEnabled: boolean;
-    isVideoEnabled: boolean
-}
-
-export default class CustomMediaStreamControl extends React.PureComponent<IMediaStreamControlProps, ICustomMediaStreamControlStates> {
-    constructor(props: IMediaStreamControlProps) {
+export default class CustomMediaStreamControl extends React.PureComponent<IMediaStreamControlRendererProps, {}> {
+    constructor(props: IMediaStreamControlRendererProps) {
         super(props);
-
-        const { getAudioEnabled, getVideoEnabled } = props;
-
-        this.state = {
-            isAudioEnabled: getAudioEnabled(),
-            isVideoEnabled: getVideoEnabled(),
-        }
 
         this.handleToggleAudio = this.handleToggleAudio.bind(this);
         this.handleToggleVideo = this.handleToggleVideo.bind(this);
     }
 
     render() {
-        const { isAudioEnabled, isVideoEnabled } = this.state;
+        const { audioEnabled, videoEnabled } = this.props;
 
-        const muteText = isAudioEnabled ? 'Mute Audio' : 'Unmute Audio';
-        const disableText = isVideoEnabled ? 'Disable Video' : 'Enable Video';
+        const muteText = audioEnabled ? 'Mute Audio' : 'Unmute Audio';
+        const disableText = videoEnabled ? 'Disable Video' : 'Enable Video';
 
         return (
             <div className='rcw-stream-controls'>
@@ -37,18 +25,12 @@ export default class CustomMediaStreamControl extends React.PureComponent<IMedia
     }
 
     private handleToggleAudio() {
-        const { setAudioEnabled } = this.props;
-        const { isAudioEnabled } = this.state;
-
-        this.setState({isAudioEnabled: !isAudioEnabled});
-        setAudioEnabled(!isAudioEnabled);
+        const { audioEnabled, setAudioEnabled } = this.props;
+        setAudioEnabled(!audioEnabled);
     }
 
     private handleToggleVideo() {
-        const { setVideoEnabled } = this.props;
-        const { isVideoEnabled } = this.state;
-
-        this.setState({isVideoEnabled: !isVideoEnabled});
-        setVideoEnabled(!isVideoEnabled);
+        const { videoEnabled, setVideoEnabled } = this.props;
+        setVideoEnabled(!videoEnabled);
     }
 }
