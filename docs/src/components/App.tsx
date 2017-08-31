@@ -1,6 +1,14 @@
 import 'webrtc-adapter';
 import * as React from 'react';
-import { Conference, Connect, ConferenceStream, Stream, MediaStreamControl } from 'react-conf-webrtc';
+import {
+    Conference,
+    Connect,
+    ConferenceStream,
+    Stream,
+    MediaStreamControl,
+    IMediaStreamControlRendererProps,
+} from 'react-conf-webrtc';
+import CustomMediaStreamControl from './CustomMediaStreamControl'
 
 const config: RTCConfiguration = {
     'iceServers': [
@@ -34,6 +42,10 @@ export class App extends React.Component<{}, {}> {
         )
     }
 
+    private renderMediaStreamControl(props: IMediaStreamControlRendererProps) {
+        return <CustomMediaStreamControl {...props} />
+    }
+
     private renderConferenceRoom(localStream: ConferenceStream | undefined, remoteStreams: ConferenceStream[]): JSX.Element | null | false {
         return (
             <div className='docs-conf'>
@@ -49,7 +61,10 @@ export class App extends React.Component<{}, {}> {
 
                 {localStream ? (
                     <div className='docs-conf-stream-controls'>
-                        <MediaStreamControl stream={localStream.stream} />
+                        <MediaStreamControl
+                            stream={localStream.stream}
+                            render={this.renderMediaStreamControl}
+                        />
                     </div>
                 ) : null}
             </div>
