@@ -1,56 +1,38 @@
 import * as React from 'react';
 
-export interface IAudioMeterRenderer {
-    (audioMonitor: any): JSX.Element | null | false;
-}
-
 export interface IAudioMeterProps {
     audioMonitor: any;
-    render?: IAudioMeterRenderer
 };
 
 export class AudioMeter extends React.PureComponent<IAudioMeterProps, {}> {
-    private audioMeter: HTMLDivElement;
+    private audioMeterBar: HTMLDivElement;
 
     constructor(props: IAudioMeterProps) {
         super(props);
 
-        this.refMeter = this.refMeter.bind(this);
+        this.refBar = this.refBar.bind(this);
     }
 
     public componentDidMount() {
         const { audioMonitor } = this.props;
 
         audioMonitor.on('volume_change', (volume: number) => {
-            if (this.audioMeter) {
-                // NOTE(yunsi): volume ranges from -100 to 0.
-                // TODO(yunsi): Find a better algorithm to convert db to gain.
-                const audioGain = Math.pow(10, (volume / 20));
-                this.audioMeter.style.width = 1000 * audioGain + 'px';
+            if (this.audioMeterBar) {
+                // NOTE(yunsi): volume ranges from -100dB to 0dB, We need to convert it to float value.
+                const audioLinearValue = Math.pow(10, (volume / 20));
+                this.audioMeterBar.style.width = 100 * audioLinearValue + '%';
             }
         })
     }
 
-    public refMeter(element: HTMLDivElement) {
-        this.audioMeter = element;
+    public refBar(element: HTMLDivElement) {
+        this.audioMeterBar = element;
     }
 
     public render() {
-        const { render } = this.props;
-
-        if (render) {
-            return render(this.props.audioMonitor)
-        }
-
         return (
-            <div
-                className='rcw-audio-meter'
-                ref={this.refMeter}
-                style={{
-                    height: '20px',
-                    backgroundColor: 'red',
-                }}
-            >
+            <div className='rcw-audio-meter'>
+                <div className='rcw-audio-meter__bar' ref={this.refBar}/>
             </div>
         )
     }

@@ -241,7 +241,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             const message = createDataChannelMessageSpeech(false);
             this.broadcastDataChannelMessage(message)
         })
-        this.setState({ audioMonitor } as IConferenceState);
+        this.setState({ audioMonitor });
     }
 
     // NOTE(yunsi): Send the speaking message to all clients through data channels
