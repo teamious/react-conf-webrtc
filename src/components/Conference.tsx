@@ -35,6 +35,7 @@ import {
     createConferenceErrorWebcamPermissions,
     createConferenceErrorWebRTCNotSupported,
 } from '../services';
+import { AudioMeter } from './controls/AudioMeter';
 import { MediaStreamControl } from './controls/MediaStreamControl';
 import { Stream } from './controls/Stream';
 
@@ -71,6 +72,8 @@ export interface IConferenceState {
     // TODO(yunsi): Currently we just store this information,
     // but we need to add UI to show microphone activity for remote stream based on this.state.remoteIsSpeaking.
     remoteIsSpeaking: { [id: string]: boolean };
+    // TODO(yunsi): Define type for audioMonitor
+    audioMonitor: any;
 }
 
 export class Conference extends React.Component<IConferenceProps, IConferenceState> {
@@ -90,6 +93,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             localStream: undefined,
             remoteStreams: {},
             remoteIsSpeaking: {},
+            audioMonitor: undefined,
         }
 
         if (!this.checkBrowserSupport()) {
@@ -119,6 +123,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                 {this.renderStream(localStream)}
                 {remoteStreams.map(this.renderStream)}
                 <MediaStreamControl stream={localStream.stream} />
+                <AudioMeter audioMonitor={this.state.audioMonitor} />
             </div>
         )
     }
@@ -235,6 +240,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             const message = createDataChannelMessageSpeech(false);
             this.broadcastDataChannelMessage(message)
         })
+        this.setState({ audioMonitor } as IConferenceState);
     }
 
     // NOTE(yunsi): Send the speaking message to all clients through data channels

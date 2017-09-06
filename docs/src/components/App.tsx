@@ -27,7 +27,6 @@ export class App extends React.Component<{}, {}> {
     render() {
         return (
             <Conference
-                render={this.renderConferenceRoom}
                 connect={connect}
                 room='conference/main'
                 peerConnectionConfig={config}
