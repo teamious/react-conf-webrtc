@@ -1,6 +1,5 @@
 import * as React from 'react';
 import * as DetectRTC from 'detectrtc';
-import * as Hark from 'hark';
 
 import {
     ConferenceConnection,
@@ -35,6 +34,7 @@ import {
     createConferenceErrorWebcamPermissions,
     createConferenceErrorWebRTCNotSupported,
 } from '../services';
+import { createAudioMonitor, AudioMonitor } from '../utils/createAudioMonitor';
 import { AudioMeter } from './controls/AudioMeter';
 import { MediaStreamControl } from './controls/MediaStreamControl';
 import { Stream } from './controls/Stream';
@@ -73,7 +73,7 @@ export interface IConferenceState {
     // but we need to add UI to show microphone activity for remote stream based on this.state.remoteIsSpeaking.
     remoteIsSpeaking: { [id: string]: boolean };
     // TODO(yunsi): Define type for audioMonitor
-    audioMonitor: any;
+    audioMonitor: AudioMonitor;
 }
 
 export class Conference extends React.Component<IConferenceProps, IConferenceState> {
@@ -93,7 +93,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             localStream: undefined,
             remoteStreams: {},
             remoteIsSpeaking: {},
-            audioMonitor: undefined,
+            audioMonitor: {} as AudioMonitor,
         }
 
         if (!this.checkBrowserSupport()) {
@@ -231,8 +231,11 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     private createAudioMonitor() {
+        if (!this.state.localStream) {
+            return
+        }
         // NOTE(yunsi): Add an audio monitor to listen to the speaking change of local stream.
-        let audioMonitor = Hark(this.state.localStream);
+        const audioMonitor = createAudioMonitor(this.state.localStream);
         audioMonitor.on('speaking', () => {
             const message = createDataChannelMessageSpeech(true);
             this.broadcastDataChannelMessage(message)

@@ -1,12 +1,14 @@
 import * as React from 'react';
 
+import { AudioMonitor } from '../../utils/createAudioMonitor';
+
 export interface IAudioMeterProps {
-    audioMonitor: any;
+    audioMonitor: AudioMonitor;
 };
 
 export class AudioMeter extends React.PureComponent<IAudioMeterProps, {}> {
     private audioMeterBar: HTMLDivElement;
-    private audioMonitor: any;
+    private audioMonitor: AudioMonitor;
 
     constructor(props: IAudioMeterProps) {
         super(props);
@@ -38,7 +40,7 @@ export class AudioMeter extends React.PureComponent<IAudioMeterProps, {}> {
     public render() {
         return (
             <div className='rcw-audio-meter'>
-                <div className='rcw-audio-meter__bar' ref={this.refBar}/>
+                <div className='rcw-audio-meter__bar' ref={this.refBar} />
             </div>
         )
     }
