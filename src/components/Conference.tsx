@@ -46,7 +46,7 @@ export interface ConferenceStream {
 }
 
 export interface ConferenceRenderer {
-    (localStream: ConferenceStream | undefined, remoteStreams: ConferenceStream[]): JSX.Element | null | false;
+    (localStream: ConferenceStream | undefined, remoteStreams: ConferenceStream[], audioMonitor: any): JSX.Element | null | false;
 }
 
 export interface IConferenceProps {
@@ -109,9 +109,10 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         const remoteStreams = this.getRemoteConferenceStreams();
         const localStream = this.getLocalConferenceStream();
         const { render } = this.props;
+        const { audioMonitor } = this.state
 
         if (render) {
-            return render(localStream, remoteStreams);
+            return render(localStream, remoteStreams, audioMonitor);
         }
 
         if (!localStream) {

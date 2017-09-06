@@ -1,18 +1,13 @@
 import * as React from 'react';
 
-export interface IAudioMeterRenderer {
-    (audioMonitor: any): JSX.Element | null | false;
+export interface ICustomAudioMeterProps {
+    audioMonitor: any
 }
 
-export interface IAudioMeterProps {
-    audioMonitor: any;
-    render?: IAudioMeterRenderer
-};
-
-export class AudioMeter extends React.PureComponent<IAudioMeterProps, {}> {
+export class CustomAudioMeter extends React.PureComponent<ICustomAudioMeterProps, {}> {
     private audioMeter: HTMLDivElement;
 
-    constructor(props: IAudioMeterProps) {
+    constructor(props: ICustomAudioMeterProps) {
         super(props);
 
         this.refMeter = this.refMeter.bind(this);
@@ -36,20 +31,14 @@ export class AudioMeter extends React.PureComponent<IAudioMeterProps, {}> {
     }
 
     public render() {
-        console.log('audio meter re-render')
-        const { render } = this.props;
-
-        if (render) {
-            return render(this.props.audioMonitor)
-        }
 
         return (
             <div
-                className='rcw-audio-meter'
+                className='docs-conf-audio-meter'
                 ref={this.refMeter}
                 style={{
                     height: '20px',
-                    backgroundColor: 'red',
+                    backgroundColor: 'green',
                 }}
             >
             </div>

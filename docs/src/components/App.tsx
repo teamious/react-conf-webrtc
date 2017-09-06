@@ -7,8 +7,10 @@ import {
     Stream,
     MediaStreamControl,
     IMediaStreamControlRendererProps,
+    AudioMeter,
 } from 'react-conf-webrtc';
-import CustomMediaStreamControl from './CustomMediaStreamControl'
+import CustomMediaStreamControl from './CustomMediaStreamControl';
+import { CustomAudioMeter } from './CustomAudioMeter';
 
 const config: RTCConfiguration = {
     'iceServers': [
@@ -27,6 +29,7 @@ export class App extends React.Component<{}, {}> {
     render() {
         return (
             <Conference
+                render={this.renderConferenceRoom}
                 connect={connect}
                 room='conference/main'
                 peerConnectionConfig={config}
@@ -45,7 +48,11 @@ export class App extends React.Component<{}, {}> {
         return <CustomMediaStreamControl {...props} />
     }
 
-    private renderConferenceRoom(localStream: ConferenceStream | undefined, remoteStreams: ConferenceStream[]): JSX.Element | null | false {
+    private renderAudioMeter(audioMonitor: any) {
+        return <CustomAudioMeter audioMonitor={audioMonitor} />
+    }
+
+    private renderConferenceRoom(localStream: ConferenceStream | undefined, remoteStreams: ConferenceStream[], audioMonitor: any): JSX.Element | null | false {
         return (
             <div className='docs-conf'>
                 {localStream ? (
@@ -60,6 +67,10 @@ export class App extends React.Component<{}, {}> {
 
                 {localStream ? (
                     <div className='docs-conf-stream-controls'>
+                        <AudioMeter
+                            audioMonitor={audioMonitor}
+                            render={this.renderAudioMeter}
+                        />
                         <MediaStreamControl
                             stream={localStream.stream}
                             render={this.renderMediaStreamControl}
