@@ -6,6 +6,7 @@ export interface IAudioMeterProps {
 
 export class AudioMeter extends React.PureComponent<IAudioMeterProps, {}> {
     private audioMeterBar: HTMLDivElement;
+    private audioMonitor: any;
 
     constructor(props: IAudioMeterProps) {
         super(props);
@@ -14,15 +15,20 @@ export class AudioMeter extends React.PureComponent<IAudioMeterProps, {}> {
     }
 
     public componentDidMount() {
-        const { audioMonitor } = this.props;
+        this.audioMonitor = this.props.audioMonitor;
 
-        audioMonitor.on('volume_change', (volume: number) => {
+        this.audioMonitor.on('volume_change', (volume: number) => {
             if (this.audioMeterBar) {
                 // NOTE(yunsi): volume ranges from -100dB to 0dB, We need to convert it to float value.
+                // TODO(yunsi): Find a better way to render audioMeterBar instead of operating on UI element directly.
                 const audioLinearValue = Math.pow(10, (volume / 20));
                 this.audioMeterBar.style.width = 100 * audioLinearValue + '%';
             }
         })
+    }
+
+    public componentWillUnmount() {
+        this.audioMonitor.stop();
     }
 
     public refBar(element: HTMLDivElement) {
