@@ -46,7 +46,7 @@ export interface ConferenceStream {
 }
 
 export interface ConferenceRenderer {
-    (localStream: ConferenceStream | undefined, remoteStreams: ConferenceStream[], audioMonitor: any): JSX.Element | null | false;
+    (localStream: ConferenceStream | undefined, remoteStreams: ConferenceStream[], audioMonitor: AudioMonitor): JSX.Element | null | false;
 }
 
 export interface IConferenceProps {
