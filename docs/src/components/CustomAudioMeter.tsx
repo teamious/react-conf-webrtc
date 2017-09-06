@@ -31,17 +31,6 @@ export class CustomAudioMeter extends React.PureComponent<ICustomAudioMeterProps
     }
 
     public render() {
-
-        return (
-            <div
-                className='docs-conf-audio-meter'
-                ref={this.refMeter}
-                style={{
-                    height: '20px',
-                    backgroundColor: 'green',
-                }}
-            >
-            </div>
-        )
+        return <div className='docs-conf-audio-meter' ref={this.refMeter} />
     }
 }

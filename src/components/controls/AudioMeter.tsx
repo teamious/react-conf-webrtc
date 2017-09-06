@@ -36,7 +36,6 @@ export class AudioMeter extends React.PureComponent<IAudioMeterProps, {}> {
     }
 
     public render() {
-        console.log('audio meter re-render')
         const { render } = this.props;
 
         if (render) {
