@@ -11,11 +11,15 @@ export class AudioMonitor {
         this.monitor = Hark(stream);
     }
 
-    public on(msg: string, handler: any) {
-        this.monitor.on(msg, (resp: any) => handler(resp));
+    public on(event: string, handler: AudioMonitorMessageHandler) {
+        this.monitor.on(event, (msg: any) => handler(msg));
     }
 
     public stop() {
         this.monitor.stop();
     }
+}
+
+export interface AudioMonitorMessageHandler {
+    (msg: any): void;
 }

@@ -72,7 +72,6 @@ export interface IConferenceState {
     // TODO(yunsi): Currently we just store this information,
     // but we need to add UI to show microphone activity for remote stream based on this.state.remoteIsSpeaking.
     remoteIsSpeaking: { [id: string]: boolean };
-    // TODO(yunsi): Define type for audioMonitor
     audioMonitor: AudioMonitor;
 }
 
