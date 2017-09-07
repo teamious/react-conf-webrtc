@@ -40,7 +40,7 @@ export class App extends React.Component<{}, {}> {
 
     private renderRemoteStream(stream: ConferenceStream) {
         // NOTE(yunsi): Use the fisrt 10 characters as the remote name
-        // TOEO(yunsi): Find a better way to define remote name
+        // TODO(yunsi): Find a better way to define remote name
         const name = stream.id.substring(0, 10);
 
         return (
