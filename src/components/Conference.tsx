@@ -1,6 +1,5 @@
 import * as React from 'react';
 import * as DetectRTC from 'detectrtc';
-import * as Hark from 'hark';
 
 import {
     ConferenceConnection,
@@ -35,6 +34,8 @@ import {
     createConferenceErrorWebcamPermissions,
     createConferenceErrorWebRTCNotSupported,
 } from '../services';
+import { createAudioMonitor, AudioMonitor } from '../utils/createAudioMonitor';
+import { AudioMeter } from './controls/AudioMeter';
 import { MediaStreamControl } from './controls/MediaStreamControl';
 import { Stream } from './controls/Stream';
 
@@ -45,7 +46,7 @@ export interface ConferenceStream {
 }
 
 export interface ConferenceRenderer {
-    (localStream: ConferenceStream | undefined, remoteStreams: ConferenceStream[]): JSX.Element | null | false;
+    (localStream: ConferenceStream | undefined, remoteStreams: ConferenceStream[], audioMonitor: AudioMonitor): JSX.Element | null | false;
 }
 
 export interface IConferenceProps {
@@ -71,6 +72,7 @@ export interface IConferenceState {
     // TODO(yunsi): Currently we just store this information,
     // but we need to add UI to show microphone activity for remote stream based on this.state.remoteIsSpeaking.
     remoteIsSpeaking: { [id: string]: boolean };
+    audioMonitor: AudioMonitor;
 }
 
 export class Conference extends React.Component<IConferenceProps, IConferenceState> {
@@ -90,6 +92,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             localStream: undefined,
             remoteStreams: {},
             remoteIsSpeaking: {},
+            audioMonitor: {} as AudioMonitor,
         }
 
         if (!this.checkBrowserSupport()) {
@@ -105,9 +108,10 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         const remoteStreams = this.getRemoteConferenceStreams();
         const localStream = this.getLocalConferenceStream();
         const { render } = this.props;
+        const { audioMonitor } = this.state
 
         if (render) {
-            return render(localStream, remoteStreams);
+            return render(localStream, remoteStreams, audioMonitor);
         }
 
         if (!localStream) {
@@ -119,6 +123,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                 {this.renderStream(localStream)}
                 {remoteStreams.map(this.renderStream)}
                 <MediaStreamControl stream={localStream.stream} />
+                <AudioMeter audioMonitor={this.state.audioMonitor} />
             </div>
         )
     }
@@ -225,8 +230,11 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     private createAudioMonitor() {
+        if (!this.state.localStream) {
+            return
+        }
         // NOTE(yunsi): Add an audio monitor to listen to the speaking change of local stream.
-        let audioMonitor = Hark(this.state.localStream);
+        const audioMonitor = createAudioMonitor(this.state.localStream);
         audioMonitor.on('speaking', () => {
             const message = createDataChannelMessageSpeech(true);
             this.broadcastDataChannelMessage(message)
@@ -235,6 +243,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             const message = createDataChannelMessageSpeech(false);
             this.broadcastDataChannelMessage(message)
         })
+        this.setState({ audioMonitor });
     }
 
     // NOTE(yunsi): Send the speaking message to all clients through data channels
