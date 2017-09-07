@@ -1,5 +1,7 @@
 import 'webrtc-adapter';
 import * as React from 'react';
+import * as classnames from 'classnames';
+
 import {
     Conference,
     Connect,
@@ -37,8 +39,17 @@ export class App extends React.Component<{}, {}> {
     }
 
     private renderRemoteStream(stream: ConferenceStream) {
+        // NOTE(yunsi): Use the fisrt 10 characters as the remote name
+        // TOEO(yunsi): Find a better way to define remote name
+        const name = stream.id.substring(0, 10);
+
         return (
-            <Stream className='docs-conf-remote-stream' key={stream.id} stream={stream.stream} />
+            <div className='docs-conf-remote-stream'>
+                <Stream className='docs-conf-remote-stream__stream' key={stream.id} stream={stream.stream} />
+                <div className={classnames('docs-conf-remote-stream__name', { 'docs-conf-remote-stream__name--is-speaking': stream.isSpeaking })}>
+                    {stream.id.substring(0, 10)}
+                </div>
+            </div>
         )
     }
 

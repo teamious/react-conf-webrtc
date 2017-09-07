@@ -42,6 +42,7 @@ export interface ConferenceStream {
     id: ConfUserID,
     stream: MediaStream,
     local: boolean;
+    isSpeaking?: boolean;
 }
 
 export interface ConferenceRenderer {
@@ -159,6 +160,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                 id,
                 stream: this.state.remoteStreams[id],
                 local: false,
+                isSpeaking: this.state.remoteIsSpeaking[id],
             }
         });
     }
