@@ -60,6 +60,14 @@
         }
     }
 
+    .rcw-audio-meter {
+        height: 20px;
+
+        &__bar {
+            height: 100%;
+            background-color: #0f0;
+        }
+    }
 }
 
 video {
