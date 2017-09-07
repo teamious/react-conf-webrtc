@@ -35,6 +35,7 @@ import {
     createConferenceErrorWebRTCNotSupported,
 } from '../services';
 import { createAudioMonitor, AudioMonitor } from '../utils/createAudioMonitor';
+import * as MediaStreamUtil from '../utils/MediaStreamUtil';
 import { AudioMeter } from './controls/AudioMeter';
 import { MediaStreamControl } from './controls/MediaStreamControl';
 import { Stream } from './controls/Stream';
@@ -129,7 +130,10 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     public componentWillUnmount() {
-        this.leaveRoom()
+        if (this.state.localStream) {
+            MediaStreamUtil.stopMediaStream(this.state.localStream);
+        }
+        this.leaveRoom();
     }
 
     private checkBrowserSupport(): boolean {
@@ -212,8 +216,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         })
         navigator.mediaDevices.getUserMedia(userMediaConfig)
             .then(stream => this.gotStream(stream))
-            .catch(this.handleMediaException)
-        navigator.mediaDevices.getUserMedia(userMediaConfig).then(stream => this.gotStream(stream)).catch(this.handleMediaException)
+            .catch(this.handleMediaException);
     }
 
     private handleMediaException(error: MediaStreamError) {
