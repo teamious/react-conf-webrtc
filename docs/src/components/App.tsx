@@ -47,7 +47,7 @@ export class App extends React.Component<{}, {}> {
             <div className='docs-conf-remote-stream'>
                 <Stream className='docs-conf-remote-stream__stream' key={stream.id} stream={stream.stream} />
                 <div className={classnames('docs-conf-remote-stream__name', { 'docs-conf-remote-stream__name--is-speaking': stream.isSpeaking })}>
-                    {stream.id.substring(0, 10)}
+                    {name}
                 </div>
             </div>
         )
