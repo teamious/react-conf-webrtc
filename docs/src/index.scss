@@ -35,15 +35,31 @@
         right: 0;
         padding: 25px;
     }
+
     .docs-conf-remote-stream {
-        &.rcw-stream {
-            border: 5px solid rgba(0,0,0,0.1);
+        position: relative;
+
+        &__stream {
+            &.rcw-stream {
+                border: 5px solid rgba(0,0,0,0.1);
+            }
+            video {
+                width: 100%;
+                height: auto;
+            }
         }
-        video {
-            width: 100%;
-            height: auto;
+
+        &__name {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+
+            &--is-speaking {
+                color: #0f0;
+            }
         }
     }
+
     .rcw-audio-meter {
         height: 20px;
 

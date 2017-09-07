@@ -18,6 +18,7 @@
     "@types/react": "15.0.39",
     "@types/react-dom": "15.5.1",
     "awesome-typescript-loader": "3.2.2",
+    "classnames": "^2.2.5",
     "concurrently": "3.5.0",
     "cross-env": "5.0.1",
     "css-loader": "0.28.4",
@@ -34,5 +35,8 @@
     "webpack": "3.4.1",
     "webpack-dev-server": "2.6.1",
     "webrtc-adapter": "4.2.2"
+  },
+  "devDependencies": {
+    "@types/classnames": "^2.2.3"
   }
 }
