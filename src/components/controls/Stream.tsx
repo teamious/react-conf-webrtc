@@ -5,15 +5,14 @@ export interface IStreamProps {
     stream: MediaStream;
     className?: string;
     muted?: boolean;
+    onClick?: () => void;
     // TODO(yunsi): Need to figure out if we want
     // 1: each client get their own audioActivityLevel and send to other clients through RTCDataChannel.
     // or 2: each client get the remote clients' audioActivityLevel from the remote stream.
     // audioActivityLevel?: number;
 };
 
-export interface IStreamState { };
-
-export class Stream extends React.PureComponent<IStreamProps, IStreamState> {
+export class Stream extends React.PureComponent<IStreamProps, {}> {
     private videoElement: HTMLVideoElement;
 
     constructor(props: IStreamProps) {
@@ -38,10 +37,10 @@ export class Stream extends React.PureComponent<IStreamProps, IStreamState> {
     }
 
     public render() {
-        const { className, muted } = this.props;
+        const { className, muted, onClick } = this.props;
 
         return (
-            <div className={classnames(this.props.className, 'rcw-stream')}>
+            <div className={classnames(this.props.className, 'rcw-stream')} onClick={onClick}>
                 <video
                     className='rcw-stream-video'
                     ref={this.refVideo}
