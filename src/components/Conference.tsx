@@ -70,10 +70,7 @@ const userMediaConfig = {
 export interface IConferenceState {
     localId: ConfUserID | undefined;
     localStream: MediaStream | undefined;
-    remoteStreams: { [id: string]: MediaStream };
-    // TODO(yunsi): Currently we just store this information,
-    // but we need to add UI to show microphone activity for remote stream based on this.state.remoteIsSpeaking.
-    remoteIsSpeaking: { [id: string]: boolean };
+    remoteStreams: { [id: string]: ConferenceStream };
     audioMonitor: AudioMonitor;
 }
 
@@ -89,11 +86,11 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         this.handleIncomingMessage = this.handleIncomingMessage.bind(this);
         this.handleMediaException = this.handleMediaException.bind(this);
         this.renderStream = this.renderStream.bind(this);
+
         this.state = {
             localId: undefined,
             localStream: undefined,
             remoteStreams: {},
-            remoteIsSpeaking: {},
             audioMonitor: {} as AudioMonitor,
         }
 
@@ -110,7 +107,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         const remoteStreams = this.getRemoteConferenceStreams();
         const localStream = this.getLocalConferenceStream();
         const { render } = this.props;
-        const { audioMonitor } = this.state
+        const { audioMonitor } = this.state;
 
         if (render) {
             return render(localStream, remoteStreams, audioMonitor);
@@ -165,12 +162,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
 
     private getRemoteConferenceStreams(): ConferenceStream[] {
         return Object.keys(this.state.remoteStreams).map<ConferenceStream>((id: string) => {
-            return {
-                id,
-                stream: this.state.remoteStreams[id],
-                local: false,
-                isSpeaking: this.state.remoteIsSpeaking[id],
-            }
+            return this.state.remoteStreams[id]
         });
     }
 
@@ -397,9 +389,14 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             this.setState({
                 remoteStreams: {
                     ...this.state.remoteStreams,
-                    [id]: event.stream,
+                    [id]: {
+                        ...this.state.remoteStreams[id],
+                        id: id,
+                        stream: event.stream,
+                        local: false,
+                    }
                 }
-            });
+            })
         }
     }
 
@@ -425,9 +422,12 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         console.log('Remote: ' + id + ' is speaking: ', message.isSpeaking)
         // TODO(yunsi): Add UI to show microphone activity for remote stream
         this.setState({
-            remoteIsSpeaking: {
-                ...this.state.remoteIsSpeaking,
-                [id]: message.isSpeaking,
+            remoteStreams: {
+                ...this.state.remoteStreams,
+                [id]: {
+                    ...this.state.remoteStreams[id],
+                    isSpeaking: message.isSpeaking
+                }
             }
         })
     }
