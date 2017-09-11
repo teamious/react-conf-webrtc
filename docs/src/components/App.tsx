@@ -11,6 +11,7 @@ import {
     IMediaStreamControlRendererProps,
     AudioMeter,
     AudioMonitor,
+    IConferenceRendererProps,
 } from 'react-conf-webrtc';
 import CustomMediaStreamControl from './CustomMediaStreamControl';
 
@@ -59,25 +60,27 @@ export class App extends React.Component<{}, {}> {
         return <CustomMediaStreamControl {...props} />
     }
 
-    private renderConferenceRoom(localStream: ConferenceStream | undefined, remoteStreams: ConferenceStream[], audioMonitor: AudioMonitor): JSX.Element | null | false {
+    private renderConferenceRoom(props: IConferenceRendererProps): JSX.Element | null | false {
         return (
             <div className='docs-conf'>
-                {localStream ? (
+                {props.localStream ? (
                     <div className='docs-conf-local-stream'>
-                        <Stream stream={localStream.stream} muted={true} />
+                        <Stream stream={props.localStream.stream} muted={true} />
                     </div>
                 ) : null}
 
                 <div className='docs-conf-remote-streams'>
-                    {remoteStreams.map(this.renderRemoteStream)}
+                    {props.remoteStreams.map(this.renderRemoteStream)}
                 </div>
 
-                {localStream ? (
+                {props.localStream ? (
                     <div className='docs-conf-stream-controls'>
-                        <AudioMeter audioMonitor={audioMonitor} />
+                        <AudioMeter audioMonitor={props.audioMonitor} />
                         <MediaStreamControl
-                            stream={localStream.stream}
+                            stream={props.localStream.stream}
                             render={this.renderMediaStreamControl}
+                            onAudioEnabledChange={props.onAudioEnabledChange}
+                            onVideoEnabledChange={props.onVideoEnabledChange}
                         />
                     </div>
                 ) : null}

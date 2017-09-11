@@ -13,7 +13,9 @@ export interface IMediaStreamControlRenderer {
 
 export interface IMediaControlProps {
     stream: MediaStream;
-    render? : IMediaStreamControlRenderer
+    render?: IMediaStreamControlRenderer;
+    onAudioEnabledChange: (enabled: boolean) => void;
+    onVideoEnabledChange: (enabled: boolean) => void;
 }
 
 export class MediaStreamControl extends React.PureComponent<IMediaControlProps, {}> {
@@ -57,7 +59,7 @@ export class MediaStreamControl extends React.PureComponent<IMediaControlProps, 
         }
         const track = this.props.stream.getAudioTracks()[0];
         if (track) {
-            // TODO(yunsi): Save the audioEnabled information for later use, E.g. send it to other clients as a remote stream status information.
+            this.props.onAudioEnabledChange(audioEnabled);
             track.enabled = audioEnabled;
             this.forceUpdate();
         }
@@ -74,7 +76,7 @@ export class MediaStreamControl extends React.PureComponent<IMediaControlProps, 
         }
         const track = this.props.stream.getVideoTracks()[0];
         if (track) {
-            // TODO(yunsi): Save the videoEnabled information for later use, E.g. send it to other clients as a remote stream status information.
+            this.props.onVideoEnabledChange(videoEnabled);
             track.enabled = videoEnabled;
             this.forceUpdate();
         }
