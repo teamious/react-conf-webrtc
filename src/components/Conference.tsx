@@ -68,8 +68,7 @@ const userMediaConfig = {
 // var dataChannelConfig: RTCDataChannelInit = {}
 
 export interface IConferenceState {
-    localId: ConfUserID | undefined;
-    localStream: MediaStream | undefined;
+    localStream: ConferenceStream;
     remoteStreams: { [id: string]: ConferenceStream };
     audioMonitor: AudioMonitor;
 }
@@ -88,8 +87,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         this.renderStream = this.renderStream.bind(this);
 
         this.state = {
-            localId: undefined,
-            localStream: undefined,
+            localStream: {} as ConferenceStream,
             remoteStreams: {},
             audioMonitor: {} as AudioMonitor,
         }
@@ -128,8 +126,8 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     public componentWillUnmount() {
-        if (this.state.localStream) {
-            MediaStreamUtil.stopMediaStream(this.state.localStream);
+        if (this.state.localStream.stream) {
+            MediaStreamUtil.stopMediaStream(this.state.localStream.stream);
         }
         this.leaveRoom();
     }
@@ -150,14 +148,10 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     private getLocalConferenceStream(): ConferenceStream | undefined {
-        if (!this.state.localStream || !this.state.localId) {
+        if (!this.state.localStream.stream || !this.state.localStream.id) {
             return;
         }
-        return {
-            id: this.state.localId,
-            stream: this.state.localStream,
-            local: true,
-        }
+        return this.state.localStream
     }
 
     private getRemoteConferenceStreams(): ConferenceStream[] {
@@ -219,7 +213,8 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     private gotStream(stream: MediaStream) {
-        this.setState({ localStream: stream }, () => {
+        this.setState({ localStream: { ...this.state.localStream, stream, local: true } }, () => {
+            console.log(this.state.localStream)
             this.createAudioMonitor();
         })
 
@@ -231,7 +226,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             return
         }
         // NOTE(yunsi): Add an audio monitor to listen to the speaking change of local stream.
-        const audioMonitor = createAudioMonitor(this.state.localStream);
+        const audioMonitor = createAudioMonitor(this.state.localStream.stream);
         audioMonitor.on('speaking', () => {
             const message = createDataChannelMessageSpeech(true);
             this.broadcastDataChannelMessage(message)
@@ -285,20 +280,18 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     private handleSelfMessage(message: IConfMessageSelf) {
-        this.setState({
-            localId: message.Id
-        });
+        this.setState({ localStream: { ...this.state.localStream, id: message.Id } });
     }
 
     // NOTE(yunsi): When received an AddPeer event, conference will create a new PeerConnection and add it to the connection list.
     private handleAddPeerMessage(message: IConfMessageAddPeer) {
         const id = message.Id;
-        if (!this.state.localId) {
+        if (!this.state.localStream.id) {
             console.warn('handleAddPeerMessage(): localId is not set.')
             return
         }
 
-        if (id === this.state.localId) {
+        if (id === this.state.localStream.id) {
             return;
         }
 
@@ -311,7 +304,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
 
         // NOTE(yunsi): When two clients both recieved an AddPeer event with the other client's id,
         // they will do a compare to see who should create and send the offer and dataChannel.
-        if (this.state.localId.localeCompare(id) === 1) {
+        if (this.state.localStream.id.localeCompare(id) === 1) {
             const dataChannel = peerConnection.createDataChannel('dataChannel');
             this.setDataChannelMessageHandler(dataChannel, id);
             peerConnection
@@ -346,8 +339,8 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         peerConnection.ondatachannel = (event) => {
             this.handleDataChannelReceived(event, id)
         };
-        if (this.state.localStream) {
-            peerConnection.addStream(this.state.localStream);
+        if (this.state.localStream.stream) {
+            peerConnection.addStream(this.state.localStream.stream);
         }
         this.peerConnections[id] = peerConnection;
 
