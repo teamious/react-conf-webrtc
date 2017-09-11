@@ -1,10 +1,12 @@
 import * as React from 'react';
 
+import { ConferenceStream } from '../Conference'
+
 export interface IMediaStreamControlRendererProps {
     audioEnabled: boolean;
     videoEnabled: boolean;
-    setAudioEnabled: (enabled: boolean) => void;
-    setVideoEnabled: (enabled: boolean) => void;
+    toggleAudioEnabled: () => void;
+    toggleVideoEnabled: () => void;
 }
 
 export interface IMediaStreamControlRenderer {
@@ -12,7 +14,7 @@ export interface IMediaStreamControlRenderer {
 }
 
 export interface IMediaControlProps {
-    stream: MediaStream;
+    stream: ConferenceStream;
     render?: IMediaStreamControlRenderer;
     onAudioEnabledChange: (enabled: boolean) => void;
     onVideoEnabledChange: (enabled: boolean) => void;
@@ -24,20 +26,20 @@ export class MediaStreamControl extends React.PureComponent<IMediaControlProps, 
 
         this.onMuteButtonClick = this.onMuteButtonClick.bind(this);
         this.onDisableButtonClick = this.onDisableButtonClick.bind(this);
-        this.getAudioEnabled = this.getAudioEnabled.bind(this);
-        this.setAudioEnabled = this.setAudioEnabled.bind(this);
-        this.getVideoEnabled = this.getVideoEnabled.bind(this);
-        this.setVideoEnabled = this.setVideoEnabled.bind(this);
+        this.toggleAudioEnabled = this.toggleAudioEnabled.bind(this);
+        this.toggleVideoEnabled = this.toggleVideoEnabled.bind(this);
     }
 
     public render() {
         const { render } = this.props;
+        const { audioEnabled, videoEnabled } = this.props.stream;
+
         if (render) {
             return render({
-                audioEnabled: this.getAudioEnabled(),
-                videoEnabled: this.getVideoEnabled(),
-                setAudioEnabled: this.setAudioEnabled,
-                setVideoEnabled: this.setVideoEnabled,
+                audioEnabled: audioEnabled,
+                videoEnabled: videoEnabled,
+                toggleAudioEnabled: this.toggleAudioEnabled,
+                toggleVideoEnabled: this.toggleVideoEnabled,
             });
         }
         return (
@@ -48,37 +50,33 @@ export class MediaStreamControl extends React.PureComponent<IMediaControlProps, 
         )
     }
 
-    private getAudioEnabled(): boolean {
-        const track = this.props.stream.getAudioTracks()[0];
-        return track ? track.enabled : false;
-    }
-
-    private setAudioEnabled(audioEnabled: boolean): void {
+    private toggleAudioEnabled(): void {
         if (!this.verifyStream()) {
             return;
         }
-        const track = this.props.stream.getAudioTracks()[0];
+
+        const { audioEnabled } = this.props.stream;
+        this.props.onAudioEnabledChange(!audioEnabled);
+
+        // TODO(yunsi): Maybe later we should move this method to somewhere else.
+        const track = this.props.stream.stream.getAudioTracks()[0];
         if (track) {
-            this.props.onAudioEnabledChange(audioEnabled);
-            track.enabled = audioEnabled;
-            this.forceUpdate();
+            track.enabled = !audioEnabled;
         }
     }
 
-    private getVideoEnabled(): boolean {
-        const track = this.props.stream.getVideoTracks()[0];
-        return track ? track.enabled : false;
-    }
-
-    private setVideoEnabled(videoEnabled: boolean): void {
+    private toggleVideoEnabled(): void {
         if (!this.verifyStream()) {
             return;
         }
-        const track = this.props.stream.getVideoTracks()[0];
+
+        const { videoEnabled } = this.props.stream;
+        this.props.onVideoEnabledChange(!videoEnabled);
+
+        // TODO(yunsi): Maybe later we should move this method to somewhere else.
+        const track = this.props.stream.stream.getVideoTracks()[0];
         if (track) {
-            this.props.onVideoEnabledChange(videoEnabled);
-            track.enabled = videoEnabled;
-            this.forceUpdate();
+            track.enabled = !videoEnabled;
         }
     }
 
@@ -86,20 +84,20 @@ export class MediaStreamControl extends React.PureComponent<IMediaControlProps, 
         if (!this.verifyStream()) {
             return;
         }
-        const audioEnabled = this.getAudioEnabled();
-        this.setAudioEnabled(!audioEnabled);
+
+        return this.toggleAudioEnabled();
     }
 
     private onDisableButtonClick(event: any) {
         if (!this.verifyStream()) {
             return;
         }
-        const videoEnabled = this.getVideoEnabled();
-        this.setVideoEnabled(!videoEnabled);
+
+        return this.toggleVideoEnabled();
     }
 
     private verifyStream(): boolean {
-        if (!this.props.stream) {
+        if (!this.props.stream.stream) {
             console.warn('No local stream');
             return false;
         }

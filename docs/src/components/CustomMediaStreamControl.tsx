@@ -25,12 +25,10 @@ export default class CustomMediaStreamControl extends React.PureComponent<IMedia
     }
 
     private handleToggleAudio() {
-        const { audioEnabled, setAudioEnabled } = this.props;
-        setAudioEnabled(!audioEnabled);
+        return this.props.toggleAudioEnabled();
     }
 
     private handleToggleVideo() {
-        const { videoEnabled, setVideoEnabled } = this.props;
-        setVideoEnabled(!videoEnabled);
+        return this.props.toggleVideoEnabled();
     }
 }

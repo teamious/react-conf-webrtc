@@ -77,7 +77,7 @@ export class App extends React.Component<{}, {}> {
                     <div className='docs-conf-stream-controls'>
                         <AudioMeter audioMonitor={props.audioMonitor} />
                         <MediaStreamControl
-                            stream={props.localStream.stream}
+                            stream={props.localStream}
                             render={this.renderMediaStreamControl}
                             onAudioEnabledChange={props.onAudioEnabledChange}
                             onVideoEnabledChange={props.onVideoEnabledChange}
