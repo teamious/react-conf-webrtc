@@ -14,6 +14,8 @@ import {
     ConfUserID,
     IDataChannelMessage,
     IDataChannelMessageSpeech,
+    IDataChannelMessageAudio,
+    IDataChannelMessageVideo,
     DataChannelReadyState,
     ConferenceError,
 } from '../data';
@@ -24,6 +26,8 @@ import {
     createOutgoingMessageAnswer,
     createOutgoingMessageBye,
     createDataChannelMessageSpeech,
+    createDataChannelMessageAudio,
+    createDataChannelMessageVideo,
 
     createConferenceErrorCreateAnswer,
     createConferenceErrorCreateOffer,
@@ -44,11 +48,21 @@ export interface ConferenceStream {
     id: ConfUserID,
     stream: MediaStream,
     local: boolean;
-    isSpeaking?: boolean;
+    isSpeaking: boolean;
+    audioEnabled: boolean;
+    videoEnabled: boolean;
+}
+
+export interface IConferenceRendererProps {
+    localStream: ConferenceStream | undefined,
+    remoteStreams: ConferenceStream[],
+    audioMonitor: AudioMonitor,
+    onAudioEnabledChange: (enabled: boolean) => void,
+    onVideoEnabledChange: (enabled: boolean) => void,
 }
 
 export interface ConferenceRenderer {
-    (localStream: ConferenceStream | undefined, remoteStreams: ConferenceStream[], audioMonitor: AudioMonitor): JSX.Element | null | false;
+    (props: IConferenceRendererProps): JSX.Element | null | false;
 }
 
 export interface IConferenceProps {
@@ -68,12 +82,8 @@ const userMediaConfig = {
 // var dataChannelConfig: RTCDataChannelInit = {}
 
 export interface IConferenceState {
-    localId: ConfUserID | undefined;
-    localStream: MediaStream | undefined;
-    remoteStreams: { [id: string]: MediaStream };
-    // TODO(yunsi): Currently we just store this information,
-    // but we need to add UI to show microphone activity for remote stream based on this.state.remoteIsSpeaking.
-    remoteIsSpeaking: { [id: string]: boolean };
+    localStream: ConferenceStream;
+    remoteStreams: { [id: string]: ConferenceStream };
     audioMonitor: AudioMonitor;
 }
 
@@ -89,11 +99,12 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         this.handleIncomingMessage = this.handleIncomingMessage.bind(this);
         this.handleMediaException = this.handleMediaException.bind(this);
         this.renderStream = this.renderStream.bind(this);
+        this.onAudioEnabledChange = this.onAudioEnabledChange.bind(this);
+        this.onVideoEnabledChange = this.onVideoEnabledChange.bind(this);
+
         this.state = {
-            localId: undefined,
-            localStream: undefined,
+            localStream: {} as ConferenceStream,
             remoteStreams: {},
-            remoteIsSpeaking: {},
             audioMonitor: {} as AudioMonitor,
         }
 
@@ -110,10 +121,16 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         const remoteStreams = this.getRemoteConferenceStreams();
         const localStream = this.getLocalConferenceStream();
         const { render } = this.props;
-        const { audioMonitor } = this.state
+        const { audioMonitor } = this.state;
 
         if (render) {
-            return render(localStream, remoteStreams, audioMonitor);
+            return render({
+                localStream,
+                remoteStreams,
+                audioMonitor,
+                onAudioEnabledChange: this.onAudioEnabledChange,
+                onVideoEnabledChange: this.onVideoEnabledChange,
+            });
         }
 
         if (!localStream) {
@@ -124,15 +141,19 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             <div className='rcw-conference'>
                 {this.renderStream(localStream)}
                 {remoteStreams.map(this.renderStream)}
-                <MediaStreamControl stream={localStream.stream} />
+                <MediaStreamControl
+                    stream={localStream.stream}
+                    onAudioEnabledChange={this.onAudioEnabledChange}
+                    onVideoEnabledChange={this.onVideoEnabledChange}
+                />
                 <AudioMeter audioMonitor={this.state.audioMonitor} />
             </div>
         )
     }
 
     public componentWillUnmount() {
-        if (this.state.localStream) {
-            MediaStreamUtil.stopMediaStream(this.state.localStream);
+        if (this.state.localStream.stream) {
+            MediaStreamUtil.stopMediaStream(this.state.localStream.stream);
         }
         this.leaveRoom();
     }
@@ -153,25 +174,28 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     private getLocalConferenceStream(): ConferenceStream | undefined {
-        if (!this.state.localStream || !this.state.localId) {
+        if (!this.state.localStream.stream || !this.state.localStream.id) {
             return;
         }
-        return {
-            id: this.state.localId,
-            stream: this.state.localStream,
-            local: true,
-        }
+        return this.state.localStream
     }
 
     private getRemoteConferenceStreams(): ConferenceStream[] {
         return Object.keys(this.state.remoteStreams).map<ConferenceStream>((id: string) => {
-            return {
-                id,
-                stream: this.state.remoteStreams[id],
-                local: false,
-                isSpeaking: this.state.remoteIsSpeaking[id],
-            }
+            return this.state.remoteStreams[id]
         });
+    }
+
+    private onAudioEnabledChange(enabled: boolean) {
+        this.setState({ localStream: { ...this.state.localStream, audioEnabled: enabled } })
+        const message = createDataChannelMessageAudio(enabled);
+        this.broadcastDataChannelMessage(message);
+    }
+
+    private onVideoEnabledChange(enabled: boolean) {
+        this.setState({ localStream: { ...this.state.localStream, videoEnabled: enabled } })
+        const message = createDataChannelMessageVideo(enabled);
+        this.broadcastDataChannelMessage(message);
     }
 
     private renderStream(stream: ConferenceStream) {
@@ -227,7 +251,15 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     private gotStream(stream: MediaStream) {
-        this.setState({ localStream: stream }, () => {
+        this.setState({
+            localStream: {
+                ...this.state.localStream,
+                stream,
+                local: true,
+                audioEnabled: true,
+                videoEnabled: true,
+            }
+        }, () => {
             this.createAudioMonitor();
         })
 
@@ -239,7 +271,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             return
         }
         // NOTE(yunsi): Add an audio monitor to listen to the speaking change of local stream.
-        const audioMonitor = createAudioMonitor(this.state.localStream);
+        const audioMonitor = createAudioMonitor(this.state.localStream.stream);
         audioMonitor.on('speaking', () => {
             const message = createDataChannelMessageSpeech(true);
             this.broadcastDataChannelMessage(message)
@@ -293,20 +325,18 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     private handleSelfMessage(message: IConfMessageSelf) {
-        this.setState({
-            localId: message.Id
-        });
+        this.setState({ localStream: { ...this.state.localStream, id: message.Id } });
     }
 
     // NOTE(yunsi): When received an AddPeer event, conference will create a new PeerConnection and add it to the connection list.
     private handleAddPeerMessage(message: IConfMessageAddPeer) {
         const id = message.Id;
-        if (!this.state.localId) {
+        if (!this.state.localStream.id) {
             console.warn('handleAddPeerMessage(): localId is not set.')
             return
         }
 
-        if (id === this.state.localId) {
+        if (id === this.state.localStream.id) {
             return;
         }
 
@@ -319,7 +349,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
 
         // NOTE(yunsi): When two clients both recieved an AddPeer event with the other client's id,
         // they will do a compare to see who should create and send the offer and dataChannel.
-        if (this.state.localId.localeCompare(id) === 1) {
+        if (this.state.localStream.id.localeCompare(id) === 1) {
             const dataChannel = peerConnection.createDataChannel('dataChannel');
             this.setDataChannelMessageHandler(dataChannel, id);
             peerConnection
@@ -354,8 +384,8 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         peerConnection.ondatachannel = (event) => {
             this.handleDataChannelReceived(event, id)
         };
-        if (this.state.localStream) {
-            peerConnection.addStream(this.state.localStream);
+        if (this.state.localStream.stream) {
+            peerConnection.addStream(this.state.localStream.stream);
         }
         this.peerConnections[id] = peerConnection;
 
@@ -397,9 +427,16 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             this.setState({
                 remoteStreams: {
                     ...this.state.remoteStreams,
-                    [id]: event.stream,
+                    [id]: {
+                        ...this.state.remoteStreams[id],
+                        id: id,
+                        stream: event.stream,
+                        local: false,
+                        audioEnabled: true,
+                        videoEnabled: true,
+                    }
                 }
-            });
+            })
         }
     }
 
@@ -415,6 +452,10 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             switch (message.type) {
                 case 'Speech':
                     return this.handleSpeechMessage(id, message);
+                case 'Audio':
+                    return this.handleAudioMessage(id, message);
+                case 'Video':
+                    return this.handleVideoMessage(id, message);
                 default:
                     return console.log('Unkonw data channel message')
             }
@@ -423,11 +464,37 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
 
     private handleSpeechMessage(id: string, message: IDataChannelMessageSpeech) {
         console.log('Remote: ' + id + ' is speaking: ', message.isSpeaking)
-        // TODO(yunsi): Add UI to show microphone activity for remote stream
         this.setState({
-            remoteIsSpeaking: {
-                ...this.state.remoteIsSpeaking,
-                [id]: message.isSpeaking,
+            remoteStreams: {
+                ...this.state.remoteStreams,
+                [id]: {
+                    ...this.state.remoteStreams[id],
+                    isSpeaking: message.isSpeaking
+                }
+            }
+        })
+    }
+
+    private handleAudioMessage(id: string, message: IDataChannelMessageAudio) {
+        this.setState({
+            remoteStreams: {
+                ...this.state.remoteStreams,
+                [id]: {
+                    ...this.state.remoteStreams[id],
+                    audioEnabled: message.enabled
+                }
+            }
+        })
+    }
+
+    private handleVideoMessage(id: string, message: IDataChannelMessageVideo) {
+        this.setState({
+            remoteStreams: {
+                ...this.state.remoteStreams,
+                [id]: {
+                    ...this.state.remoteStreams[id],
+                    videoEnabled: message.enabled
+                }
             }
         })
     }
