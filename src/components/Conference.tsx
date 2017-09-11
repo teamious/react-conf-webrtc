@@ -187,11 +187,13 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     private onAudioEnabledChange(enabled: boolean) {
+        this.setState({ localStream: { ...this.state.localStream, audioEnabled: enabled } })
         const message = createDataChannelMessageAudio(enabled);
         this.broadcastDataChannelMessage(message);
     }
 
     private onVideoEnabledChange(enabled: boolean) {
+        this.setState({ localStream: { ...this.state.localStream, videoEnabled: enabled } })
         const message = createDataChannelMessageVideo(enabled);
         this.broadcastDataChannelMessage(message);
     }
@@ -249,8 +251,15 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     private gotStream(stream: MediaStream) {
-        this.setState({ localStream: { ...this.state.localStream, stream, local: true } }, () => {
-            console.log(this.state.localStream)
+        this.setState({
+            localStream: {
+                ...this.state.localStream,
+                stream,
+                local: true,
+                audioEnabled: true,
+                videoEnabled: true,
+            }
+        }, () => {
             this.createAudioMonitor();
         })
 
@@ -423,6 +432,8 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                         id: id,
                         stream: event.stream,
                         local: false,
+                        audioEnabled: true,
+                        videoEnabled: true,
                     }
                 }
             })
