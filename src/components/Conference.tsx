@@ -156,6 +156,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             MediaStreamUtil.stopMediaStream(this.state.localStream.stream);
         }
         this.leaveRoom();
+        this.connection.close();
     }
 
     private checkBrowserSupport(): boolean {
@@ -228,7 +229,6 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     private leaveRoom() {
         const message = createOutgoingMessageBye()
         this.sendMessage(message);
-        this.connection.close();
     }
 
     private getUserMedia() {
