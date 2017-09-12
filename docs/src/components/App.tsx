@@ -23,7 +23,7 @@ const config: RTCConfiguration = {
 export class App extends React.Component<{}, {}> {
     constructor() {
         super();
-        this.renderConferenceRoom = this.renderConferenceRoom.bind(this);
+        this.renderStreams = this.renderStreams.bind(this);
         this.onError = this.onError.bind(this);
     }
 
@@ -31,7 +31,7 @@ export class App extends React.Component<{}, {}> {
         return (
             <Conference
                 renderMediaStreamControl={this.renderMediaStreamControl}
-                renderStreams={this.renderConferenceRoom}
+                renderStreams={this.renderStreams}
                 connect={connect}
                 room='conference/main'
                 peerConnectionConfig={config}
@@ -67,7 +67,7 @@ export class App extends React.Component<{}, {}> {
         )
     }
 
-    private renderConferenceRoom(props: IStreamsRendererProps): JSX.Element | null | false {
+    private renderStreams(props: IStreamsRendererProps): JSX.Element | null | false {
         return (
             <div className='docs-conf'>
                 {props.localStream ? (
