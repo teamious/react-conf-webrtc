@@ -7,13 +7,11 @@ import {
     Connect,
     ConferenceStream,
     Stream,
-    MediaStreamControl,
     IMediaStreamControlRendererProps,
     AudioMeter,
     AudioMonitor,
-    IConferenceRendererProps,
+    IStreamsRendererProps,
 } from 'react-conf-webrtc';
-import CustomMediaStreamControl from './CustomMediaStreamControl';
 
 const config: RTCConfiguration = {
     'iceServers': [
@@ -32,7 +30,8 @@ export class App extends React.Component<{}, {}> {
     render() {
         return (
             <Conference
-                render={this.renderConferenceRoom}
+                renderMediaStreamControl={this.renderMediaStreamControl}
+                renderStreams={this.renderConferenceRoom}
                 connect={connect}
                 room='conference/main'
                 peerConnectionConfig={config}
@@ -40,6 +39,18 @@ export class App extends React.Component<{}, {}> {
             />
         );
     }
+
+    private renderMediaStreamControl(props: IMediaStreamControlRendererProps) {
+        const muteText = props.audioEnabled ? 'Mute Audio' : 'Unmute Audio';
+        const disableText = props.videoEnabled ? 'Disable Video' : 'Enable Video';
+        return (
+            <div className='rcw-stream-controls'>
+                <button className='rcw-stream-control-mute' onClick={props.toggleAudioEnabled}>{muteText}</button>
+                <button className='rcw-stream-control-disable' onClick={props.toggleVideoEnabled}>{disableText}</button>
+            </div>
+        )
+    }
+
 
     private renderRemoteStream(stream: ConferenceStream) {
         // NOTE(yunsi): Use the fisrt 10 characters as the remote name
@@ -56,11 +67,7 @@ export class App extends React.Component<{}, {}> {
         )
     }
 
-    private renderMediaStreamControl(props: IMediaStreamControlRendererProps) {
-        return <CustomMediaStreamControl {...props} />
-    }
-
-    private renderConferenceRoom(props: IConferenceRendererProps): JSX.Element | null | false {
+    private renderConferenceRoom(props: IStreamsRendererProps): JSX.Element | null | false {
         return (
             <div className='docs-conf'>
                 {props.localStream ? (
@@ -76,12 +83,6 @@ export class App extends React.Component<{}, {}> {
                 {props.localStream ? (
                     <div className='docs-conf-stream-controls'>
                         <AudioMeter audioMonitor={props.audioMonitor} />
-                        <MediaStreamControl
-                            stream={props.localStream.stream}
-                            render={this.renderMediaStreamControl}
-                            onAudioEnabledChange={props.onAudioEnabledChange}
-                            onVideoEnabledChange={props.onVideoEnabledChange}
-                        />
                     </div>
                 ) : null}
             </div>

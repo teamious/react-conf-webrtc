@@ -41,7 +41,6 @@ import {
 import { createAudioMonitor, AudioMonitor } from '../utils/createAudioMonitor';
 import * as MediaStreamUtil from '../utils/MediaStreamUtil';
 import { AudioMeter } from './controls/AudioMeter';
-import { MediaStreamControl } from './controls/MediaStreamControl';
 import { Stream } from './controls/Stream';
 
 export interface ConferenceStream {
@@ -53,7 +52,7 @@ export interface ConferenceStream {
     videoEnabled: boolean;
 }
 
-export interface IConferenceRendererProps {
+export interface IStreamsRendererProps {
     localStream: ConferenceStream | undefined,
     remoteStreams: ConferenceStream[],
     audioMonitor: AudioMonitor,
@@ -61,15 +60,27 @@ export interface IConferenceRendererProps {
     onVideoEnabledChange: (enabled: boolean) => void,
 }
 
-export interface ConferenceRenderer {
-    (props: IConferenceRendererProps): JSX.Element | null | false;
+export interface StreamsRenderer {
+    (props: IStreamsRendererProps): JSX.Element | null | false;
+}
+
+export interface IMediaStreamControlRendererProps {
+    audioEnabled: boolean;
+    videoEnabled: boolean;
+    toggleAudioEnabled: () => void;
+    toggleVideoEnabled: () => void;
+}
+
+export interface IMediaStreamControlRenderer {
+    (props: IMediaStreamControlRendererProps): JSX.Element | null | false;
 }
 
 export interface IConferenceProps {
     connect: () => ConferenceConnection;
     room: string;
     peerConnectionConfig: RTCConfiguration;
-    render?: ConferenceRenderer;
+    renderStreams?: StreamsRenderer;
+    renderMediaStreamControl?: IMediaStreamControlRenderer;
     onError?: (error: ConferenceError) => void;
 }
 
@@ -101,6 +112,10 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         this.renderStream = this.renderStream.bind(this);
         this.onAudioEnabledChange = this.onAudioEnabledChange.bind(this);
         this.onVideoEnabledChange = this.onVideoEnabledChange.bind(this);
+        this.toggleAudioEnabled = this.toggleAudioEnabled.bind(this);
+        this.toggleVideoEnabled = this.toggleVideoEnabled.bind(this);
+        this.renderMediaStreamControlDefault = this.renderMediaStreamControlDefault.bind(this);
+        this.renderStreamsDefault = this.renderStreamsDefault.bind(this);
 
         this.state = {
             localStream: {} as ConferenceStream,
@@ -120,35 +135,27 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     public render() {
         const remoteStreams = this.getRemoteConferenceStreams();
         const localStream = this.getLocalConferenceStream();
-        const { render } = this.props;
+        const { renderStreams, renderMediaStreamControl } = this.props;
         const { audioMonitor } = this.state;
-
-        if (render) {
-            return render({
-                localStream,
-                remoteStreams,
-                audioMonitor,
-                onAudioEnabledChange: this.onAudioEnabledChange,
-                onVideoEnabledChange: this.onVideoEnabledChange,
-            });
-        }
-
-        if (!localStream) {
-            return null;
-        }
 
         return (
             <div className='rcw-conference'>
-                {this.renderStream(localStream)}
-                {remoteStreams.map(this.renderStream)}
-                <MediaStreamControl
-                    stream={localStream.stream}
-                    onAudioEnabledChange={this.onAudioEnabledChange}
-                    onVideoEnabledChange={this.onVideoEnabledChange}
-                />
-                <AudioMeter audioMonitor={this.state.audioMonitor} />
+                {renderStreams ? renderStreams({
+                    localStream,
+                    remoteStreams,
+                    audioMonitor,
+                    onAudioEnabledChange: this.onAudioEnabledChange,
+                    onVideoEnabledChange: this.onVideoEnabledChange,
+                }) : this.renderStreamsDefault()}
+
+                {renderMediaStreamControl ? renderMediaStreamControl({
+                    audioEnabled: this.getLocalAudioEnabled(),
+                    videoEnabled: this.getLocalVideoEnabled(),
+                    toggleAudioEnabled: this.toggleAudioEnabled,
+                    toggleVideoEnabled: this.toggleVideoEnabled,
+                }) : this.renderMediaStreamControlDefault()}
             </div>
-        )
+        );
     }
 
     public componentWillUnmount() {
@@ -156,6 +163,73 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             MediaStreamUtil.stopMediaStream(this.state.localStream.stream);
         }
         this.leaveRoom();
+    }
+
+    private toggleAudioEnabled(): void {
+        const trackStatus = this.state.localStream.audioEnabled;
+        this.onAudioEnabledChange(!trackStatus);
+    }
+
+    private toggleVideoEnabled(): void {
+        const trackStatus = this.state.localStream.videoEnabled;
+        this.onVideoEnabledChange(!trackStatus);
+    }
+
+    private getLocalAudioEnabled(): boolean {
+        const stream = this.state.localStream.stream;
+        if (!stream) {
+            console.warn('getLocalAudioEnabled(): No local stream.')
+            return false;
+        }
+        const track = stream.getAudioTracks()[0];
+        if (!track) {
+            console.warn('getLocalAudioEnabled(): No audio track')
+            return false;
+        }
+        return track.enabled;
+    }
+
+    private getLocalVideoEnabled(): boolean {
+        const stream = this.state.localStream.stream;
+        if (!stream) {
+            console.warn('getLocalVideoEnabled(): No local stream.')
+            return false;
+        }
+        const track = stream.getVideoTracks()[0];
+        if (!track) {
+            console.warn('getLocalVideoEnabled(): No video track')
+            return false;
+        }
+        return track.enabled;
+    }
+
+    private renderMediaStreamControlDefault(): JSX.Element | null | false {
+        return (
+            <div className='rcw-conference__media-stream-controls-default'>
+                <div className='rcw-stream-controls'>
+                    <button className='rcw-stream-control-mute' onClick={this.toggleAudioEnabled}>Mute Audio</button>
+                    <button className='rcw-stream-control-disable' onClick={this.toggleVideoEnabled}>Disable Video</button>
+                </div>
+            </div>
+        )
+    }
+
+    private renderStreamsDefault() {
+        const localStream = this.getLocalConferenceStream();
+        const remoteStreams = this.getRemoteConferenceStreams();
+
+        if (!localStream) {
+            return null;
+        }
+
+        return (
+            <div className='rcw-conference__streams-default'>
+                {this.renderStream(localStream)}
+                {remoteStreams.map(this.renderStream)}
+                {this.renderMediaStreamControlDefault()}
+                <AudioMeter audioMonitor={this.state.audioMonitor} />
+            </div>
+        )
     }
 
     private checkBrowserSupport(): boolean {
@@ -187,12 +261,34 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     private onAudioEnabledChange(enabled: boolean) {
+        const stream = this.state.localStream.stream;
+        if (!stream) {
+            console.warn('onAudioEnabledChange(): No local stream.')
+            return;
+        }
+        const track = stream.getAudioTracks()[0];
+        if (!track) {
+            console.warn('onAudioEnabledChange(): No audio track')
+            return
+        }
+        track.enabled = enabled;
         this.setState({ localStream: { ...this.state.localStream, audioEnabled: enabled } })
         const message = createDataChannelMessageAudio(enabled);
         this.broadcastDataChannelMessage(message);
     }
 
     private onVideoEnabledChange(enabled: boolean) {
+        const stream = this.state.localStream.stream;
+        if (!stream) {
+            console.warn('onVideoEnabledChange(): No local stream.')
+            return;
+        }
+        const track = stream.getVideoTracks()[0];
+        if (!track) {
+            console.warn('onVideoEnabledChange(): No video track')
+            return
+        }
+        track.enabled = enabled;
         this.setState({ localStream: { ...this.state.localStream, videoEnabled: enabled } })
         const message = createDataChannelMessageVideo(enabled);
         this.broadcastDataChannelMessage(message);
