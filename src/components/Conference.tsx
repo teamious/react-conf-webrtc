@@ -228,6 +228,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     private leaveRoom() {
         const message = createOutgoingMessageBye()
         this.sendMessage(message);
+        this.connection.close();
     }
 
     private getUserMedia() {
