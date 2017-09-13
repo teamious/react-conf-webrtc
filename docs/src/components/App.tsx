@@ -104,7 +104,7 @@ export class App extends React.Component<{}, {}> {
 
 // TODO(andrew): Figure out how to make this work with env
 function connect() {
-    const conn = Connect('wss://' + 'conf.jingoal.ltd' + '/ws');
+    const conn = Connect('wss://' + location.hostname + ':8443/ws');
     conn.onconnmessage = (msg, done) => {
         console.log('Intercepted SpreedResponse message with type: %s', msg.Data.Type);
         done()
