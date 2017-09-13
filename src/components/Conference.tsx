@@ -142,7 +142,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                 {this.renderStream(localStream)}
                 {remoteStreams.map(this.renderStream)}
                 <MediaStreamControl
-                    stream={localStream.stream}
+                    stream={localStream}
                     onAudioEnabledChange={this.onAudioEnabledChange}
                     onVideoEnabledChange={this.onVideoEnabledChange}
                 />
