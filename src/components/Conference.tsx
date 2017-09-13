@@ -80,7 +80,6 @@ export interface IConferenceProps {
     room: string;
     peerConnectionConfig: RTCConfiguration;
     render?: ConferenceRenderer;
-    // renderMediaStreamControl?: IMediaStreamControlRenderer;
     onError?: (error: ConferenceError) => void;
 }
 
