@@ -68,6 +68,10 @@ export class SpreedConnection {
         this.requests.push(message);
     }
 
+    public close() {
+        this.conn.close()
+    }
+
     private hasOpenConnection(): boolean {
         return this.conn.readyState === this.conn.OPEN;
     }

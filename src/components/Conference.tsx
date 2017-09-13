@@ -226,8 +226,18 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     private leaveRoom() {
+        // NOTE(yunsi): Send Bye message to spreed server.
         const message = createOutgoingMessageBye()
         this.sendMessage(message);
+
+        // NOTE(yunsi): Close the WebSocket connection to spreed server.
+        this.connection.close();
+
+        // NOTE(yunsi): Close all peer connections.
+        Object.keys(this.peerConnections).forEach((id: string) => {
+            // NOTE(yunsi): This will also close all datachannels created on the peerconnection
+            this.peerConnections[id].close();
+        })
     }
 
     private getUserMedia() {

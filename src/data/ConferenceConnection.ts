@@ -6,6 +6,7 @@ import { IConfOutgoingMessage, IConfIncomingMessage } from './ConferenceMessage'
 export interface ConferenceConnection {
     subscribe: (subscriber: ConferenceConnectionSubscriber) => void;
     publish: (message: IConfOutgoingMessage) => void;
+    close: () => void;
 }
 
 export interface ConferenceConnectionSubscriber {

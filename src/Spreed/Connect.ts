@@ -52,6 +52,10 @@ export class Connection implements ConferenceConnection {
     public publish(msg: IConfOutgoingMessage) {
         this.adapter.handleConferenceMessage(msg);
     }
+
+    public close() {
+        this.conn.close()
+    }
 }
 
 export interface SpreedConnectionMessageHandler {
