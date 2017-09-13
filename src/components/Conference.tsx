@@ -234,9 +234,9 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         this.connection.close();
 
         // NOTE(yunsi): Close all peer connections.
-        Object.keys(this.peerConnections).forEach((k: any) => {
+        Object.keys(this.peerConnections).forEach((id: string) => {
             // NOTE(yunsi): This will also close all datachannels created on the peerconnection
-            this.peerConnections[k].close();
+            this.peerConnections[id].close();
         })
     }
 
