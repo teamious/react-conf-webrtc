@@ -11,9 +11,11 @@ export interface IDataChannelMessageSpeech {
 export interface IDataChannelMessageAudio {
     type: 'Audio';
     enabled: boolean;
+    id: string;
 }
 
 export interface IDataChannelMessageVideo {
     type: 'Video';
     enabled: boolean;
+    id: string;
 }

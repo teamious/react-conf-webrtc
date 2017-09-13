@@ -11,16 +11,18 @@ export function createDataChannelMessageSpeech(isSpeaking: boolean): IDataChanne
     }
 }
 
-export function createDataChannelMessageAudio(enabled: boolean): IDataChannelMessageAudio {
+export function createDataChannelMessageAudio(id: string, enabled: boolean): IDataChannelMessageAudio {
     return {
         type: 'Audio',
         enabled: enabled,
+        id,
     }
 }
 
-export function createDataChannelMessageVideo(enabled: boolean): IDataChannelMessageVideo {
+export function createDataChannelMessageVideo(id: string, enabled: boolean): IDataChannelMessageVideo {
     return {
         type: 'Video',
         enabled: enabled,
+        id,
     }
 }
