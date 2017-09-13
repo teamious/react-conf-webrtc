@@ -1,5 +1,6 @@
 import * as React from 'react';
 import * as DetectRTC from 'detectrtc';
+import 'webrtc-adapter';
 
 import {
     ConferenceConnection,
@@ -40,6 +41,7 @@ import {
 } from '../services';
 import { createAudioMonitor, AudioMonitor } from '../utils/createAudioMonitor';
 import * as MediaStreamUtil from '../utils/MediaStreamUtil';
+import { ChromeExtension} from '../utils/ChromeExtensionUtil';
 import { AudioMeter } from './controls/AudioMeter';
 import { MediaStreamControl } from './controls/MediaStreamControl';
 import { Stream } from './controls/Stream';
@@ -73,7 +75,7 @@ export interface IConferenceProps {
     onError?: (error: ConferenceError) => void;
 }
 
-const userMediaConfig = {
+const webcamScreenConstraints = {
     audio: true,
     video: true,
 }
@@ -240,9 +242,36 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                 this.onError(createConferenceErrorMicPermissions())
             }
         })
-        navigator.mediaDevices.getUserMedia(userMediaConfig)
+
+        this.getMediaStream(webcamScreenConstraints);
+        //this.getScreenMedia();
+    }
+
+    private getMediaStream(constraints: any) {
+        return navigator.mediaDevices.getUserMedia(constraints)
             .then(stream => this.gotStream(stream))
             .catch(this.handleMediaException);
+    }
+
+    private getScreenMedia() {
+        const constraints = {
+            video: {
+                mandatory: {
+                    chromeMediaSource: 'desktop',
+                    chromeMediaSourceId: '',
+                    maxWidth: screen.width > 1920 ? screen.width : 1920,
+                    maxHeight: screen.height > 1080 ? screen.height : 1080
+                }
+            },
+            audio: false,
+        };
+
+        const ext = new ChromeExtension();
+        ext.call('get-sourceId')
+            .then(sourceId => {
+                constraints.video.mandatory.chromeMediaSourceId = sourceId;
+                this.getMediaStream(constraints);
+        })
     }
 
     private handleMediaException(error: MediaStreamError) {
@@ -268,8 +297,13 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
 
     private createAudioMonitor() {
         if (!this.state.localStream) {
-            return
+            return;
         }
+
+        if (this.state.localStream.stream.getAudioTracks().length === 0) {
+            return;
+        }
+
         // NOTE(yunsi): Add an audio monitor to listen to the speaking change of local stream.
         const audioMonitor = createAudioMonitor(this.state.localStream.stream);
         audioMonitor.on('speaking', () => {
