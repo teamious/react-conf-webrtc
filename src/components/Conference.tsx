@@ -56,8 +56,6 @@ export interface IStreamsRendererProps {
     localStream: ConferenceStream | undefined;
     remoteStreams: ConferenceStream[];
     audioMonitor: AudioMonitor;
-    // onAudioEnabledChange: (enabled: boolean) => void;
-    // onVideoEnabledChange: (enabled: boolean) => void;
 }
 
 export interface IMediaStreamControlRendererProps {
