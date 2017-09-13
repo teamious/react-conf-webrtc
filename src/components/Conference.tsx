@@ -187,40 +187,15 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         this.onAudioEnabledChange(stream, !trackStatus);
     }
 
+    // NOTE(andrews): toggleVideoEnabled allows you to control the videos tracks
+    // of any stream. If no stream is provided, then it defaults to using the
+    // local stream object.
     private toggleVideoEnabled(stream?: ConferenceStream): void {
         if (!stream) {
             stream = this.state.localStream;
         }
         const trackStatus = stream.videoEnabled;
         this.onVideoEnabledChange(stream, !trackStatus);
-    }
-
-    private getLocalAudioEnabled(): boolean {
-        const stream = this.state.localStream.stream;
-        if (!stream) {
-            console.warn('getLocalAudioEnabled(): No local stream.')
-            return false;
-        }
-        const track = stream.getAudioTracks()[0];
-        if (!track) {
-            console.warn('getLocalAudioEnabled(): No audio track')
-            return false;
-        }
-        return track.enabled;
-    }
-
-    private getLocalVideoEnabled(): boolean {
-        const stream = this.state.localStream.stream;
-        if (!stream) {
-            console.warn('getLocalVideoEnabled(): No local stream.')
-            return false;
-        }
-        const track = stream.getVideoTracks()[0];
-        if (!track) {
-            console.warn('getLocalVideoEnabled(): No video track')
-            return false;
-        }
-        return track.enabled;
     }
 
     private onToggleAudio() {
@@ -291,12 +266,12 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     private changeAudioTrackEnabled(enabled: boolean) {
         const stream = this.state.localStream.stream;
         if (!stream) {
-            console.warn('onAudioEnabledChange(): No local stream.')
+            console.warn('changeAudioTrackEnabled(): No local stream.')
             return;
         }
         const track = stream.getAudioTracks()[0];
         if (!track) {
-            console.warn('onAudioEnabledChange(): No audio track')
+            console.warn('changeAudioTrackEnabled(): No audio track')
             return
         }
         track.enabled = enabled;
@@ -305,12 +280,12 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     private changeVideoTrackEnabled(enabled: boolean) {
         const stream = this.state.localStream.stream;
         if (!stream) {
-            console.warn('onVideoEnabledChange(): No local stream.')
+            console.warn('changeVideoTrackEnabled(): No local stream.')
             return;
         }
         const track = stream.getVideoTracks()[0];
         if (!track) {
-            console.warn('onVideoEnabledChange(): No video track')
+            console.warn('changeVideoTrackEnabled(): No video track')
             return
         }
         track.enabled = enabled;
@@ -613,7 +588,6 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     private handleDataChannelMessage(event: MessageEvent, id: string) {
         if (event.data) {
             const message: IDataChannelMessage = JSON.parse(event.data);
-            console.log('handleDataChannelMessage(): %s', message.type)
             switch (message.type) {
                 case 'Speech':
                     return this.handleSpeechMessage(id, message);
