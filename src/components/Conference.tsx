@@ -244,7 +244,31 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         })
 
         this.getMediaStream(webcamScreenConstraints);
-        //this.getScreenMedia();
+        // const constraints = {
+        //     video: {
+        //         mandatory: {
+        //             chromeMediaSource: 'desktop',
+        //             chromeMediaSourceId: '',
+        //             maxWidth: screen.width > 1920 ? screen.width : 1920,
+        //             maxHeight: screen.height > 1080 ? screen.height : 1080
+        //         }
+        //     },
+        //     audio: false,
+        // };
+
+        // const ext = new ChromeExtension();
+        // let screenStream: MediaStream;
+        // ext.call('get-sourceId')
+        //     .then(sourceId => {
+        //         constraints.video.mandatory.chromeMediaSourceId = sourceId;
+        //         return navigator.mediaDevices.getUserMedia(constraints as any)
+        // }).then(stream => {
+        //     screenStream = stream;
+        //     return navigator.mediaDevices.getUserMedia(webcamScreenConstraints);
+        // }).then(stream => {
+        //     screenStream.addTrack(stream.getAudioTracks()[0]);
+        //     this.gotStream(screenStream);
+        // });
     }
 
     private getMediaStream(constraints: any) {
