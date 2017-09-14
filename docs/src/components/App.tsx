@@ -7,13 +7,14 @@ import {
     Connect,
     ConferenceStream,
     Stream,
-    MediaStreamControl,
     IMediaStreamControlRendererProps,
     AudioMeter,
     AudioMonitor,
-    IConferenceRendererProps,
+    IStreamsRendererProps,
+    ToggleAudioEnabledHandler,
+    ToggleVideoEnabledHandler,
 } from 'react-conf-webrtc';
-import CustomMediaStreamControl from './CustomMediaStreamControl';
+import { MediaStreamControl } from './MediaStreamControl';
 
 const config: RTCConfiguration = {
     'iceServers': [
@@ -25,14 +26,14 @@ const config: RTCConfiguration = {
 export class App extends React.Component<{}, {}> {
     constructor() {
         super();
-        this.renderConferenceRoom = this.renderConferenceRoom.bind(this);
+        this.renderConference = this.renderConference.bind(this);
         this.onError = this.onError.bind(this);
     }
 
     render() {
         return (
             <Conference
-                render={this.renderConferenceRoom}
+                render={this.renderConference}
                 connect={connect}
                 room='conference/main'
                 peerConnectionConfig={config}
@@ -41,13 +42,27 @@ export class App extends React.Component<{}, {}> {
         );
     }
 
-    private renderRemoteStream(stream: ConferenceStream) {
-        // NOTE(yunsi): Use the fisrt 10 characters as the remote name
+    private onMuteStream(stream: ConferenceStream, toggleAudio: ToggleAudioEnabledHandler) {
+        toggleAudio(stream);
+    }
+
+    private onDisableStream(stream: ConferenceStream, toggleVideo: ToggleVideoEnabledHandler) {
+        toggleVideo(stream);
+    }
+
+    private renderRemoteStream(toggleAudioEnabled: ToggleAudioEnabledHandler, toggleVideoEnabled: ToggleVideoEnabledHandler, stream: ConferenceStream) {
+        // NOTE(yunsi): Use the first 10 characters as the remote name
         // TODO(yunsi): Find a better way to define remote name
         const name = stream.id.substring(0, 10);
 
         return (
             <div className='docs-conf-remote-stream' key={stream.id}>
+                <button type='button' onClick={this.onMuteStream.bind(this, stream, toggleAudioEnabled)}>
+                    Mute
+                </button>
+                <button type='button' onClick={this.onDisableStream.bind(this, stream, toggleVideoEnabled)}>
+                    Video
+                </button>
                 <Stream className='docs-conf-remote-stream__stream' stream={stream.stream} />
                 <div className={classnames('docs-conf-remote-stream__name', { 'docs-conf-remote-stream__name--is-speaking': stream.isSpeaking })}>
                     {name}
@@ -56,31 +71,30 @@ export class App extends React.Component<{}, {}> {
         )
     }
 
-    private renderMediaStreamControl(props: IMediaStreamControlRendererProps) {
-        return <CustomMediaStreamControl {...props} />
-    }
+    private renderConference(streamProps: IStreamsRendererProps, controlProps: IMediaStreamControlRendererProps): JSX.Element | null | false {
+        const { localStream, remoteStreams, audioMonitor } = streamProps;
+        const { toggleAudioEnabled, toggleVideoEnabled } = controlProps;
 
-    private renderConferenceRoom(props: IConferenceRendererProps): JSX.Element | null | false {
         return (
             <div className='docs-conf'>
-                {props.localStream ? (
+                {localStream ? (
                     <div className='docs-conf-local-stream'>
-                        <Stream stream={props.localStream.stream} muted={true} />
+                        <Stream stream={localStream.stream} muted={true} />
                     </div>
                 ) : null}
 
                 <div className='docs-conf-remote-streams'>
-                    {props.remoteStreams.map(this.renderRemoteStream)}
+                    {streamProps.remoteStreams.map(this.renderRemoteStream.bind(this, toggleAudioEnabled, toggleVideoEnabled))}
                 </div>
 
-                {props.localStream ? (
+                {localStream ? (
                     <div className='docs-conf-stream-controls'>
-                        <AudioMeter audioMonitor={props.audioMonitor} />
+                        <AudioMeter audioMonitor={streamProps.audioMonitor} />
                         <MediaStreamControl
-                            stream={props.localStream.stream}
-                            render={this.renderMediaStreamControl}
-                            onAudioEnabledChange={props.onAudioEnabledChange}
-                            onVideoEnabledChange={props.onVideoEnabledChange}
+                            audioEnabled={localStream.audioEnabled}
+                            videoEnabled={localStream.videoEnabled}
+                            toggleAudioEnabled={toggleAudioEnabled}
+                            toggleVideoEnabled={toggleVideoEnabled}
                         />
                     </div>
                 ) : null}
