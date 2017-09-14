@@ -6,11 +6,16 @@ export interface IStreamProps {
     className?: string;
     muted?: boolean;
     onClick?: () => void;
+    mirror?: boolean;
     // TODO(yunsi): Need to figure out if we want
     // 1: each client get their own audioActivityLevel and send to other clients through RTCDataChannel.
     // or 2: each client get the remote clients' audioActivityLevel from the remote stream.
     // audioActivityLevel?: number;
 };
+
+const mirrorStyle = {
+    transform: 'rotateY(180deg)',
+}
 
 export class Stream extends React.PureComponent<IStreamProps, {}> {
     private videoElement: HTMLVideoElement;
@@ -37,11 +42,12 @@ export class Stream extends React.PureComponent<IStreamProps, {}> {
     }
 
     public render() {
-        const { className, muted, onClick } = this.props;
+        const { className, muted, onClick, mirror } = this.props;
 
         return (
             <div className={classnames(this.props.className, 'rcw-stream')} onClick={onClick}>
                 <video
+                    style={mirror ? mirrorStyle : undefined}
                     className='rcw-stream-video'
                     ref={this.refVideo}
                     autoPlay={true}

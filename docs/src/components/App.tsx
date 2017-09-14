@@ -79,7 +79,7 @@ export class App extends React.Component<{}, {}> {
             <div className='docs-conf'>
                 {localStream ? (
                     <div className='docs-conf-local-stream'>
-                        <Stream stream={localStream.stream} muted={true} />
+                        <Stream mirror={true} stream={localStream.stream} muted={true} />
                     </div>
                 ) : null}
 
