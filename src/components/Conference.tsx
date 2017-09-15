@@ -107,6 +107,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     private candidates: { [id: string]: RTCIceCandidateInit[] } = {};
     private dataChannels: { [id: string]: RTCDataChannel } = {};
     private localStream: MediaStream;
+    private renegotiation: boolean = false;
 
     constructor(props: IConferenceProps) {
         super(props);
@@ -459,6 +460,9 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         this.connection.subscribe(this.handleIncomingMessage);
 
         if (oldStream !== stream) {
+            if (oldStream) {
+                this.renegotiation = true;
+            }
             for (let peerId in this.peerConnections) {
                 let peerConnection = this.peerConnections[peerId];
                 if (oldStream) {
@@ -560,6 +564,11 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         if (this.state.localStream.id.localeCompare(id) === 1) {
             const dataChannel = peerConnection.createDataChannel('dataChannel');
             this.setDataChannelMessageHandler(dataChannel, id);
+            peerConnection.createOffer()
+                .then(sessionDescription => this.setLocalAndSendMessage(sessionDescription, 'Offer', id))
+                .catch(err => {
+                    this.onError(createConferenceErrorCreateOffer(err, id));
+                })
         }
     }
 
@@ -588,15 +597,15 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         };
         peerConnection.onnegotiationneeded = (event) => {
             // NOTE(gaolw): when negotiation needed, create offer.
-            if (peerConnection.signalingState === 'stable' && this.state.localStream.id.localeCompare(id) === 1) {
-                // TODO(gaolw): Somehow the onnegotiationneeded will fire twice, so that offer will be created twice which will cause some errors when answering.
-                console.log('peerConnection.onnegotiationneeded:', id, peerConnection.iceConnectionState, peerConnection.iceGatheringState, peerConnection.signalingState);
-
+            console.log('peerConnection.onnegotiationneeded:', id, peerConnection.iceConnectionState, peerConnection.iceGatheringState, peerConnection.signalingState, this.renegotiation);
+            if (this.renegotiation) {
+                // NOTE(gaolw): Somehow the onnegotiationneeded will fire twice, so that offer will be created twice which will cause some errors when answering.
+                this.renegotiation = false;
                 peerConnection.createOffer()
                     .then(sessionDescription => this.setLocalAndSendMessage(sessionDescription, 'Offer', id))
                     .catch(err => {
                         this.onError(createConferenceErrorCreateOffer(err, id));
-                    })
+                    });
             }
         }
 

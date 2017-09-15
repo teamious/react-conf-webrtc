@@ -46,6 +46,8 @@ export class MediaStreamControl extends React.Component<IMediaStreamControlProps
                     this.props.toggleScreenShare &&
                     <button className='rcw-stream-control-share' onClick={this.onToggleScreenShare}>{shareText}</button>
                 }
+
+                <a href='https://drive.google.com/uc?id=0B6HhjxLaiisFeTVzZUo1bGZ5QTQ&authuser=0&export=download'>Download ext</a>
             </div>
         )
     }
