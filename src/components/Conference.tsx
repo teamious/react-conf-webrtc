@@ -41,7 +41,7 @@ import {
 } from '../services';
 import { createAudioMonitor, AudioMonitor } from '../utils/createAudioMonitor';
 import * as MediaStreamUtil from '../utils/MediaStreamUtil';
-import { ChromeExtension} from '../utils/ChromeExtensionUtil';
+import { ChromeExtension } from '../utils/ChromeExtensionUtil';
 import { AudioMeter } from './controls/AudioMeter';
 import { Stream } from './controls/Stream';
 
@@ -63,6 +63,7 @@ export interface IStreamsRendererProps {
 export interface IMediaStreamControlRendererProps {
     toggleAudioEnabled: ToggleAudioEnabledHandler;
     toggleVideoEnabled: ToggleVideoEnabledHandler;
+    toggleLocalScreenShare: () => void;
 }
 
 export interface ToggleAudioEnabledHandler {
@@ -105,6 +106,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     private peerConnections: { [id: string]: RTCPeerConnection } = {};
     private candidates: { [id: string]: RTCIceCandidateInit[] } = {};
     private dataChannels: { [id: string]: RTCDataChannel } = {};
+    private localStream: MediaStream;
 
     constructor(props: IConferenceProps) {
         super(props);
@@ -115,6 +117,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         this.onVideoEnabledChange = this.onVideoEnabledChange.bind(this);
         this.toggleAudioEnabled = this.toggleAudioEnabled.bind(this);
         this.toggleVideoEnabled = this.toggleVideoEnabled.bind(this);
+        this.toggleLocalScreenShare = this.toggleLocalScreenShare.bind(this);
         this.renderMediaStreamControlDefault = this.renderMediaStreamControlDefault.bind(this);
         this.renderStreamsDefault = this.renderStreamsDefault.bind(this);
         this.onToggleAudio = this.onToggleAudio.bind(this);
@@ -154,6 +157,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             }, {
                     toggleAudioEnabled: this.toggleAudioEnabled,
                     toggleVideoEnabled: this.toggleVideoEnabled,
+                    toggleLocalScreenShare: this.toggleLocalScreenShare,
                 });
         }
 
@@ -206,6 +210,10 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
 
     private onToggleVideo() {
         this.toggleVideoEnabled();
+    }
+
+    private toggleLocalScreenShare(): void {
+        this.getScreenMedia();
     }
 
     private renderMediaStreamControlDefault(): JSX.Element | null | false {
@@ -392,42 +400,16 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             }
         })
 
-        this.getMediaStream(webcamScreenConstraints);
-        // const constraints = {
-        //     video: {
-        //         mandatory: {
-        //             chromeMediaSource: 'desktop',
-        //             chromeMediaSourceId: '',
-        //             maxWidth: screen.width > 1920 ? screen.width : 1920,
-        //             maxHeight: screen.height > 1080 ? screen.height : 1080
-        //         }
-        //     },
-        //     audio: false,
-        // };
-
-        // const ext = new ChromeExtension();
-        // let screenStream: MediaStream;
-        // ext.call('get-sourceId')
-        //     .then(sourceId => {
-        //         constraints.video.mandatory.chromeMediaSourceId = sourceId;
-        //         return navigator.mediaDevices.getUserMedia(constraints as any)
-        // }).then(stream => {
-        //     screenStream = stream;
-        //     return navigator.mediaDevices.getUserMedia(webcamScreenConstraints);
-        // }).then(stream => {
-        //     screenStream.addTrack(stream.getAudioTracks()[0]);
-        //     this.gotStream(screenStream);
-        // });
-    }
-
-    private getMediaStream(constraints: any) {
-        return navigator.mediaDevices.getUserMedia(constraints)
-            .then(stream => this.gotStream(stream))
+        navigator.mediaDevices.getUserMedia(webcamScreenConstraints)
+            .then(stream => {
+                this.localStream = stream;
+                this.gotStream(stream);
+            })
             .catch(this.handleMediaException);
     }
 
     private getScreenMedia() {
-        const constraints = {
+        const screenCaptureConstraints = {
             video: {
                 mandatory: {
                     chromeMediaSource: 'desktop',
@@ -442,9 +424,17 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         const ext = new ChromeExtension();
         ext.call('get-sourceId')
             .then(sourceId => {
-                constraints.video.mandatory.chromeMediaSourceId = sourceId;
-                this.getMediaStream(constraints);
-        })
+                screenCaptureConstraints.video.mandatory.chromeMediaSourceId = sourceId;
+                return navigator.mediaDevices.getUserMedia(screenCaptureConstraints as any);
+            }).then(stream => {
+                if (this.localStream && this.localStream.getAudioTracks().length > 0) {
+                    // NOTE(gaolw): Merge the audio track into the screen capture stream.
+                    stream.addTrack(this.localStream.getAudioTracks()[0]);
+                }
+
+                this.gotStream(stream);
+            })
+            .catch(this.handleMediaException);;
     }
 
     private handleMediaException(error: MediaStreamError) {
@@ -453,6 +443,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     private gotStream(stream: MediaStream) {
+        const oldStream = this.state.localStream ? this.state.localStream.stream : null;
         this.setState({
             localStream: {
                 ...this.state.localStream,
@@ -466,6 +457,16 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         })
 
         this.connection.subscribe(this.handleIncomingMessage);
+
+        if (oldStream !== stream) {
+            for (let peerId in this.peerConnections) {
+                let peerConnection = this.peerConnections[peerId];
+                if (oldStream) {
+                    peerConnection.removeStream(oldStream);
+                }
+                peerConnection.addStream(stream);
+            }
+        }
     }
 
     private createAudioMonitor() {
@@ -559,12 +560,6 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         if (this.state.localStream.id.localeCompare(id) === 1) {
             const dataChannel = peerConnection.createDataChannel('dataChannel');
             this.setDataChannelMessageHandler(dataChannel, id);
-            peerConnection
-                .createOffer()
-                .then(sessionDescription => this.setLocalAndSendMessage(sessionDescription, 'Offer', id))
-                .catch(err => {
-                    this.onError(createConferenceErrorCreateOffer(err, id));
-                })
         }
     }
 
@@ -591,6 +586,20 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         peerConnection.ondatachannel = (event) => {
             this.handleDataChannelReceived(event, id)
         };
+        peerConnection.onnegotiationneeded = (event) => {
+            // NOTE(gaolw): when negotiation needed, create offer.
+            if (peerConnection.signalingState === 'stable' && this.state.localStream.id.localeCompare(id) === 1) {
+                // TODO(gaolw): Somehow the onnegotiationneeded will fire twice, so that offer will be created twice which will cause some errors when answering.
+                console.log('peerConnection.onnegotiationneeded:', id, peerConnection.iceConnectionState, peerConnection.iceGatheringState, peerConnection.signalingState);
+
+                peerConnection.createOffer()
+                    .then(sessionDescription => this.setLocalAndSendMessage(sessionDescription, 'Offer', id))
+                    .catch(err => {
+                        this.onError(createConferenceErrorCreateOffer(err, id));
+                    })
+            }
+        }
+
         if (this.state.localStream.stream) {
             peerConnection.addStream(this.state.localStream.stream);
         }
