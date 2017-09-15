@@ -52,6 +52,7 @@ export interface ConferenceStream {
     isSpeaking: boolean;
     audioEnabled: boolean;
     videoEnabled: boolean;
+    isScreenSharing: boolean;
 }
 
 export interface IStreamsRendererProps {
@@ -435,7 +436,10 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                 }
 
                 stream.getVideoTracks()[0].onended = this.onScreenMediaEnded;
-                this.setLocalStream(stream);
+                this.gotStream(stream, {
+                    isScreenSharing: true
+                });
+
             })
             .catch(this.handleMediaException);;
     }
@@ -450,11 +454,12 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         this.onError(createConferenceErrorGetUserMedia(error));
     }
 
-    private setLocalStream(stream: MediaStream) {
-        const oldStream = this.state.localStream.stream;
+    private gotStream(stream: MediaStream, conferenceStream?: Partial<ConferenceStream>) {
+        const oldStream = this.state.localStream ? this.state.localStream.stream : null;
         this.setState({
             localStream: {
                 ...this.state.localStream,
+                ...conferenceStream,
                 stream,
                 local: true,
                 audioEnabled: this.state.localStream.audioEnabled,
