@@ -106,8 +106,8 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     private peerConnections: { [id: string]: RTCPeerConnection } = {};
     private candidates: { [id: string]: RTCIceCandidateInit[] } = {};
     private dataChannels: { [id: string]: RTCDataChannel } = {};
-    private localStream: MediaStream;
-    private renegotiation: boolean = false;
+    private localCamStream: MediaStream;
+    private renegotiation: { [id: string]: boolean } = {};
 
     constructor(props: IConferenceProps) {
         super(props);
@@ -119,13 +119,14 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         this.toggleAudioEnabled = this.toggleAudioEnabled.bind(this);
         this.toggleVideoEnabled = this.toggleVideoEnabled.bind(this);
         this.toggleLocalScreenShare = this.toggleLocalScreenShare.bind(this);
+        this.onScreenMediaEnded = this.onScreenMediaEnded.bind(this);
         this.renderMediaStreamControlDefault = this.renderMediaStreamControlDefault.bind(this);
         this.renderStreamsDefault = this.renderStreamsDefault.bind(this);
         this.onToggleAudio = this.onToggleAudio.bind(this);
         this.onToggleVideo = this.onToggleVideo.bind(this);
 
         this.state = {
-            localStream: {} as ConferenceStream,
+            localStream: { audioEnabled: true, videoEnabled: true } as ConferenceStream,
             remoteStreams: {},
             audioMonitor: {} as AudioMonitor,
         }
@@ -403,8 +404,8 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
 
         navigator.mediaDevices.getUserMedia(webcamScreenConstraints)
             .then(stream => {
-                this.localStream = stream;
-                this.gotStream(stream);
+                this.localCamStream = stream;
+                this.setLocalStream(stream);
             })
             .catch(this.handleMediaException);
     }
@@ -428,14 +429,20 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                 screenCaptureConstraints.video.mandatory.chromeMediaSourceId = sourceId;
                 return navigator.mediaDevices.getUserMedia(screenCaptureConstraints as any);
             }).then(stream => {
-                if (this.localStream && this.localStream.getAudioTracks().length > 0) {
+                if (this.localCamStream && this.localCamStream.getAudioTracks().length > 0) {
                     // NOTE(gaolw): Merge the audio track into the screen capture stream.
-                    stream.addTrack(this.localStream.getAudioTracks()[0]);
+                    stream.addTrack(this.localCamStream.getAudioTracks()[0]);
                 }
 
-                this.gotStream(stream);
+                stream.getVideoTracks()[0].onended = this.onScreenMediaEnded;
+                this.setLocalStream(stream);
             })
             .catch(this.handleMediaException);;
+    }
+
+    private onScreenMediaEnded(e: any) {
+        // NOTE(gaolw): switch back to web cam media.
+        this.getUserMedia();
     }
 
     private handleMediaException(error: MediaStreamError) {
@@ -443,15 +450,15 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         this.onError(createConferenceErrorGetUserMedia(error));
     }
 
-    private gotStream(stream: MediaStream) {
-        const oldStream = this.state.localStream ? this.state.localStream.stream : null;
+    private setLocalStream(stream: MediaStream) {
+        const oldStream = this.state.localStream.stream;
         this.setState({
             localStream: {
                 ...this.state.localStream,
                 stream,
                 local: true,
-                audioEnabled: true,
-                videoEnabled: true,
+                audioEnabled: this.state.localStream.audioEnabled,
+                videoEnabled: this.state.localStream.videoEnabled,
             }
         }, () => {
             this.createAudioMonitor();
@@ -467,6 +474,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                 let peerConnection = this.peerConnections[peerId];
                 if (oldStream) {
                     peerConnection.removeStream(oldStream);
+                    this.renegotiation[peerId] = true;
                 }
                 peerConnection.addStream(stream);
             }
@@ -474,7 +482,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     private createAudioMonitor() {
-        if (!this.state.localStream) {
+        if (!this.state.localStream || !this.state.localStream.stream) {
             return;
         }
 
@@ -592,15 +600,19 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         peerConnection.onaddstream = (event) => {
             this.handleRemoteStreamAdded(event, id)
         };
+        peerConnection.onremovestream = (event) => {
+            console.log('peerConnection.onremovestream:', event);
+        }
         peerConnection.ondatachannel = (event) => {
             this.handleDataChannelReceived(event, id)
         };
         peerConnection.onnegotiationneeded = (event) => {
             // NOTE(gaolw): when negotiation needed, create offer.
-            console.log('peerConnection.onnegotiationneeded:', id, peerConnection.iceConnectionState, peerConnection.iceGatheringState, peerConnection.signalingState, this.renegotiation);
-            if (this.renegotiation) {
+            console.log('peerConnection.onnegotiationneeded:', id, this.renegotiation);
+            if (this.renegotiation[id]) {
+                console.log('peerConnection.onnegotiationneeded:createOffer', peerConnection);
                 // NOTE(gaolw): Somehow the onnegotiationneeded will fire twice, so that offer will be created twice which will cause some errors when answering.
-                this.renegotiation = false;
+                this.renegotiation[id] = false;
                 peerConnection.createOffer()
                     .then(sessionDescription => this.setLocalAndSendMessage(sessionDescription, 'Offer', id))
                     .catch(err => {
@@ -688,7 +700,6 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     private handleSpeechMessage(id: string, message: IDataChannelMessageSpeech) {
-        console.log('Remote: ' + id + ' is speaking: ', message.isSpeaking)
         this.setState({
             remoteStreams: {
                 ...this.state.remoteStreams,
@@ -807,6 +818,8 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             console.warn('handleOfferMessage(): Missing connection Id: %s', id);
             return
         }
+
+        console.log('handleOfferMessage', peerConnection.getRemoteStreams());
 
         const rtcSessionDescription = this.createRTCSessionDescription(message.sessionDescription)
         peerConnection
