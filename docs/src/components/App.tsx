@@ -73,7 +73,7 @@ export class App extends React.Component<{}, {}> {
 
     private renderConference(streamProps: IStreamsRendererProps, controlProps: IMediaStreamControlRendererProps): JSX.Element | null | false {
         const { localStream, remoteStreams, audioMonitor } = streamProps;
-        const { toggleAudioEnabled, toggleVideoEnabled } = controlProps;
+        const { toggleAudioEnabled, toggleVideoEnabled, toggleLocalScreenShare } = controlProps;
 
         return (
             <div className='docs-conf'>
@@ -95,6 +95,7 @@ export class App extends React.Component<{}, {}> {
                             videoEnabled={localStream.videoEnabled}
                             toggleAudioEnabled={toggleAudioEnabled}
                             toggleVideoEnabled={toggleVideoEnabled}
+                            toggleScreenShare={toggleLocalScreenShare}
                         />
                     </div>
                 ) : null}
@@ -111,7 +112,7 @@ export class App extends React.Component<{}, {}> {
             case 'noMicPermission':
                 return console.warn('No mic permission')
             default:
-                return console.warn(error)
+                return console.trace(error)
         }
     }
 }
