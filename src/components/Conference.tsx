@@ -467,9 +467,6 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         this.connection.subscribe(this.handleIncomingMessage);
 
         if (oldStream !== stream) {
-            if (oldStream) {
-                this.renegotiation = true;
-            }
             for (let peerId in this.peerConnections) {
                 let peerConnection = this.peerConnections[peerId];
                 if (oldStream) {
