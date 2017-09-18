@@ -462,8 +462,6 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                 ...conferenceStream,
                 stream,
                 local: true,
-                audioEnabled: this.state.localStream.audioEnabled,
-                videoEnabled: this.state.localStream.videoEnabled,
             }
         }, () => {
             this.createAudioMonitor();
