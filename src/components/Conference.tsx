@@ -436,7 +436,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                 }
 
                 stream.getVideoTracks()[0].onended = this.onScreenMediaEnded;
-                this.gotStream(stream, {
+                this.setLocalStream(stream, {
                     isScreenSharing: true
                 });
 
@@ -454,7 +454,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         this.onError(createConferenceErrorGetUserMedia(error));
     }
 
-    private gotStream(stream: MediaStream, conferenceStream?: Partial<ConferenceStream>) {
+    private setLocalStream(stream: MediaStream, conferenceStream?: Partial<ConferenceStream>) {
         const oldStream = this.state.localStream ? this.state.localStream.stream : null;
         this.setState({
             localStream: {
