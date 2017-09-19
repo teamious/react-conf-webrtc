@@ -1,5 +1,6 @@
 const webpack = require("webpack");
 const path = require('path');
+const copyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
     entry: {
@@ -23,5 +24,9 @@ module.exports = {
     plugins: [
         // minify
         // new webpack.optimize.UglifyJsPlugin()
+
+        new copyWebpackPlugin([
+            { from: 'src/assets' }
+        ])
     ]
 };
