@@ -1,6 +1,9 @@
 import { Promise } from 'es6-promise';
+import * as Message from '../../screen-capture-chrome-extensions/src/Message';
 
 export class ChromeExtension {
+    private callbackRegistry: { [id: string]: Promise<any> } = {};
+
     private callResolve: (value?: any) => void;
     constructor() {
         this.onMessage = this.onMessage.bind(this);
@@ -26,8 +29,6 @@ export class ChromeExtension {
         }
 
         const data = event.data;
-        if (data.sourceId && this.callResolve) {
-            this.callResolve(data.sourceId);
-        }
+
     }
 }
