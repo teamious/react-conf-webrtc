@@ -14,10 +14,12 @@
        "js": [ "content.js" ],
        "all_frames": true,
        "run_at": "document_end",
-       "matches": ["https://*"]
+       "matches": ["https://*/*"]
     }],
     "icons" : {
-        "48" : "icon.png"
+        "16" : "icon.png",
+        "48" : "icon.png",
+        "128" : "icon.png"
     },
     "permissions": [
         "desktopCapture",

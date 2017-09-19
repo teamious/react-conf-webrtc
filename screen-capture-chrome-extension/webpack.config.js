@@ -1,15 +1,14 @@
 const webpack = require("webpack");
 const path = require('path');
+const copyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
     entry: {
-        popup: path.join(__dirname, 'src/popup.ts'),
-        options: path.join(__dirname, 'src/options.ts'),
-        content_script: path.join(__dirname, 'src/content_script.ts'),
+        content: path.join(__dirname, 'src/content.ts'),
         background: path.join(__dirname, 'src/background.ts'),
     },
     output: {
-        path: path.join(__dirname, 'dist/js'),
+        path: path.join(__dirname, 'dist/'),
         filename: '[name].js'
     },
     module: {
@@ -23,14 +22,11 @@ module.exports = {
         extensions: ['.ts', '.tsx', '.js']
     },
     plugins: [
-
-        // pack common vender files
-        new webpack.optimize.CommonsChunkPlugin({
-            name: 'vendor',
-            minChunks: Infinity
-        }),
-
         // minify
         // new webpack.optimize.UglifyJsPlugin()
+
+        new copyWebpackPlugin([
+            { from: 'src/assets' }
+        ])
     ]
 };
