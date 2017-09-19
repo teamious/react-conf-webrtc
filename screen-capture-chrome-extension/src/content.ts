@@ -1,8 +1,6 @@
 import * as Message from './message';
 
-const extLoadedMsg: Message.IMessage = { type: Message.types.extLoaded };
 const background = chrome.runtime.connect();
-
 
 background.onMessage.addListener(function (message, sender) {
     console.log('background.onMessage', message);
@@ -16,19 +14,23 @@ window.addEventListener('message', function (event) {
         return;
     }
 
-    if (!Message.isWellKnownMessage(event.data)) {
+    const msg: Message.IMessage = event.data;
+    if (!Message.isWellKnownMessage(msg)) {
         // Unknown message
         return;
     }
 
-    if (event.data.msg === Message.types.extLoaded) {
-        window.postMessage(extLoadedMsg, '*');
+    if (msg.action !== Message.actions.call) {
+        // Not call message, no need to handle.
+        return;
+    }
+
+    if (msg.type === Message.types.extLoaded) {
+        msg.action = Message.actions.answer;
+        window.postMessage(msg, '*');
     }
     else {
         // Notify background script to handle the message.
-        background.postMessage(event.data);
+        background.postMessage(msg);
     }
 })
-
-// Inform browser that extension is loaded.
-window.postMessage(extLoadedMsg, '*');

@@ -6,29 +6,30 @@ chrome.runtime.onConnect.addListener(function (port) {
     port.onMessage.addListener(onPortMessage);
 
     function onPortMessage(message: Message.IMessage) {
+        if (message.action !== Message.actions.call) {
+            // Only handles call message.
+            return;
+        }
+
         if (message.type === Message.types.getScreenSourceId) {
-            chrome.desktopCapture.chooseDesktopMedia(screenOptions, port.sender.tab, onMediaChoosen);
+            chrome.desktopCapture.chooseDesktopMedia(screenOptions, port.sender.tab, sourceId => {
+                onMediaChoosen(sourceId, message);
+            });
         }
         else {
             console.warn('unknown message', message);
         }
     }
 
-    function onMediaChoosen(sourceId: string) {
+    function onMediaChoosen(sourceId: string, message: Message.IMessage) {
         if (!sourceId || !sourceId.length) {
-            const getSourceFailMsg: Message.IMessage = {
-                type: Message.types.getScreenSourceId,
-                error: Message.errors.screenPermissionDeied,
-            };
-
-            return port.postMessage(getSourceFailMsg);
+            message.action = Message.actions.answer;
+            message.error = Message.errors.screenPermissionDeied;
+            return port.postMessage(message);
         }
 
-        const getSourceSucceedMsg: Message.IMessage = {
-            type: Message.types.getScreenSourceId,
-            data: sourceId
-        };
-
-        return port.postMessage(getSourceSucceedMsg);
+        message.action = Message.actions.answer;
+        message.data = sourceId;
+        return port.postMessage(message);
     }
 });
