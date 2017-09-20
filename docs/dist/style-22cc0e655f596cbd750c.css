@@ -1,0 +1,60 @@
+* {
+  box-sizing: border-box; }
+
+.docs-conf {
+  height: 100%;
+  width: 100%;
+  background: black;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0; }
+  .docs-conf .docs-conf-stream-controls {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: #000;
+    text-align: center;
+    padding: 25px; }
+  .docs-conf .docs-conf-local-stream {
+    width: 100%;
+    height: auto;
+    overflow: auto; }
+    .docs-conf .docs-conf-local-stream video {
+      width: 100%;
+      height: auto; }
+  .docs-conf .docs-conf-remote-streams {
+    width: 20%;
+    position: fixed;
+    top: 0;
+    right: 0;
+    padding: 25px; }
+  .docs-conf .docs-conf-remote-stream {
+    position: relative; }
+    .docs-conf .docs-conf-remote-stream__stream.rcw-stream {
+      border: 5px solid rgba(0, 0, 0, 0.1); }
+    .docs-conf .docs-conf-remote-stream__stream video {
+      width: 100%;
+      height: auto; }
+    .docs-conf .docs-conf-remote-stream__name {
+      position: absolute;
+      bottom: 15px;
+      left: 15px; }
+      .docs-conf .docs-conf-remote-stream__name--is-speaking {
+        color: #0f0; }
+  .docs-conf .rcw-audio-meter {
+    height: 20px; }
+    .docs-conf .rcw-audio-meter__bar {
+      height: 100%;
+      background-color: #0f0; }
+
+video {
+  vertical-align: bottom; }
+
+.rcw-stream-controls {
+  position: absolute;
+  top: 0;
+  left: 0; }
+
+/*# sourceMappingURL=style-22cc0e655f596cbd750c.css.map*/

@@ -1,6 +1,7 @@
 import 'webrtc-adapter';
 import * as React from 'react';
 import * as classnames from 'classnames';
+import { env } from '../config/config';
 
 import {
     Conference,
@@ -119,7 +120,8 @@ export class App extends React.Component<{}, {}> {
 
 // TODO(andrew): Figure out how to make this work with env
 function connect() {
-    const conn = Connect('wss://' + location.hostname + ':8443/ws');
+    const webRTCUrl = env.SPREED_URL ? env.SPREED_URL : location.hostname + ":8443";
+    const conn = Connect('wss://' + webRTCUrl + '/ws');
     conn.onconnmessage = (msg, done) => {
         console.log('Intercepted SpreedResponse message with type: %s', msg.Data.Type);
         done()
