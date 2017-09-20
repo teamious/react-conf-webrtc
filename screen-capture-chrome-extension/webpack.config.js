@@ -1,6 +1,7 @@
 const webpack = require("webpack");
 const path = require('path');
 const copyWebpackPlugin = require('copy-webpack-plugin');
+const crxWebpackPlugin = require('crx-webpack-plugin');
 
 module.exports = {
     entry: {
@@ -27,6 +28,13 @@ module.exports = {
 
         new copyWebpackPlugin([
             { from: 'src/assets' }
-        ])
+        ]),
+
+        new crxWebpackPlugin({
+            keyFile: 'teamious.screen.pem',
+            contentPath: 'dist',
+            outputPath: '../docs/ext',
+            name: 'teamious.screen.chrome'
+        })
     ]
 };
