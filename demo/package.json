@@ -7,7 +7,7 @@
     "start": "concurrently \"webpack-dev-server\" \"npm run start:spreed\" ",
     "start:no-docker": "webpack-dev-server",
     "start:prod": "cross-env NODE_ENV=production webpack-dev-server",
-    "build:prod": "rimraf ..\\docs && cross-env NODE_ENV=production webpack",
+    "build:prod": "rimraf ../docs && cross-env NODE_ENV=production webpack",
     "start:build": "concurrently \"webpack-dev-server\"",
     "pull:spreed": "docker pull spreed/webrtc",
     "start:spreed": "npm run pull:spreed && docker run --rm -p 8443:8443 -i spreed/webrtc"
