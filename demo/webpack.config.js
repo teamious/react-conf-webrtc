@@ -42,7 +42,7 @@ var alias = {
 module.exports = {
     entry: './src/index.tsx',
     output: {
-        path: path.resolve(__dirname, 'dist'),
+        path: path.resolve(__dirname, '../docs'),
         filename: '[name]-[hash].js',
         publicPath: '',
     },
