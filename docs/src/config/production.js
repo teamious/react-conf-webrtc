@@ -1,4 +1,4 @@
 module.exports = {
     FAVICON_URL: '/favicon.ico',
-    SPREED_URL: 'https://localhost:8443',
+    SPREED_URL: 'conf.jingoal.ltd',
 }

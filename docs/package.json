@@ -6,6 +6,7 @@
   "scripts": {
     "start": "concurrently \"webpack-dev-server\" \"npm run start:spreed\" ",
     "start:no-docker": "webpack-dev-server",
+    "start:prod": "cross-env NODE_ENV=production webpack-dev-server",
     "build": "webpack",
     "build:prod": "rimraf dist && cross-env NODE_ENV=production webpack",
     "start:build": "concurrently \"webpack-dev-server\"",
