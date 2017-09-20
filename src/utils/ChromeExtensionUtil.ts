@@ -5,7 +5,9 @@ export class ChromeExtension {
     private callbackRegistry: { [id: string]: { resolve: (value?: any) => void, reject: (error: any) => void } } = {};
     private count: number = 0;
 
-    constructor() {
+    public static Instance = new ChromeExtension();
+
+    private constructor() {
         this.onMessage = this.onMessage.bind(this);
         window.addEventListener('message', this.onMessage);
     }

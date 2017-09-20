@@ -406,7 +406,9 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         navigator.mediaDevices.getUserMedia(webcamScreenConstraints)
             .then(stream => {
                 this.localCamStream = stream;
-                this.setLocalStream(stream);
+                this.setLocalStream(stream, {
+                    isScreenSharing: false
+                });
             })
             .catch(this.handleMediaException);
     }
@@ -424,8 +426,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             audio: false,
         };
 
-        const ext = new ChromeExtension();
-        ext.getShareScreenId()
+        ChromeExtension.Instance.getShareScreenId()
             .then(sourceId => {
                 screenCaptureConstraints.video.mandatory.chromeMediaSourceId = sourceId;
                 return navigator.mediaDevices.getUserMedia(screenCaptureConstraints as any);
