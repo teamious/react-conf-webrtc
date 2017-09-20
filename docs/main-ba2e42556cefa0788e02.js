@@ -1,6 +1,6 @@
 webpackJsonp([0],{
 
-/***/ 200:
+/***/ 186:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16,12 +16,12 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-__webpack_require__(201);
-var React = __webpack_require__(17);
-var classnames = __webpack_require__(212);
-var config_1 = __webpack_require__(213);
-var react_conf_webrtc_1 = __webpack_require__(214);
-var MediaStreamControl_1 = __webpack_require__(247);
+__webpack_require__(187);
+var React = __webpack_require__(14);
+var classnames = __webpack_require__(198);
+var config_1 = __webpack_require__(199);
+var react_conf_webrtc_1 = __webpack_require__(200);
+var MediaStreamControl_1 = __webpack_require__(233);
 var config = {
     'iceServers': [
         { 'urls': 'stun:stun.services.mozilla.com' },
@@ -95,32 +95,18 @@ function connect() {
 
 /***/ }),
 
-/***/ 213:
+/***/ 199:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.env = Object({"FAVICON_URL":"/favicon.ico","NODE_ENV":"development"});
+exports.env = Object({"FAVICON_URL":"/favicon.ico","SPREED_URL":"conf.jingoal.ltd","NODE_ENV":"production"});
 
 
 /***/ }),
 
-/***/ 214:
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-function __export(m) {
-    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
-}
-Object.defineProperty(exports, "__esModule", { value: true });
-__export(__webpack_require__(215));
-
-
-/***/ }),
-
-/***/ 215:
+/***/ 200:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -129,15 +115,12 @@ function __export(m) {
     for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 }
 Object.defineProperty(exports, "__esModule", { value: true });
-__export(__webpack_require__(216));
-__export(__webpack_require__(86));
-__export(__webpack_require__(244));
-__export(__webpack_require__(246));
+__export(__webpack_require__(201));
 
 
 /***/ }),
 
-/***/ 216:
+/***/ 201:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -146,13 +129,30 @@ function __export(m) {
     for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 }
 Object.defineProperty(exports, "__esModule", { value: true });
-__export(__webpack_require__(217));
-__export(__webpack_require__(243));
+__export(__webpack_require__(202));
+__export(__webpack_require__(81));
+__export(__webpack_require__(230));
+__export(__webpack_require__(232));
 
 
 /***/ }),
 
-/***/ 217:
+/***/ 202:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
+Object.defineProperty(exports, "__esModule", { value: true });
+__export(__webpack_require__(203));
+__export(__webpack_require__(229));
+
+
+/***/ }),
+
+/***/ 203:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -176,16 +176,16 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var React = __webpack_require__(17);
-var DetectRTC = __webpack_require__(218);
-__webpack_require__(219);
-var data_1 = __webpack_require__(86);
-var services_1 = __webpack_require__(232);
-var createAudioMonitor_1 = __webpack_require__(87);
-var MediaStreamUtil = __webpack_require__(88);
-var ChromeExtensionUtil_1 = __webpack_require__(238);
-var AudioMeter_1 = __webpack_require__(89);
-var Stream_1 = __webpack_require__(90);
+var React = __webpack_require__(14);
+var DetectRTC = __webpack_require__(204);
+__webpack_require__(205);
+var data_1 = __webpack_require__(81);
+var services_1 = __webpack_require__(218);
+var createAudioMonitor_1 = __webpack_require__(82);
+var MediaStreamUtil = __webpack_require__(83);
+var ChromeExtensionUtil_1 = __webpack_require__(224);
+var AudioMeter_1 = __webpack_require__(84);
+var Stream_1 = __webpack_require__(85);
 var webcamScreenConstraints = {
     audio: true,
     video: true,
@@ -843,7 +843,7 @@ exports.Conference = Conference;
 
 /***/ }),
 
-/***/ 230:
+/***/ 216:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -859,7 +859,7 @@ exports.DataChannelReadyState = {
 
 /***/ }),
 
-/***/ 231:
+/***/ 217:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -879,7 +879,7 @@ exports.ConferenceError = {
 
 /***/ }),
 
-/***/ 232:
+/***/ 218:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -888,14 +888,14 @@ function __export(m) {
     for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 }
 Object.defineProperty(exports, "__esModule", { value: true });
-__export(__webpack_require__(233));
-__export(__webpack_require__(234));
-__export(__webpack_require__(235));
+__export(__webpack_require__(219));
+__export(__webpack_require__(220));
+__export(__webpack_require__(221));
 
 
 /***/ }),
 
-/***/ 233:
+/***/ 219:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -942,7 +942,7 @@ exports.createOutgoingMessageBye = createOutgoingMessageBye;
 
 /***/ }),
 
-/***/ 234:
+/***/ 220:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -975,7 +975,7 @@ exports.createDataChannelMessageVideo = createDataChannelMessageVideo;
 
 /***/ }),
 
-/***/ 235:
+/***/ 221:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1042,14 +1042,14 @@ exports.createConferenceErrorGetUserMedia = createConferenceErrorGetUserMedia;
 
 /***/ }),
 
-/***/ 238:
+/***/ 224:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var es6_promise_1 = __webpack_require__(239);
-var Message = __webpack_require__(241);
+var es6_promise_1 = __webpack_require__(225);
+var Message = __webpack_require__(227);
 var ChromeExtension = (function () {
     function ChromeExtension() {
         this.callbackRegistry = {};
@@ -1129,14 +1129,14 @@ exports.ChromeExtension = ChromeExtension;
 
 /***/ }),
 
-/***/ 240:
+/***/ 226:
 /***/ (function(module, exports) {
 
 /* (ignored) */
 
 /***/ }),
 
-/***/ 241:
+/***/ 227:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1166,7 +1166,7 @@ exports.isWellKnownMessage = isWellKnownMessage;
 
 /***/ }),
 
-/***/ 243:
+/***/ 229:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1175,39 +1175,39 @@ function __export(m) {
     for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 }
 Object.defineProperty(exports, "__esModule", { value: true });
+__export(__webpack_require__(85));
+__export(__webpack_require__(84));
+
+
+/***/ }),
+
+/***/ 230:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
+Object.defineProperty(exports, "__esModule", { value: true });
+__export(__webpack_require__(231));
+__export(__webpack_require__(87));
 __export(__webpack_require__(90));
+__export(__webpack_require__(86));
 __export(__webpack_require__(89));
+__export(__webpack_require__(88));
 
 
 /***/ }),
 
-/***/ 244:
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-function __export(m) {
-    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
-}
-Object.defineProperty(exports, "__esModule", { value: true });
-__export(__webpack_require__(245));
-__export(__webpack_require__(92));
-__export(__webpack_require__(95));
-__export(__webpack_require__(91));
-__export(__webpack_require__(94));
-__export(__webpack_require__(93));
-
-
-/***/ }),
-
-/***/ 245:
+/***/ 231:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var SpreedConnection_1 = __webpack_require__(91);
-var SpreedAdapter_1 = __webpack_require__(92);
+var SpreedConnection_1 = __webpack_require__(86);
+var SpreedAdapter_1 = __webpack_require__(87);
 function Connect(url) {
     return new Connection(url);
 }
@@ -1264,7 +1264,7 @@ exports.Connection = Connection;
 
 /***/ }),
 
-/***/ 246:
+/***/ 232:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1273,13 +1273,13 @@ function __export(m) {
     for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 }
 Object.defineProperty(exports, "__esModule", { value: true });
-__export(__webpack_require__(87));
-__export(__webpack_require__(88));
+__export(__webpack_require__(82));
+__export(__webpack_require__(83));
 
 
 /***/ }),
 
-/***/ 247:
+/***/ 233:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1295,7 +1295,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var React = __webpack_require__(17);
+var React = __webpack_require__(14);
 var MediaStreamControl = (function (_super) {
     __extends(MediaStreamControl, _super);
     function MediaStreamControl() {
@@ -1334,7 +1334,7 @@ exports.MediaStreamControl = MediaStreamControl;
 
 /***/ }),
 
-/***/ 86:
+/***/ 81:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1343,19 +1343,19 @@ function __export(m) {
     for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 }
 Object.defineProperty(exports, "__esModule", { value: true });
-__export(__webpack_require__(230));
-__export(__webpack_require__(231));
+__export(__webpack_require__(216));
+__export(__webpack_require__(217));
 
 
 /***/ }),
 
-/***/ 87:
+/***/ 82:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var Hark = __webpack_require__(236);
+var Hark = __webpack_require__(222);
 function createAudioMonitor(stream) {
     return new AudioMonitor(stream);
 }
@@ -1377,7 +1377,7 @@ exports.AudioMonitor = AudioMonitor;
 
 /***/ }),
 
-/***/ 88:
+/***/ 83:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1396,7 +1396,7 @@ exports.stopMediaStream = stopMediaStream;
 
 /***/ }),
 
-/***/ 89:
+/***/ 84:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1412,7 +1412,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var React = __webpack_require__(17);
+var React = __webpack_require__(14);
 ;
 var AudioMeter = (function (_super) {
     __extends(AudioMeter, _super);
@@ -1450,7 +1450,7 @@ exports.AudioMeter = AudioMeter;
 
 /***/ }),
 
-/***/ 90:
+/***/ 85:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1466,8 +1466,8 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-var React = __webpack_require__(17);
-var classnames = __webpack_require__(242);
+var React = __webpack_require__(14);
+var classnames = __webpack_require__(228);
 ;
 var mirrorStyle = {
     transform: 'rotateY(180deg)',
@@ -1504,7 +1504,7 @@ exports.Stream = Stream;
 
 /***/ }),
 
-/***/ 91:
+/***/ 86:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1615,14 +1615,14 @@ exports.SpreedConnection = SpreedConnection;
 
 /***/ }),
 
-/***/ 92:
+/***/ 87:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var TranslateSpreedMessage_1 = __webpack_require__(93);
-var TranslateConferenceMessage_1 = __webpack_require__(94);
+var TranslateSpreedMessage_1 = __webpack_require__(88);
+var TranslateConferenceMessage_1 = __webpack_require__(89);
 // NOTE(andrews): SpreedAdapter is responsible for turning SpreedMessages into Conference messages
 // and vice-versa. If either receiving end has no receiver, it will queue the messages.
 var SpreedAdapter = (function () {
@@ -1729,7 +1729,7 @@ exports.SpreedAdapter = SpreedAdapter;
 
 /***/ }),
 
-/***/ 93:
+/***/ 88:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1833,7 +1833,7 @@ function translateOfferMessage(data, message) {
 
 /***/ }),
 
-/***/ 94:
+/***/ 89:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1847,7 +1847,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var SpreedAPI_1 = __webpack_require__(95);
+var SpreedAPI_1 = __webpack_require__(90);
 // NOTE(andrews): TranslateConferenceMessage delegates the work of translating the message
 // to individual functions based on the message type. Not all message types need to be translated
 // into an IConfIncomingMessage. In such cases, this function will return undefined.
@@ -1903,7 +1903,7 @@ function translateCandidateMessage(message) {
 
 /***/ }),
 
-/***/ 95:
+/***/ 90:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1941,27 +1941,27 @@ exports.createHelloRequest = createHelloRequest;
 
 /***/ }),
 
-/***/ 96:
+/***/ 91:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-__webpack_require__(97);
-var React = __webpack_require__(17);
-var ReactDOM = __webpack_require__(114);
-var App_1 = __webpack_require__(200);
+__webpack_require__(92);
+var React = __webpack_require__(14);
+var ReactDOM = __webpack_require__(109);
+var App_1 = __webpack_require__(186);
 ReactDOM.render(React.createElement(App_1.App, null), document.getElementById('react-root'));
 
 
 /***/ }),
 
-/***/ 97:
+/***/ 92:
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
 
 /***/ })
 
-},[96]);
-//# sourceMappingURL=main-b7ea8d2f02afee69bac6.js.map
+},[91]);
+//# sourceMappingURL=main-ba2e42556cefa0788e02.js.map
