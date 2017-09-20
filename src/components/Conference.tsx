@@ -425,7 +425,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         };
 
         const ext = new ChromeExtension();
-        ext.call('get-sourceId')
+        ext.getShareScreenId()
             .then(sourceId => {
                 screenCaptureConstraints.video.mandatory.chromeMediaSourceId = sourceId;
                 return navigator.mediaDevices.getUserMedia(screenCaptureConstraints as any);

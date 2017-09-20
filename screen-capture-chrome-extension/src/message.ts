@@ -1,4 +1,4 @@
-export const types = {
+export const types: { [string: string]: string } = {
     extLoaded: 'teamious-screen-capture-ext-loaded',
     getScreenSourceId: 'teamious-screen-capture-get-source-id'
 }
@@ -13,13 +13,19 @@ export const errors = {
 }
 
 export interface IMessage {
-    id: string;
+    id: string | number;
     action: string,
     type: string,
     data?: Object,
     error?: string
 }
 
-export function isWellKnownMessage(message: IMessage) {
-    return !!types[message.type];
+export function isWellKnownMessage(message: IMessage): boolean {
+    for (var type in types) {
+        if (types[type] === message.type) {
+            return true;
+        }
+    }
+
+    return false;
 }
