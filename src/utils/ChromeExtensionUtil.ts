@@ -1,5 +1,5 @@
 import { Promise } from 'es6-promise';
-import * as Message from '../../screen-capture-chrome-extension/src/Message';
+import * as Message from '../../screen-capture-chrome-extension/src/message';
 
 export class ChromeExtension {
     private callbackRegistry: { [id: string]: { resolve: (value?: any) => void, reject: (error: any) => void } } = {};
