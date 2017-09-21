@@ -33,4 +33,6 @@ window.addEventListener('message', function (event) {
         // Notify background script to handle the message.
         background.postMessage(msg);
     }
-})
+});
+
+console.log('extension loaded');

@@ -21,6 +21,10 @@ export interface IMessage {
 }
 
 export function isWellKnownMessage(message: IMessage): boolean {
+    if (!message) {
+        return false;
+    }
+
     for (var type in types) {
         if (types[type] === message.type) {
             return true;

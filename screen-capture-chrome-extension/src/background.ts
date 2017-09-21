@@ -33,3 +33,32 @@ chrome.runtime.onConnect.addListener(function (port) {
         return port.postMessage(message);
     }
 });
+
+chrome.runtime.onInstalled.addListener(function (detail) {
+    const manifest = chrome.runtime.getManifest();
+    // NOTE(gaolw): only alert can work here, not console.
+    // alert('Teamious Screen capture installed.');
+    const contentJs = manifest.content_scripts[0].js;
+
+    chrome.windows.getAll({ populate: true }, windows => {
+        windows.forEach(window => {
+            window.tabs.forEach(tab => {
+                //if (!tab.url.match(/(chrome):\/\//gi)) {
+                    injectContentJsIntoTab(tab, contentJs);
+                //}
+            })
+        })
+    });
+})
+
+function injectContentJsIntoTab(tab: chrome.tabs.Tab, contentJs: string[]) {
+    contentJs.forEach(js => {
+        chrome.tabs.executeScript(tab.id, {
+            file: js
+        }, function () {
+            if (chrome.runtime.lastError) {
+                console.log(chrome.runtime.lastError);
+            }
+        });
+    });
+}
