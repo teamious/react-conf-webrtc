@@ -1,6 +1,6 @@
 webpackJsonp([0],{
 
-/***/ 186:
+/***/ 188:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16,12 +16,12 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-__webpack_require__(187);
+__webpack_require__(189);
 var React = __webpack_require__(14);
-var classnames = __webpack_require__(198);
-var config_1 = __webpack_require__(199);
-var react_conf_webrtc_1 = __webpack_require__(200);
-var MediaStreamControl_1 = __webpack_require__(233);
+var classnames = __webpack_require__(200);
+var config_1 = __webpack_require__(201);
+var react_conf_webrtc_1 = __webpack_require__(80);
+var MediaStreamControl_1 = __webpack_require__(235);
 var config = {
     'iceServers': [
         { 'urls': 'stun:stun.services.mozilla.com' },
@@ -95,44 +95,13 @@ function connect() {
 
 /***/ }),
 
-/***/ 199:
+/***/ 201:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.env = Object({"FAVICON_URL":"/favicon.ico","SPREED_URL":"conf.jingoal.ltd","NODE_ENV":"production"});
-
-
-/***/ }),
-
-/***/ 200:
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-function __export(m) {
-    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
-}
-Object.defineProperty(exports, "__esModule", { value: true });
-__export(__webpack_require__(201));
-
-
-/***/ }),
-
-/***/ 201:
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-function __export(m) {
-    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
-}
-Object.defineProperty(exports, "__esModule", { value: true });
-__export(__webpack_require__(202));
-__export(__webpack_require__(81));
-__export(__webpack_require__(230));
-__export(__webpack_require__(232));
 
 
 /***/ }),
@@ -147,12 +116,29 @@ function __export(m) {
 }
 Object.defineProperty(exports, "__esModule", { value: true });
 __export(__webpack_require__(203));
-__export(__webpack_require__(229));
+__export(__webpack_require__(82));
+__export(__webpack_require__(232));
+__export(__webpack_require__(234));
 
 
 /***/ }),
 
 /***/ 203:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
+Object.defineProperty(exports, "__esModule", { value: true });
+__export(__webpack_require__(204));
+__export(__webpack_require__(231));
+
+
+/***/ }),
+
+/***/ 204:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -177,15 +163,15 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var React = __webpack_require__(14);
-var DetectRTC = __webpack_require__(204);
-__webpack_require__(205);
-var data_1 = __webpack_require__(81);
-var services_1 = __webpack_require__(218);
-var createAudioMonitor_1 = __webpack_require__(82);
-var MediaStreamUtil = __webpack_require__(83);
-var ChromeExtensionUtil_1 = __webpack_require__(224);
-var AudioMeter_1 = __webpack_require__(84);
-var Stream_1 = __webpack_require__(85);
+var DetectRTC = __webpack_require__(205);
+__webpack_require__(206);
+var data_1 = __webpack_require__(82);
+var services_1 = __webpack_require__(219);
+var createAudioMonitor_1 = __webpack_require__(83);
+var MediaStreamUtil = __webpack_require__(84);
+var ChromeExtensionUtil_1 = __webpack_require__(85);
+var AudioMeter_1 = __webpack_require__(86);
+var Stream_1 = __webpack_require__(87);
 var webcamScreenConstraints = {
     audio: true,
     video: true,
@@ -843,7 +829,7 @@ exports.Conference = Conference;
 
 /***/ }),
 
-/***/ 216:
+/***/ 217:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -859,7 +845,7 @@ exports.DataChannelReadyState = {
 
 /***/ }),
 
-/***/ 217:
+/***/ 218:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -879,7 +865,7 @@ exports.ConferenceError = {
 
 /***/ }),
 
-/***/ 218:
+/***/ 219:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -888,14 +874,14 @@ function __export(m) {
     for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 }
 Object.defineProperty(exports, "__esModule", { value: true });
-__export(__webpack_require__(219));
 __export(__webpack_require__(220));
 __export(__webpack_require__(221));
+__export(__webpack_require__(222));
 
 
 /***/ }),
 
-/***/ 219:
+/***/ 220:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -942,7 +928,7 @@ exports.createOutgoingMessageBye = createOutgoingMessageBye;
 
 /***/ }),
 
-/***/ 220:
+/***/ 221:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -975,7 +961,7 @@ exports.createDataChannelMessageVideo = createDataChannelMessageVideo;
 
 /***/ }),
 
-/***/ 221:
+/***/ 222:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1042,93 +1028,6 @@ exports.createConferenceErrorGetUserMedia = createConferenceErrorGetUserMedia;
 
 /***/ }),
 
-/***/ 224:
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var es6_promise_1 = __webpack_require__(225);
-var Message = __webpack_require__(227);
-var ChromeExtension = (function () {
-    function ChromeExtension() {
-        this.callbackRegistry = {};
-        this.count = 0;
-        this.onMessage = this.onMessage.bind(this);
-        window.addEventListener('message', this.onMessage);
-    }
-    ChromeExtension.prototype.isExtensionAvailable = function () {
-        return this.call(Message.types.extLoaded);
-    };
-    ChromeExtension.prototype.getShareScreenId = function () {
-        return this.call(Message.types.getScreenSourceId);
-    };
-    ChromeExtension.prototype.dispose = function () {
-        window.removeEventListener('message', this.onMessage);
-    };
-    ChromeExtension.prototype.call = function (type, data) {
-        var _this = this;
-        var msg = {
-            type: type,
-            data: data,
-            action: Message.actions.call,
-            id: this.count++
-        };
-        var promise = new es6_promise_1.Promise(function (resolve, reject) {
-            _this.callbackRegistry[msg.id] = { resolve: resolve, reject: reject };
-            window.postMessage(msg, '*');
-        });
-        return promise;
-    };
-    ChromeExtension.prototype.onMessage = function (event) {
-        if (event.origin != window.location.origin) {
-            return;
-        }
-        var msg = event.data;
-        if (!Message.isWellKnownMessage(msg)) {
-            // Unknown message
-            return;
-        }
-        if (msg.action === Message.actions.call) {
-            // Ignore call message.
-            return;
-        }
-        else if (msg.action === Message.actions.answer) {
-            this.handleMsg(msg);
-        }
-        else {
-            console.log('unknown message', msg);
-        }
-    };
-    ChromeExtension.prototype.handleMsg = function (msg) {
-        if (!this.callbackRegistry[msg.id]) {
-            return;
-        }
-        switch (msg.type) {
-            case Message.types.extLoaded:
-                this.callbackRegistry[msg.id].resolve(true);
-                break;
-            case Message.types.getScreenSourceId:
-                if (msg.error) {
-                    this.callbackRegistry[msg.id].reject(msg.error);
-                }
-                else {
-                    this.callbackRegistry[msg.id].resolve(msg.data);
-                }
-                break;
-            default:
-                console.warn('unknown message', msg);
-                break;
-        }
-    };
-    ChromeExtension.Instance = new ChromeExtension();
-    return ChromeExtension;
-}());
-exports.ChromeExtension = ChromeExtension;
-
-
-/***/ }),
-
 /***/ 226:
 /***/ (function(module, exports) {
 
@@ -1136,7 +1035,7 @@ exports.ChromeExtension = ChromeExtension;
 
 /***/ }),
 
-/***/ 227:
+/***/ 229:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1166,48 +1065,48 @@ exports.isWellKnownMessage = isWellKnownMessage;
 
 /***/ }),
 
-/***/ 229:
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-function __export(m) {
-    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
-}
-Object.defineProperty(exports, "__esModule", { value: true });
-__export(__webpack_require__(85));
-__export(__webpack_require__(84));
-
-
-/***/ }),
-
-/***/ 230:
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-function __export(m) {
-    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
-}
-Object.defineProperty(exports, "__esModule", { value: true });
-__export(__webpack_require__(231));
-__export(__webpack_require__(87));
-__export(__webpack_require__(90));
-__export(__webpack_require__(86));
-__export(__webpack_require__(89));
-__export(__webpack_require__(88));
-
-
-/***/ }),
-
 /***/ 231:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
 Object.defineProperty(exports, "__esModule", { value: true });
-var SpreedConnection_1 = __webpack_require__(86);
-var SpreedAdapter_1 = __webpack_require__(87);
+__export(__webpack_require__(87));
+__export(__webpack_require__(86));
+
+
+/***/ }),
+
+/***/ 232:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
+Object.defineProperty(exports, "__esModule", { value: true });
+__export(__webpack_require__(233));
+__export(__webpack_require__(89));
+__export(__webpack_require__(92));
+__export(__webpack_require__(88));
+__export(__webpack_require__(91));
+__export(__webpack_require__(90));
+
+
+/***/ }),
+
+/***/ 233:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var SpreedConnection_1 = __webpack_require__(88);
+var SpreedAdapter_1 = __webpack_require__(89);
 function Connect(url) {
     return new Connection(url);
 }
@@ -1264,7 +1163,7 @@ exports.Connection = Connection;
 
 /***/ }),
 
-/***/ 232:
+/***/ 234:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1273,13 +1172,14 @@ function __export(m) {
     for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 }
 Object.defineProperty(exports, "__esModule", { value: true });
-__export(__webpack_require__(82));
 __export(__webpack_require__(83));
+__export(__webpack_require__(84));
+__export(__webpack_require__(85));
 
 
 /***/ }),
 
-/***/ 233:
+/***/ 235:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1296,6 +1196,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var React = __webpack_require__(14);
+var react_conf_webrtc_1 = __webpack_require__(80);
 var MediaStreamControl = (function (_super) {
     __extends(MediaStreamControl, _super);
     function MediaStreamControl() {
@@ -1312,9 +1213,29 @@ var MediaStreamControl = (function (_super) {
         this.props.toggleVideoEnabled();
     };
     MediaStreamControl.prototype.onToggleScreenShare = function () {
-        if (this.props.toggleScreenShare) {
-            this.props.toggleScreenShare();
-        }
+        var _this = this;
+        react_conf_webrtc_1.ChromeExtension.Instance.isExtensionAvailable()
+            .then(function (available) {
+            if (available) {
+                if (_this.props.toggleScreenShare) {
+                    _this.props.toggleScreenShare();
+                }
+            }
+            else {
+                _this.downloadFile('https://github.com/teamious/react-conf-webrtc/raw/master/docs/ext/teamious.screen.chrome.crx');
+            }
+        });
+    };
+    MediaStreamControl.prototype.downloadFile = function (url) {
+        // Construct the a element
+        var link = document.createElement("a");
+        link.target = "_blank";
+        // Construct the uri
+        link.href = url;
+        document.body.appendChild(link);
+        link.click();
+        // Cleanup the DOM
+        document.body.removeChild(link);
     };
     MediaStreamControl.prototype.render = function () {
         var muteText = this.props.audioEnabled ? 'Mute Audio' : 'Unmute Audio';
@@ -1323,9 +1244,8 @@ var MediaStreamControl = (function (_super) {
         return (React.createElement("div", { className: 'rcw-stream-controls' },
             React.createElement("button", { className: 'rcw-stream-control-mute', onClick: this.onToggleAudioEnabled }, muteText),
             React.createElement("button", { className: 'rcw-stream-control-disable', onClick: this.onToggleVideoEnabled }, disableText),
-            this.props.toggleScreenShare &&
-                React.createElement("button", { className: 'rcw-stream-control-share', onClick: this.onToggleScreenShare }, shareText),
-            React.createElement("a", { href: 'https://drive.google.com/uc?id=0B6HhjxLaiisFeTVzZUo1bGZ5QTQ&authuser=0&export=download' }, "Download ext")));
+            this.props.toggleScreenShare && react_conf_webrtc_1.ChromeExtension.Instance.isChrome() &&
+                React.createElement("button", { className: 'rcw-stream-control-share', onClick: this.onToggleScreenShare }, shareText)));
     };
     return MediaStreamControl;
 }(React.Component));
@@ -1334,7 +1254,7 @@ exports.MediaStreamControl = MediaStreamControl;
 
 /***/ }),
 
-/***/ 81:
+/***/ 80:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1343,8 +1263,7 @@ function __export(m) {
     for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 }
 Object.defineProperty(exports, "__esModule", { value: true });
-__export(__webpack_require__(216));
-__export(__webpack_require__(217));
+__export(__webpack_require__(202));
 
 
 /***/ }),
@@ -1354,8 +1273,23 @@ __export(__webpack_require__(217));
 
 "use strict";
 
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
 Object.defineProperty(exports, "__esModule", { value: true });
-var Hark = __webpack_require__(222);
+__export(__webpack_require__(217));
+__export(__webpack_require__(218));
+
+
+/***/ }),
+
+/***/ 83:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var Hark = __webpack_require__(223);
 function createAudioMonitor(stream) {
     return new AudioMonitor(stream);
 }
@@ -1377,7 +1311,7 @@ exports.AudioMonitor = AudioMonitor;
 
 /***/ }),
 
-/***/ 83:
+/***/ 84:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1396,7 +1330,114 @@ exports.stopMediaStream = stopMediaStream;
 
 /***/ }),
 
-/***/ 84:
+/***/ 85:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var es6_promise_1 = __webpack_require__(225);
+var broswer = __webpack_require__(227);
+var Message = __webpack_require__(229);
+var IsExtensionAvailableTimeout = 1000; // 1000 MS
+var ChromeExtension = (function () {
+    function ChromeExtension() {
+        this.callbackRegistry = {};
+        this.count = 0;
+        this.onMessage = this.onMessage.bind(this);
+        window.addEventListener('message', this.onMessage);
+    }
+    ChromeExtension.prototype.isChrome = function () {
+        return broswer.chrome;
+    };
+    ChromeExtension.prototype.isExtensionAvailable = function () {
+        var _this = this;
+        var _a = this.call(Message.types.extLoaded), msg = _a.msg, promise = _a.promise;
+        window.setTimeout(function () {
+            var handler = _this.callbackRegistry[msg.id];
+            if (handler) {
+                delete _this.callbackRegistry[msg.id];
+                handler.resolve(false);
+            }
+        }, IsExtensionAvailableTimeout);
+        return promise;
+    };
+    ChromeExtension.prototype.getShareScreenId = function () {
+        var _a = this.call(Message.types.getScreenSourceId), msg = _a.msg, promise = _a.promise;
+        return promise;
+    };
+    ChromeExtension.prototype.dispose = function () {
+        window.removeEventListener('message', this.onMessage);
+    };
+    ChromeExtension.prototype.call = function (type, data) {
+        var _this = this;
+        var msg = {
+            type: type,
+            data: data,
+            action: Message.actions.call,
+            id: this.count++
+        };
+        var promise = new es6_promise_1.Promise(function (resolve, reject) {
+            _this.callbackRegistry[msg.id] = { resolve: resolve, reject: reject };
+            window.postMessage(msg, '*');
+        });
+        return {
+            msg: msg,
+            promise: promise
+        };
+    };
+    ChromeExtension.prototype.onMessage = function (event) {
+        if (event.origin != window.location.origin) {
+            return;
+        }
+        var msg = event.data;
+        if (!Message.isWellKnownMessage(msg)) {
+            // Unknown message
+            return;
+        }
+        if (msg.action === Message.actions.call) {
+            // Ignore call message.
+            return;
+        }
+        else if (msg.action === Message.actions.answer) {
+            this.handleMsg(msg);
+        }
+        else {
+            console.log('unknown message', msg);
+        }
+    };
+    ChromeExtension.prototype.handleMsg = function (msg) {
+        var handler = this.callbackRegistry[msg.id];
+        if (!handler) {
+            return;
+        }
+        delete this.callbackRegistry[msg.id];
+        switch (msg.type) {
+            case Message.types.extLoaded:
+                handler.resolve(true);
+                break;
+            case Message.types.getScreenSourceId:
+                if (msg.error) {
+                    handler.reject(msg.error);
+                }
+                else {
+                    handler.resolve(msg.data);
+                }
+                break;
+            default:
+                console.warn('unknown message', msg);
+                break;
+        }
+    };
+    ChromeExtension.Instance = new ChromeExtension();
+    return ChromeExtension;
+}());
+exports.ChromeExtension = ChromeExtension;
+
+
+/***/ }),
+
+/***/ 86:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1450,7 +1491,7 @@ exports.AudioMeter = AudioMeter;
 
 /***/ }),
 
-/***/ 85:
+/***/ 87:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1467,7 +1508,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var React = __webpack_require__(14);
-var classnames = __webpack_require__(228);
+var classnames = __webpack_require__(230);
 ;
 var mirrorStyle = {
     transform: 'rotateY(180deg)',
@@ -1504,7 +1545,7 @@ exports.Stream = Stream;
 
 /***/ }),
 
-/***/ 86:
+/***/ 88:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1615,14 +1656,14 @@ exports.SpreedConnection = SpreedConnection;
 
 /***/ }),
 
-/***/ 87:
+/***/ 89:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var TranslateSpreedMessage_1 = __webpack_require__(88);
-var TranslateConferenceMessage_1 = __webpack_require__(89);
+var TranslateSpreedMessage_1 = __webpack_require__(90);
+var TranslateConferenceMessage_1 = __webpack_require__(91);
 // NOTE(andrews): SpreedAdapter is responsible for turning SpreedMessages into Conference messages
 // and vice-versa. If either receiving end has no receiver, it will queue the messages.
 var SpreedAdapter = (function () {
@@ -1729,7 +1770,7 @@ exports.SpreedAdapter = SpreedAdapter;
 
 /***/ }),
 
-/***/ 88:
+/***/ 90:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1833,7 +1874,7 @@ function translateOfferMessage(data, message) {
 
 /***/ }),
 
-/***/ 89:
+/***/ 91:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1847,7 +1888,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var SpreedAPI_1 = __webpack_require__(90);
+var SpreedAPI_1 = __webpack_require__(92);
 // NOTE(andrews): TranslateConferenceMessage delegates the work of translating the message
 // to individual functions based on the message type. Not all message types need to be translated
 // into an IConfIncomingMessage. In such cases, this function will return undefined.
@@ -1903,7 +1944,7 @@ function translateCandidateMessage(message) {
 
 /***/ }),
 
-/***/ 90:
+/***/ 92:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1941,27 +1982,27 @@ exports.createHelloRequest = createHelloRequest;
 
 /***/ }),
 
-/***/ 91:
+/***/ 93:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-__webpack_require__(92);
+__webpack_require__(94);
 var React = __webpack_require__(14);
-var ReactDOM = __webpack_require__(109);
-var App_1 = __webpack_require__(186);
+var ReactDOM = __webpack_require__(111);
+var App_1 = __webpack_require__(188);
 ReactDOM.render(React.createElement(App_1.App, null), document.getElementById('react-root'));
 
 
 /***/ }),
 
-/***/ 92:
+/***/ 94:
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
 
 /***/ })
 
-},[91]);
-//# sourceMappingURL=main-ba2e42556cefa0788e02.js.map
+},[93]);
+//# sourceMappingURL=main-df4b7472e89fb69f91b4.js.map
