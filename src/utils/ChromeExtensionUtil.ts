@@ -1,5 +1,8 @@
 import { Promise } from 'es6-promise';
+import * as broswer from 'bowser';
 import * as Message from '../../screen-capture-chrome-extension/src/message';
+
+const IsExtensionAvailableTimeout = 1000; // 1000 MS
 
 export class ChromeExtension {
     private callbackRegistry: { [id: string]: { resolve: (value?: any) => void, reject: (error: any) => void } } = {};
@@ -12,12 +15,25 @@ export class ChromeExtension {
         window.addEventListener('message', this.onMessage);
     }
 
+    public isChrome() {
+        return broswer.chrome;
+    }
+
     public isExtensionAvailable(): Promise<boolean> {
-        return this.call(Message.types.extLoaded);
+        const { msg, promise } = this.call(Message.types.extLoaded);
+        window.setTimeout(() => {
+            const handler = this.callbackRegistry[msg.id];
+            if (handler) {
+                delete this.callbackRegistry[msg.id];
+                handler.resolve(false);
+            }
+        }, IsExtensionAvailableTimeout)
+        return promise;
     }
 
     public getShareScreenId(): Promise<string> {
-        return this.call(Message.types.getScreenSourceId);
+        const { msg, promise } = this.call(Message.types.getScreenSourceId);
+        return promise;
     }
 
     public dispose() {
@@ -37,7 +53,10 @@ export class ChromeExtension {
             window.postMessage(msg, '*');
         });
 
-        return promise;
+        return {
+            msg,
+            promise
+        };
     }
 
     private onMessage(event: any) {
@@ -64,20 +83,23 @@ export class ChromeExtension {
     }
 
     private handleMsg(msg: Message.IMessage) {
-        if (!this.callbackRegistry[msg.id]) {
+        const handler = this.callbackRegistry[msg.id];
+        if (!handler) {
             return;
         }
 
+        delete this.callbackRegistry[msg.id];
+
         switch (msg.type) {
             case Message.types.extLoaded:
-                this.callbackRegistry[msg.id].resolve(true);
+                handler.resolve(true);
                 break;
             case Message.types.getScreenSourceId:
                 if (msg.error) {
-                    this.callbackRegistry[msg.id].reject(msg.error);
+                    handler.reject(msg.error);
                 }
                 else {
-                    this.callbackRegistry[msg.id].resolve(msg.data);
+                    handler.resolve(msg.data);
                 }
                 break;
             default:

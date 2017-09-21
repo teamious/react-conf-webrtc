@@ -26,6 +26,7 @@
   ],
   "typings": "./dist/index.d.ts",
   "dependencies": {
+    "bowser": "^1.7.3",
     "classnames": "^2.0.0",
     "detectrtc": "^1.3.5",
     "es6-promise": "^4.1.1",
