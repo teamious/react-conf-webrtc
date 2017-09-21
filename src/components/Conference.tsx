@@ -646,9 +646,9 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
 
         let message;
         if (type === 'Offer') {
-            message = createOutgoingMessageOffer(sessionDescription.toJSON(), id);
+            message = createOutgoingMessageOffer(sessionDescription, id);
         } else if (type === 'Answer') {
-            message = createOutgoingMessageAnswer(sessionDescription.toJSON(), id);
+            message = createOutgoingMessageAnswer(sessionDescription, id);
         }
 
         if (message) {
@@ -822,7 +822,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
 
         console.log('handleOfferMessage', peerConnection.getRemoteStreams());
 
-        const rtcSessionDescription = this.createRTCSessionDescription(message.sessionDescription)
+        const rtcSessionDescription = message.sessionDescription;
         peerConnection
             .setRemoteDescription(rtcSessionDescription)
             .then(() => {
@@ -837,11 +837,6 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         // TODO(yunsi): Add error handling.
     }
 
-    // NOTE(yunsi): Convert the RTCSessionDescription JSON object to an actual RTCSessionDescription object.
-    private createRTCSessionDescription(sessionDescription: RTCSessionDescriptionInit) {
-        return new RTCSessionDescription(sessionDescription)
-    }
-
     private handleAnswerMessage(message: IConfIncomingMessageAnswer) {
         const id = message.from;
         const peerConnection = this.getPeerConnectionById(id);
@@ -851,7 +846,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             return
         }
 
-        const rtcSessionDescription = this.createRTCSessionDescription(message.sessionDescription)
+        const rtcSessionDescription = message.sessionDescription;
         peerConnection
             .setRemoteDescription(rtcSessionDescription)
             .then(() => this.processCandidates(id))

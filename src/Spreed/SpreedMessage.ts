@@ -44,7 +44,7 @@ export interface SpreedMessageWelcome {
 export interface SpreedMessageAnswer {
     Type: 'Answer';
     To: SpreedUserID;
-    Answer: RTCSessionDescriptionInit;
+    Answer: RTCSessionDescription;
 }
 
 // NOTE(andrews): SpreedMessageLeft is triggered and sent to all clients when a user has left the room.
@@ -102,7 +102,7 @@ export interface SpreedMessageJoined {
 // an offer.
 export interface SpreedMessageOffer {
     Type: 'Offer';
-    Offer: RTCSessionDescriptionInit;
+    Offer: RTCSessionDescription;
     To: SpreedUserID;
 }
 
