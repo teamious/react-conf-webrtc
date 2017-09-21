@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ConferenceStream } from 'react-conf-webrtc'
+import { ConferenceStream, ChromeExtension } from 'react-conf-webrtc';
 
 interface IMediaStreamControlProps {
     audioEnabled: boolean;
@@ -27,9 +27,31 @@ export class MediaStreamControl extends React.Component<IMediaStreamControlProps
     }
 
     private onToggleScreenShare() {
-        if (this.props.toggleScreenShare) {
-            this.props.toggleScreenShare();
-        }
+        ChromeExtension.Instance.isExtensionAvailable()
+            .then(available => {
+                if (available) {
+                    if (this.props.toggleScreenShare) {
+                        this.props.toggleScreenShare();
+                    }
+                }
+                else {
+                    this.downloadFile('https://github.com/teamious/react-conf-webrtc/raw/master/docs/ext/teamious.screen.chrome.crx');
+                }
+            })
+    }
+
+    private downloadFile(url: string) {
+        // Construct the a element
+        var link = document.createElement("a");
+        link.target = "_blank";
+
+        // Construct the uri
+        link.href = url;
+        document.body.appendChild(link);
+        link.click();
+
+        // Cleanup the DOM
+        document.body.removeChild(link);
     }
 
     render() {
@@ -43,11 +65,9 @@ export class MediaStreamControl extends React.Component<IMediaStreamControlProps
                 <button className='rcw-stream-control-disable' onClick={this.onToggleVideoEnabled}>{disableText}</button>
 
                 {
-                    this.props.toggleScreenShare &&
+                    this.props.toggleScreenShare && ChromeExtension.Instance.isChrome() &&
                     <button className='rcw-stream-control-share' onClick={this.onToggleScreenShare}>{shareText}</button>
                 }
-
-                <a href='https://drive.google.com/uc?id=0B6HhjxLaiisFeTVzZUo1bGZ5QTQ&authuser=0&export=download'>Download ext</a>
             </div>
         )
     }
