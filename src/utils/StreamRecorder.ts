@@ -70,7 +70,6 @@ export class StreamRecorder {
             if (!MediaRecorder.isTypeSupported(options.mimeType)) {
                 options = { mimeType: 'video/webm' };
                 if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-                    console.log(options.mimeType + ' is not Supported');
                     options = { mimeType: '' };
                 }
             }
