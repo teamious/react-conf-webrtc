@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ConferenceStream, ChromeExtension } from 'react-conf-webrtc';
+import { ConferenceStream, ChromeExtension, DownloadUtil } from 'react-conf-webrtc';
 
 interface IMediaStreamControlProps {
     audioEnabled: boolean;
@@ -7,6 +7,7 @@ interface IMediaStreamControlProps {
     toggleAudioEnabled: (stream?: ConferenceStream) => void;
     toggleVideoEnabled: (stream?: ConferenceStream) => void;
     toggleScreenShare?: () => void;
+    toggleRecording?: () => void;
 }
 
 export class MediaStreamControl extends React.Component<IMediaStreamControlProps, {}> {
@@ -16,6 +17,7 @@ export class MediaStreamControl extends React.Component<IMediaStreamControlProps
         this.onToggleAudioEnabled = this.onToggleAudioEnabled.bind(this);
         this.onToggleVideoEnabled = this.onToggleVideoEnabled.bind(this);
         this.onToggleScreenShare = this.onToggleScreenShare.bind(this);
+        this.onToggleRecording = this.onToggleRecording.bind(this);
     }
 
     private onToggleAudioEnabled() {
@@ -35,29 +37,22 @@ export class MediaStreamControl extends React.Component<IMediaStreamControlProps
                     }
                 }
                 else {
-                    this.downloadFile('https://github.com/teamious/react-conf-webrtc/raw/master/docs/ext/teamious.screen.chrome.crx');
+                    DownloadUtil.download('https://github.com/teamious/react-conf-webrtc/raw/master/docs/ext/teamious.screen.chrome.crx');
                 }
             })
     }
 
-    private downloadFile(url: string) {
-        // Construct the a element
-        var link = document.createElement("a");
-        link.target = "_blank";
-
-        // Construct the uri
-        link.href = url;
-        document.body.appendChild(link);
-        link.click();
-
-        // Cleanup the DOM
-        document.body.removeChild(link);
+    private onToggleRecording() {
+        if (this.props.toggleRecording) {
+            this.props.toggleRecording();
+        }
     }
 
     render() {
         const muteText = this.props.audioEnabled ? 'Mute Audio' : 'Unmute Audio';
         const disableText = this.props.videoEnabled ? 'Disable Video' : 'Enable Video';
         const shareText = this.props.videoEnabled ? 'Share Screen' : 'Stop';
+        const recodingText = 'Record';
         return (
             <div className='rcw-stream-controls'>
                 <button className='rcw-stream-control-mute' onClick={this.onToggleAudioEnabled}>{muteText}</button>
@@ -67,6 +62,10 @@ export class MediaStreamControl extends React.Component<IMediaStreamControlProps
                 {
                     this.props.toggleScreenShare && ChromeExtension.Instance.isChrome() &&
                     <button className='rcw-stream-control-share' onClick={this.onToggleScreenShare}>{shareText}</button>
+                }
+                {
+                    this.props.toggleRecording &&
+                    <button className='rcw-stream-control-recoding' onClick={this.onToggleRecording}>{recodingText}</button>
                 }
             </div>
         )

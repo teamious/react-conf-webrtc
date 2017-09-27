@@ -74,7 +74,7 @@ export class App extends React.Component<{}, {}> {
 
     private renderConference(streamProps: IStreamsRendererProps, controlProps: IMediaStreamControlRendererProps): JSX.Element | null | false {
         const { localStream, remoteStreams, audioMonitor } = streamProps;
-        const { toggleAudioEnabled, toggleVideoEnabled, toggleLocalScreenShare } = controlProps;
+        const { toggleAudioEnabled, toggleVideoEnabled, toggleLocalScreenShare, toggleRecording } = controlProps;
 
         return (
             <div className='docs-conf'>
@@ -97,6 +97,7 @@ export class App extends React.Component<{}, {}> {
                             toggleAudioEnabled={toggleAudioEnabled}
                             toggleVideoEnabled={toggleVideoEnabled}
                             toggleScreenShare={toggleLocalScreenShare}
+                            toggleRecording={toggleRecording}
                         />
                     </div>
                 ) : null}
