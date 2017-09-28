@@ -1,6 +1,6 @@
 webpackJsonp([0],{
 
-/***/ 188:
+/***/ 189:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16,12 +16,12 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-__webpack_require__(189);
+__webpack_require__(190);
 var React = __webpack_require__(14);
-var classnames = __webpack_require__(200);
-var config_1 = __webpack_require__(201);
+var classnames = __webpack_require__(201);
+var config_1 = __webpack_require__(202);
 var react_conf_webrtc_1 = __webpack_require__(80);
-var MediaStreamControl_1 = __webpack_require__(235);
+var MediaStreamControl_1 = __webpack_require__(237);
 var config = {
     'iceServers': [
         { 'urls': 'stun:stun.services.mozilla.com' },
@@ -57,14 +57,14 @@ var App = (function (_super) {
     };
     App.prototype.renderConference = function (streamProps, controlProps) {
         var localStream = streamProps.localStream, remoteStreams = streamProps.remoteStreams, audioMonitor = streamProps.audioMonitor;
-        var toggleAudioEnabled = controlProps.toggleAudioEnabled, toggleVideoEnabled = controlProps.toggleVideoEnabled, toggleLocalScreenShare = controlProps.toggleLocalScreenShare;
+        var toggleAudioEnabled = controlProps.toggleAudioEnabled, toggleVideoEnabled = controlProps.toggleVideoEnabled, toggleLocalScreenShare = controlProps.toggleLocalScreenShare, toggleRecording = controlProps.toggleRecording;
         return (React.createElement("div", { className: 'docs-conf' },
             localStream ? (React.createElement("div", { className: 'docs-conf-local-stream' },
                 React.createElement(react_conf_webrtc_1.Stream, { mirror: !localStream.isScreenSharing, stream: localStream.stream, muted: true }))) : null,
             React.createElement("div", { className: 'docs-conf-remote-streams' }, streamProps.remoteStreams.map(this.renderRemoteStream.bind(this, toggleAudioEnabled, toggleVideoEnabled))),
             localStream ? (React.createElement("div", { className: 'docs-conf-stream-controls' },
                 React.createElement(react_conf_webrtc_1.AudioMeter, { audioMonitor: streamProps.audioMonitor }),
-                React.createElement(MediaStreamControl_1.MediaStreamControl, { audioEnabled: localStream.audioEnabled, videoEnabled: localStream.videoEnabled, toggleAudioEnabled: toggleAudioEnabled, toggleVideoEnabled: toggleVideoEnabled, toggleScreenShare: toggleLocalScreenShare }))) : null));
+                React.createElement(MediaStreamControl_1.MediaStreamControl, { audioEnabled: localStream.audioEnabled, videoEnabled: localStream.videoEnabled, toggleAudioEnabled: toggleAudioEnabled, toggleVideoEnabled: toggleVideoEnabled, toggleScreenShare: toggleLocalScreenShare, toggleRecording: toggleRecording }))) : null));
     };
     App.prototype.onError = function (error) {
         switch (error) {
@@ -95,30 +95,13 @@ function connect() {
 
 /***/ }),
 
-/***/ 201:
+/***/ 202:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.env = Object({"FAVICON_URL":"/favicon.ico","SPREED_URL":"conf.jingoal.ltd","NODE_ENV":"production"});
-
-
-/***/ }),
-
-/***/ 202:
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-function __export(m) {
-    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
-}
-Object.defineProperty(exports, "__esModule", { value: true });
-__export(__webpack_require__(203));
-__export(__webpack_require__(82));
-__export(__webpack_require__(232));
-__export(__webpack_require__(234));
 
 
 /***/ }),
@@ -133,12 +116,29 @@ function __export(m) {
 }
 Object.defineProperty(exports, "__esModule", { value: true });
 __export(__webpack_require__(204));
-__export(__webpack_require__(231));
+__export(__webpack_require__(82));
+__export(__webpack_require__(234));
+__export(__webpack_require__(236));
 
 
 /***/ }),
 
 /***/ 204:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
+Object.defineProperty(exports, "__esModule", { value: true });
+__export(__webpack_require__(205));
+__export(__webpack_require__(233));
+
+
+/***/ }),
+
+/***/ 205:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -163,15 +163,16 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var React = __webpack_require__(14);
-var DetectRTC = __webpack_require__(205);
-__webpack_require__(206);
+var DetectRTC = __webpack_require__(206);
+__webpack_require__(207);
 var data_1 = __webpack_require__(82);
-var services_1 = __webpack_require__(219);
+var services_1 = __webpack_require__(220);
 var createAudioMonitor_1 = __webpack_require__(83);
 var MediaStreamUtil = __webpack_require__(84);
-var ChromeExtensionUtil_1 = __webpack_require__(85);
-var AudioMeter_1 = __webpack_require__(86);
-var Stream_1 = __webpack_require__(87);
+var StreamRecorder_1 = __webpack_require__(226);
+var ChromeExtensionUtil_1 = __webpack_require__(86);
+var AudioMeter_1 = __webpack_require__(87);
+var Stream_1 = __webpack_require__(88);
 var webcamScreenConstraints = {
     audio: true,
     video: true,
@@ -191,12 +192,13 @@ var Conference = (function (_super) {
         _this.onVideoEnabledChange = _this.onVideoEnabledChange.bind(_this);
         _this.toggleAudioEnabled = _this.toggleAudioEnabled.bind(_this);
         _this.toggleVideoEnabled = _this.toggleVideoEnabled.bind(_this);
-        _this.toggleLocalScreenShare = _this.toggleLocalScreenShare.bind(_this);
-        _this.onScreenMediaEnded = _this.onScreenMediaEnded.bind(_this);
         _this.renderMediaStreamControlDefault = _this.renderMediaStreamControlDefault.bind(_this);
         _this.renderStreamsDefault = _this.renderStreamsDefault.bind(_this);
         _this.onToggleAudio = _this.onToggleAudio.bind(_this);
         _this.onToggleVideo = _this.onToggleVideo.bind(_this);
+        _this.onToggleRecoding = _this.onToggleRecoding.bind(_this);
+        _this.onScreenSharing = _this.onScreenSharing.bind(_this);
+        _this.onScreenMediaEnded = _this.onScreenMediaEnded.bind(_this);
         _this.state = {
             localStream: { audioEnabled: true, videoEnabled: true },
             remoteStreams: {},
@@ -228,7 +230,8 @@ var Conference = (function (_super) {
             }, {
                 toggleAudioEnabled: this.toggleAudioEnabled,
                 toggleVideoEnabled: this.toggleVideoEnabled,
-                toggleLocalScreenShare: this.toggleLocalScreenShare,
+                toggleLocalScreenShare: this.onScreenSharing,
+                toggleRecording: this.onToggleRecoding,
             });
         }
         if (!localStream) {
@@ -272,8 +275,30 @@ var Conference = (function (_super) {
     Conference.prototype.onToggleVideo = function () {
         this.toggleVideoEnabled();
     };
-    Conference.prototype.toggleLocalScreenShare = function () {
+    Conference.prototype.onScreenSharing = function () {
         this.getScreenMedia();
+    };
+    Conference.prototype.onToggleRecoding = function () {
+        if (this.streamRecorder) {
+            this.streamRecorder.stop();
+            this.streamRecorder.download('recoding.webm');
+            this.streamRecorder = undefined;
+        }
+        else {
+            if (this.state.localStream && this.state.localStream.stream) {
+                this.streamRecorder = new StreamRecorder_1.StreamRecorder(this.state.localStream.stream);
+                if (this.streamRecorder.canRecord) {
+                    this.streamRecorder.start();
+                }
+                else {
+                    console.error('cannot record');
+                    this.streamRecorder = undefined;
+                }
+            }
+            else {
+                console.error('No local stream for recording');
+            }
+        }
     };
     Conference.prototype.renderMediaStreamControlDefault = function () {
         return (React.createElement("div", { className: 'rcw-conference__media-stream-controls-default' },
@@ -632,10 +657,10 @@ var Conference = (function (_super) {
         }
         var message;
         if (type === 'Offer') {
-            message = services_1.createOutgoingMessageOffer(sessionDescription.toJSON(), id);
+            message = services_1.createOutgoingMessageOffer(sessionDescription, id);
         }
         else if (type === 'Answer') {
-            message = services_1.createOutgoingMessageAnswer(sessionDescription.toJSON(), id);
+            message = services_1.createOutgoingMessageAnswer(sessionDescription, id);
         }
         if (message) {
             peerConnection.setLocalDescription(sessionDescription)
@@ -766,7 +791,7 @@ var Conference = (function (_super) {
             return;
         }
         console.log('handleOfferMessage', peerConnection.getRemoteStreams());
-        var rtcSessionDescription = this.createRTCSessionDescription(message.sessionDescription);
+        var rtcSessionDescription = message.sessionDescription;
         peerConnection
             .setRemoteDescription(rtcSessionDescription)
             .then(function () {
@@ -780,10 +805,6 @@ var Conference = (function (_super) {
             .then(function (sessionDescription) { return _this.setLocalAndSendMessage(sessionDescription, 'Answer', id); });
         // TODO(yunsi): Add error handling.
     };
-    // NOTE(yunsi): Convert the RTCSessionDescription JSON object to an actual RTCSessionDescription object.
-    Conference.prototype.createRTCSessionDescription = function (sessionDescription) {
-        return new RTCSessionDescription(sessionDescription);
-    };
     Conference.prototype.handleAnswerMessage = function (message) {
         var _this = this;
         var id = message.from;
@@ -792,7 +813,7 @@ var Conference = (function (_super) {
             console.warn('handleAnswerMessage(): Missing connection Id: %s', id);
             return;
         }
-        var rtcSessionDescription = this.createRTCSessionDescription(message.sessionDescription);
+        var rtcSessionDescription = message.sessionDescription;
         peerConnection
             .setRemoteDescription(rtcSessionDescription)
             .then(function () { return _this.processCandidates(id); })
@@ -829,7 +850,7 @@ exports.Conference = Conference;
 
 /***/ }),
 
-/***/ 217:
+/***/ 218:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -845,7 +866,7 @@ exports.DataChannelReadyState = {
 
 /***/ }),
 
-/***/ 218:
+/***/ 219:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -865,7 +886,7 @@ exports.ConferenceError = {
 
 /***/ }),
 
-/***/ 219:
+/***/ 220:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -874,14 +895,14 @@ function __export(m) {
     for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 }
 Object.defineProperty(exports, "__esModule", { value: true });
-__export(__webpack_require__(220));
 __export(__webpack_require__(221));
 __export(__webpack_require__(222));
+__export(__webpack_require__(223));
 
 
 /***/ }),
 
-/***/ 220:
+/***/ 221:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -928,7 +949,7 @@ exports.createOutgoingMessageBye = createOutgoingMessageBye;
 
 /***/ }),
 
-/***/ 221:
+/***/ 222:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -961,7 +982,7 @@ exports.createDataChannelMessageVideo = createDataChannelMessageVideo;
 
 /***/ }),
 
-/***/ 222:
+/***/ 223:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1029,13 +1050,89 @@ exports.createConferenceErrorGetUserMedia = createConferenceErrorGetUserMedia;
 /***/ }),
 
 /***/ 226:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var DownloadUtil_1 = __webpack_require__(85);
+var CollectFrequency = 10; // 10MS;
+var DelayRevokeDownloadUrl = 100; // 100MS
+var StreamRecorder = (function () {
+    function StreamRecorder(mediaStream) {
+        this.recordBlobs = [];
+        this.onStopped = this.onStopped.bind(this);
+        this.onDataAvailable = this.onDataAvailable.bind(this);
+        this.createRecorder(mediaStream);
+    }
+    StreamRecorder.prototype.canRecord = function () {
+        return !!this.mediaRecoder;
+    };
+    StreamRecorder.prototype.start = function () {
+        if (this.mediaRecoder) {
+            this.mediaRecoder.start(CollectFrequency);
+        }
+    };
+    StreamRecorder.prototype.stop = function () {
+        if (this.mediaRecoder) {
+            this.mediaRecoder.stop();
+        }
+    };
+    StreamRecorder.prototype.download = function (filename) {
+        var blob = new Blob(this.recordBlobs, { type: 'video/webm' });
+        var url = window.URL.createObjectURL(blob);
+        DownloadUtil_1.DownloadUtil.download(url, filename);
+        setTimeout(function () {
+            window.URL.revokeObjectURL(url);
+        }, DelayRevokeDownloadUrl);
+    };
+    StreamRecorder.prototype.createRecorder = function (mediaStream) {
+        try {
+            this.mediaRecoder = new MediaRecorder(mediaStream, this.getRecorderOptions());
+            this.mediaRecoder.onstop = this.onStopped;
+            this.mediaRecoder.ondataavailable = this.onDataAvailable;
+        }
+        catch (err) {
+            console.error(err);
+        }
+    };
+    StreamRecorder.prototype.onStopped = function () {
+        console.log('media recorder stopped');
+    };
+    StreamRecorder.prototype.onDataAvailable = function (event) {
+        if (event.data && event.data.size > 0) {
+            this.recordBlobs.push(event.data);
+        }
+    };
+    StreamRecorder.prototype.getRecorderOptions = function () {
+        var options = { mimeType: 'video/webm;codecs=vp9' };
+        if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+            options = { mimeType: 'video/webm;codecs=vp8' };
+            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                options = { mimeType: 'video/webm' };
+                if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                    console.log(options.mimeType + ' is not Supported');
+                    options = { mimeType: '' };
+                }
+            }
+        }
+        return options;
+    };
+    return StreamRecorder;
+}());
+exports.StreamRecorder = StreamRecorder;
+
+
+/***/ }),
+
+/***/ 228:
 /***/ (function(module, exports) {
 
 /* (ignored) */
 
 /***/ }),
 
-/***/ 229:
+/***/ 231:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1053,6 +1150,9 @@ exports.errors = {
     screenPermissionDeied: 'screenPermissionDeied'
 };
 function isWellKnownMessage(message) {
+    if (!message) {
+        return false;
+    }
     for (var type in exports.types) {
         if (exports.types[type] === message.type) {
             return true;
@@ -1065,48 +1165,48 @@ exports.isWellKnownMessage = isWellKnownMessage;
 
 /***/ }),
 
-/***/ 231:
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-function __export(m) {
-    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
-}
-Object.defineProperty(exports, "__esModule", { value: true });
-__export(__webpack_require__(87));
-__export(__webpack_require__(86));
-
-
-/***/ }),
-
-/***/ 232:
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-function __export(m) {
-    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
-}
-Object.defineProperty(exports, "__esModule", { value: true });
-__export(__webpack_require__(233));
-__export(__webpack_require__(89));
-__export(__webpack_require__(92));
-__export(__webpack_require__(88));
-__export(__webpack_require__(91));
-__export(__webpack_require__(90));
-
-
-/***/ }),
-
 /***/ 233:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
 Object.defineProperty(exports, "__esModule", { value: true });
-var SpreedConnection_1 = __webpack_require__(88);
-var SpreedAdapter_1 = __webpack_require__(89);
+__export(__webpack_require__(88));
+__export(__webpack_require__(87));
+
+
+/***/ }),
+
+/***/ 234:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+function __export(m) {
+    for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
+}
+Object.defineProperty(exports, "__esModule", { value: true });
+__export(__webpack_require__(235));
+__export(__webpack_require__(90));
+__export(__webpack_require__(93));
+__export(__webpack_require__(89));
+__export(__webpack_require__(92));
+__export(__webpack_require__(91));
+
+
+/***/ }),
+
+/***/ 235:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var SpreedConnection_1 = __webpack_require__(89);
+var SpreedAdapter_1 = __webpack_require__(90);
 function Connect(url) {
     return new Connection(url);
 }
@@ -1163,7 +1263,7 @@ exports.Connection = Connection;
 
 /***/ }),
 
-/***/ 234:
+/***/ 236:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1174,12 +1274,13 @@ function __export(m) {
 Object.defineProperty(exports, "__esModule", { value: true });
 __export(__webpack_require__(83));
 __export(__webpack_require__(84));
+__export(__webpack_require__(86));
 __export(__webpack_require__(85));
 
 
 /***/ }),
 
-/***/ 235:
+/***/ 237:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1204,6 +1305,7 @@ var MediaStreamControl = (function (_super) {
         _this.onToggleAudioEnabled = _this.onToggleAudioEnabled.bind(_this);
         _this.onToggleVideoEnabled = _this.onToggleVideoEnabled.bind(_this);
         _this.onToggleScreenShare = _this.onToggleScreenShare.bind(_this);
+        _this.onToggleRecording = _this.onToggleRecording.bind(_this);
         return _this;
     }
     MediaStreamControl.prototype.onToggleAudioEnabled = function () {
@@ -1222,30 +1324,27 @@ var MediaStreamControl = (function (_super) {
                 }
             }
             else {
-                _this.downloadFile('https://github.com/teamious/react-conf-webrtc/raw/master/docs/ext/teamious.screen.chrome.crx');
+                react_conf_webrtc_1.DownloadUtil.download('https://github.com/teamious/react-conf-webrtc/raw/master/docs/ext/teamious.screen.chrome.crx');
             }
         });
     };
-    MediaStreamControl.prototype.downloadFile = function (url) {
-        // Construct the a element
-        var link = document.createElement("a");
-        link.target = "_blank";
-        // Construct the uri
-        link.href = url;
-        document.body.appendChild(link);
-        link.click();
-        // Cleanup the DOM
-        document.body.removeChild(link);
+    MediaStreamControl.prototype.onToggleRecording = function () {
+        if (this.props.toggleRecording) {
+            this.props.toggleRecording();
+        }
     };
     MediaStreamControl.prototype.render = function () {
         var muteText = this.props.audioEnabled ? 'Mute Audio' : 'Unmute Audio';
         var disableText = this.props.videoEnabled ? 'Disable Video' : 'Enable Video';
         var shareText = this.props.videoEnabled ? 'Share Screen' : 'Stop';
+        var recodingText = 'Record';
         return (React.createElement("div", { className: 'rcw-stream-controls' },
             React.createElement("button", { className: 'rcw-stream-control-mute', onClick: this.onToggleAudioEnabled }, muteText),
             React.createElement("button", { className: 'rcw-stream-control-disable', onClick: this.onToggleVideoEnabled }, disableText),
             this.props.toggleScreenShare && react_conf_webrtc_1.ChromeExtension.Instance.isChrome() &&
-                React.createElement("button", { className: 'rcw-stream-control-share', onClick: this.onToggleScreenShare }, shareText)));
+                React.createElement("button", { className: 'rcw-stream-control-share', onClick: this.onToggleScreenShare }, shareText),
+            this.props.toggleRecording &&
+                React.createElement("button", { className: 'rcw-stream-control-recoding', onClick: this.onToggleRecording }, recodingText)));
     };
     return MediaStreamControl;
 }(React.Component));
@@ -1263,7 +1362,7 @@ function __export(m) {
     for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 }
 Object.defineProperty(exports, "__esModule", { value: true });
-__export(__webpack_require__(202));
+__export(__webpack_require__(203));
 
 
 /***/ }),
@@ -1277,8 +1376,8 @@ function __export(m) {
     for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 }
 Object.defineProperty(exports, "__esModule", { value: true });
-__export(__webpack_require__(217));
 __export(__webpack_require__(218));
+__export(__webpack_require__(219));
 
 
 /***/ }),
@@ -1289,7 +1388,7 @@ __export(__webpack_require__(218));
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var Hark = __webpack_require__(223);
+var Hark = __webpack_require__(224);
 function createAudioMonitor(stream) {
     return new AudioMonitor(stream);
 }
@@ -1336,9 +1435,39 @@ exports.stopMediaStream = stopMediaStream;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var es6_promise_1 = __webpack_require__(225);
-var broswer = __webpack_require__(227);
-var Message = __webpack_require__(229);
+var DownloadUtil = (function () {
+    function DownloadUtil() {
+    }
+    DownloadUtil.download = function (url, filename) {
+        // Construct the a element
+        var link = document.createElement("a");
+        link.target = "_blank";
+        // Construct the uri
+        link.href = url;
+        if (filename) {
+            link.download = filename;
+        }
+        document.body.appendChild(link);
+        link.click();
+        // Cleanup the DOM
+        document.body.removeChild(link);
+    };
+    return DownloadUtil;
+}());
+exports.DownloadUtil = DownloadUtil;
+
+
+/***/ }),
+
+/***/ 86:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var es6_promise_1 = __webpack_require__(227);
+var broswer = __webpack_require__(229);
+var Message = __webpack_require__(231);
 var IsExtensionAvailableTimeout = 1000; // 1000 MS
 var ChromeExtension = (function () {
     function ChromeExtension() {
@@ -1437,7 +1566,7 @@ exports.ChromeExtension = ChromeExtension;
 
 /***/ }),
 
-/***/ 86:
+/***/ 87:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1491,7 +1620,7 @@ exports.AudioMeter = AudioMeter;
 
 /***/ }),
 
-/***/ 87:
+/***/ 88:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1508,7 +1637,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var React = __webpack_require__(14);
-var classnames = __webpack_require__(230);
+var classnames = __webpack_require__(232);
 ;
 var mirrorStyle = {
     transform: 'rotateY(180deg)',
@@ -1545,7 +1674,7 @@ exports.Stream = Stream;
 
 /***/ }),
 
-/***/ 88:
+/***/ 89:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1656,14 +1785,14 @@ exports.SpreedConnection = SpreedConnection;
 
 /***/ }),
 
-/***/ 89:
+/***/ 90:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var TranslateSpreedMessage_1 = __webpack_require__(90);
-var TranslateConferenceMessage_1 = __webpack_require__(91);
+var TranslateSpreedMessage_1 = __webpack_require__(91);
+var TranslateConferenceMessage_1 = __webpack_require__(92);
 // NOTE(andrews): SpreedAdapter is responsible for turning SpreedMessages into Conference messages
 // and vice-versa. If either receiving end has no receiver, it will queue the messages.
 var SpreedAdapter = (function () {
@@ -1770,7 +1899,7 @@ exports.SpreedAdapter = SpreedAdapter;
 
 /***/ }),
 
-/***/ 90:
+/***/ 91:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1874,7 +2003,7 @@ function translateOfferMessage(data, message) {
 
 /***/ }),
 
-/***/ 91:
+/***/ 92:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1888,7 +2017,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var SpreedAPI_1 = __webpack_require__(92);
+var SpreedAPI_1 = __webpack_require__(93);
 // NOTE(andrews): TranslateConferenceMessage delegates the work of translating the message
 // to individual functions based on the message type. Not all message types need to be translated
 // into an IConfIncomingMessage. In such cases, this function will return undefined.
@@ -1944,7 +2073,7 @@ function translateCandidateMessage(message) {
 
 /***/ }),
 
-/***/ 92:
+/***/ 93:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1982,27 +2111,27 @@ exports.createHelloRequest = createHelloRequest;
 
 /***/ }),
 
-/***/ 93:
+/***/ 94:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-__webpack_require__(94);
+__webpack_require__(95);
 var React = __webpack_require__(14);
-var ReactDOM = __webpack_require__(111);
-var App_1 = __webpack_require__(188);
+var ReactDOM = __webpack_require__(112);
+var App_1 = __webpack_require__(189);
 ReactDOM.render(React.createElement(App_1.App, null), document.getElementById('react-root'));
 
 
 /***/ }),
 
-/***/ 94:
+/***/ 95:
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
 
 /***/ })
 
-},[93]);
-//# sourceMappingURL=main-df4b7472e89fb69f91b4.js.map
+},[94]);
+//# sourceMappingURL=main-d369b430a797f62cedc1.js.map
