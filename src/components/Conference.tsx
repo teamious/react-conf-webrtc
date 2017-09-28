@@ -41,6 +41,7 @@ import {
 } from '../services';
 import { createAudioMonitor, AudioMonitor } from '../utils/createAudioMonitor';
 import * as MediaStreamUtil from '../utils/MediaStreamUtil';
+import { StreamRecorder } from '../utils/StreamRecorder';
 import { ChromeExtension } from '../utils/ChromeExtensionUtil';
 import { AudioMeter } from './controls/AudioMeter';
 import { Stream } from './controls/Stream';
@@ -65,6 +66,7 @@ export interface IMediaStreamControlRendererProps {
     toggleAudioEnabled: ToggleAudioEnabledHandler;
     toggleVideoEnabled: ToggleVideoEnabledHandler;
     toggleLocalScreenShare: () => void;
+    toggleRecording: () => void;
 }
 
 export interface ToggleAudioEnabledHandler {
@@ -109,6 +111,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     private dataChannels: { [id: string]: RTCDataChannel } = {};
     private localCamStream: MediaStream;
     private renegotiation: { [id: string]: boolean } = {};
+    private streamRecorder: StreamRecorder | undefined;
 
     constructor(props: IConferenceProps) {
         super(props);
@@ -119,12 +122,13 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         this.onVideoEnabledChange = this.onVideoEnabledChange.bind(this);
         this.toggleAudioEnabled = this.toggleAudioEnabled.bind(this);
         this.toggleVideoEnabled = this.toggleVideoEnabled.bind(this);
-        this.toggleLocalScreenShare = this.toggleLocalScreenShare.bind(this);
-        this.onScreenMediaEnded = this.onScreenMediaEnded.bind(this);
         this.renderMediaStreamControlDefault = this.renderMediaStreamControlDefault.bind(this);
         this.renderStreamsDefault = this.renderStreamsDefault.bind(this);
         this.onToggleAudio = this.onToggleAudio.bind(this);
         this.onToggleVideo = this.onToggleVideo.bind(this);
+        this.onToggleRecoding = this.onToggleRecoding.bind(this);
+        this.onScreenSharing = this.onScreenSharing.bind(this);
+        this.onScreenMediaEnded = this.onScreenMediaEnded.bind(this);
 
         this.state = {
             localStream: { audioEnabled: true, videoEnabled: true } as ConferenceStream,
@@ -160,7 +164,8 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             }, {
                     toggleAudioEnabled: this.toggleAudioEnabled,
                     toggleVideoEnabled: this.toggleVideoEnabled,
-                    toggleLocalScreenShare: this.toggleLocalScreenShare,
+                    toggleLocalScreenShare: this.onScreenSharing,
+                    toggleRecording: this.onToggleRecoding,
                 });
         }
 
@@ -215,8 +220,31 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         this.toggleVideoEnabled();
     }
 
-    private toggleLocalScreenShare(): void {
+    private onScreenSharing(): void {
         this.getScreenMedia();
+    }
+
+    private onToggleRecoding() {
+        if (this.streamRecorder) {
+            this.streamRecorder.stop();
+            this.streamRecorder.download('recoding.webm');
+            this.streamRecorder = undefined;
+        }
+        else {
+            if (this.state.localStream && this.state.localStream.stream) {
+                this.streamRecorder = new StreamRecorder(this.state.localStream.stream);
+                if (this.streamRecorder.canRecord) {
+                    this.streamRecorder.start();
+                }
+                else {
+                    console.error('cannot record');
+                    this.streamRecorder = undefined;
+                }
+            }
+            else {
+                console.error('No local stream for recording');
+            }
+        }
     }
 
     private renderMediaStreamControlDefault(): JSX.Element | null | false {
