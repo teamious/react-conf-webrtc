@@ -89,7 +89,7 @@ export interface IConferenceProps {
     onError?: (error: ConferenceError) => void;
 }
 
-const sdpConstraints = {
+const SDPConstraints = {
     offerToReceiveAudio: 1,
     offerToReceiveVideo: 1
 }
@@ -606,9 +606,6 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         }
         const peerConnection = this.createPeerConnectionById(id);
 
-        // NOTE(yunsi): Initialize remote stream
-        this.createRemoteStreamById(id);
-
         // NOTE(yunsi): When two clients both recieved an AddPeer event with the other client's id,
         // they will do a compare to see who should create and send the offer and dataChannel.
         if (this.state.localStream.id.localeCompare(id) === 1) {
@@ -621,7 +618,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                 (err) => {
                     this.onError(createConferenceErrorCreateOffer(err, id))
                 },
-                sdpConstraints
+                SDPConstraints
             )
         }
     }
@@ -712,7 +709,11 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                     ...this.state.remoteStreams,
                     [id]: {
                         ...this.state.remoteStreams[id],
+                        id: id,
                         stream: event.stream,
+                        local: false,
+                        audioEnabled: true,
+                        videoEnabled: true,
                     }
                 }
             })
@@ -793,21 +794,6 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                 }
             })
         }
-    }
-
-    private createRemoteStreamById(id: string) {
-        this.setState({
-            remoteStreams: {
-                ...this.state.remoteStreams,
-                [id]: {
-                    ...this.state.remoteStreams[id],
-                    id: id,
-                    local: false,
-                    audioEnabled: true,
-                    videoEnabled: true,
-                }
-            }
-        })
     }
 
     // NOTE(yunsi): When received a RemovePeer event, conference will close that PeerConnection and remove it from the connection list.
