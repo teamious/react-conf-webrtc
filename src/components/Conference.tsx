@@ -154,7 +154,6 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             this.changeAudioTrackEnabled(localStream.audioEnabled);
             this.changeVideoTrackEnabled(localStream.videoEnabled);
         }
-        console.log('localStream', localStream)
 
         if (render) {
             return render({
@@ -435,6 +434,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                 audio: DetectRTC.isWebsiteHasMicrophonePermissions,
                 video: DetectRTC.isWebsiteHasWebcamPermissions,
             }
+
             if (constrains.audio || constrains.video) {
                 navigator.mediaDevices.getUserMedia(constrains)
                     .then(stream => {
@@ -606,7 +606,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         }
         const peerConnection = this.createPeerConnectionById(id);
 
-        // NOTE(yunsi): Initialize initialize remote stream
+        // NOTE(yunsi): Initialize remote stream
         this.createRemoteStreamById(id);
 
         // NOTE(yunsi): When two clients both recieved an AddPeer event with the other client's id,
