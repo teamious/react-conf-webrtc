@@ -90,7 +90,7 @@ export class App extends React.Component<{}, {}> {
 
                 {localStream ? (
                     <div className='docs-conf-stream-controls'>
-                        <AudioMeter audioMonitor={streamProps.audioMonitor} />
+                        {audioMonitor ? <AudioMeter audioMonitor={audioMonitor} /> : null}
                         <MediaStreamControl
                             audioEnabled={localStream.audioEnabled}
                             videoEnabled={localStream.videoEnabled}
