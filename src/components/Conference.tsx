@@ -1,6 +1,7 @@
 import * as React from 'react';
 import * as DetectRTC from 'detectrtc';
 import 'webrtc-adapter';
+import { Promise } from 'es6-promise';
 
 import {
     ConferenceConnection,
@@ -141,7 +142,9 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
 
         this.connection = this.props.connect();
         this.joinRoom(this.props.room);
-        this.getUserMedia();
+        this.getUserMedia().then(() => {
+            this.connection.subscribe(this.handleIncomingMessage)
+        });
     }
 
     public render() {
@@ -422,33 +425,35 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
 
     private getUserMedia() {
         // NOTE(yunsi): DetectRTC.load() makes sure that all devices are captured and valid result is set for relevant properties.
-        DetectRTC.load(() => {
-            if (DetectRTC.isWebsiteHasWebcamPermissions === false) {
-                this.onError(createConferenceErrorWebcamPermissions())
-            }
-            if (DetectRTC.isWebsiteHasMicrophonePermissions === false) {
-                this.onError(createConferenceErrorMicPermissions())
-            }
+        return new Promise((resolve: () => void) => {
+            DetectRTC.load(() => {
+                if (DetectRTC.isWebsiteHasWebcamPermissions === false) {
+                    this.onError(createConferenceErrorWebcamPermissions())
+                }
+                if (DetectRTC.isWebsiteHasMicrophonePermissions === false) {
+                    this.onError(createConferenceErrorMicPermissions())
+                }
 
-            const constrains = {
-                audio: DetectRTC.isWebsiteHasMicrophonePermissions,
-                video: DetectRTC.isWebsiteHasWebcamPermissions,
-            }
+                const constrains = {
+                    audio: DetectRTC.isWebsiteHasMicrophonePermissions,
+                    video: DetectRTC.isWebsiteHasWebcamPermissions,
+                }
 
-            if (constrains.audio || constrains.video) {
-                navigator.mediaDevices.getUserMedia(constrains)
-                    .then(stream => {
-                        this.localCamStream = stream;
-                        this.setLocalStream(stream, {
-                            isScreenSharing: false
-                        });
-                    })
-                    .catch(this.handleMediaException);
-            } else {
-                this.connection.subscribe(this.handleIncomingMessage);
-            }
+                if (constrains.audio || constrains.video) {
+                    navigator.mediaDevices.getUserMedia(constrains)
+                        .then(stream => {
+                            this.localCamStream = stream;
+                            this.setLocalStream(stream, {
+                                isScreenSharing: false
+                            });
+                            resolve()
+                        })
+                        .catch(this.handleMediaException);
+                } else {
+                    resolve()
+                }
+            })
         })
-
     }
 
     private getScreenMedia() {
@@ -505,8 +510,6 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         }, () => {
             this.createAudioMonitor();
         })
-
-        this.connection.subscribe(this.handleIncomingMessage);
 
         if (oldStream !== stream) {
             for (let peerId in this.peerConnections) {
@@ -605,6 +608,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             return
         }
         const peerConnection = this.createPeerConnectionById(id);
+        this.createRemoteStreamById(id);
 
         // NOTE(yunsi): When two clients both recieved an AddPeer event with the other client's id,
         // they will do a compare to see who should create and send the offer and dataChannel.
@@ -709,9 +713,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                     ...this.state.remoteStreams,
                     [id]: {
                         ...this.state.remoteStreams[id],
-                        id: id,
                         stream: event.stream,
-                        local: false,
                         audioEnabled: true,
                         videoEnabled: true,
                     }
@@ -794,6 +796,19 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                 }
             })
         }
+    }
+
+    private createRemoteStreamById(id: string) {
+        this.setState({
+            remoteStreams: {
+                ...this.state.remoteStreams,
+                [id]: {
+                    ...this.state.remoteStreams[id],
+                    id: id,
+                    local: false
+                }
+            }
+        })
     }
 
     // NOTE(yunsi): When received a RemovePeer event, conference will close that PeerConnection and remove it from the connection list.
