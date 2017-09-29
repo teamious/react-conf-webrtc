@@ -136,12 +136,13 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             remoteStreams: {},
         }
 
+        this.connection = this.props.connect();
+        this.joinRoom(this.props.room);
+
         if (!this.checkBrowserSupport()) {
             return;
         };
 
-        this.connection = this.props.connect();
-        this.joinRoom(this.props.room);
         this.getUserMedia().then(() => {
             this.connection.subscribe(this.handleIncomingMessage)
         });
