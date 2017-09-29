@@ -136,13 +136,12 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             remoteStreams: {},
         }
 
-        this.connection = this.props.connect();
-        this.joinRoom(this.props.room);
-
         if (!this.checkBrowserSupport()) {
             return;
         };
 
+        this.connection = this.props.connect();
+        this.joinRoom(this.props.room);
         this.getUserMedia().then(() => {
             this.connection.subscribe(this.handleIncomingMessage)
         });
@@ -190,7 +189,9 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         if (this.state.localStream.stream) {
             MediaStreamUtil.stopMediaStream(this.state.localStream.stream);
         }
-        this.leaveRoom();
+        if (this.connection) {
+            this.leaveRoom();
+        }
     }
 
     // NOTE(andrews): toggleAudioEnabled allows you to control the audio tracks
@@ -281,11 +282,11 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     private checkBrowserSupport(): boolean {
-        if (DetectRTC.isWebRTCSupported === false) {
+        // if (DetectRTC.isWebRTCSupported === false) {
             this.onError(createConferenceErrorWebRTCNotSupported());
             return false;
-        }
-        return true;
+        // }
+        // return true;
     }
 
     private onError(error: ConferenceError) {
