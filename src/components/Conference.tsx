@@ -135,7 +135,9 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             localStream: { audioEnabled: true, videoEnabled: true } as ConferenceStream,
             remoteStreams: {},
         }
+    }
 
+    public componentWillMount() {
         if (!this.checkBrowserSupport()) {
             return;
         };
