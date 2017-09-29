@@ -282,11 +282,11 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     private checkBrowserSupport(): boolean {
-        // if (DetectRTC.isWebRTCSupported === false) {
+        if (DetectRTC.isWebRTCSupported === false) {
             this.onError(createConferenceErrorWebRTCNotSupported());
             return false;
-        // }
-        // return true;
+        }
+        return true;
     }
 
     private onError(error: ConferenceError) {
