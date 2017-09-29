@@ -189,7 +189,9 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         if (this.state.localStream.stream) {
             MediaStreamUtil.stopMediaStream(this.state.localStream.stream);
         }
-        this.leaveRoom();
+        if (this.connection) {
+            this.leaveRoom();
+        }
     }
 
     // NOTE(andrews): toggleAudioEnabled allows you to control the audio tracks
