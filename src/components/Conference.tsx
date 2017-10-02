@@ -234,7 +234,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     private onToggleRecoding() {
         if (this.streamRecorder) {
             this.stopRecording();
-            this.streamRecorder.download(this.getRecordName());
+            this.setLocalStream(this.state.localStream.stream, {
             this.setLocalStream(this.state.localStream.stream, {
                 isRecording: false
             });
@@ -526,12 +526,6 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         })
 
         if (oldStream !== stream) {
-            // NOTE(gaolw): Recording mode should stop
-            if (this.streamRecorder) {
-                this.streamRecorder.stop();
-                this.streamRecorder.download(this.getRecordName());
-            }
-
             for (let peerId in this.peerConnections) {
                 let peerConnection = this.peerConnections[peerId];
                 if (oldStream) {
