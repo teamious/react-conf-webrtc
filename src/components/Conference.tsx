@@ -452,10 +452,10 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                     navigator.mediaDevices.getUserMedia(constrains)
                         .then(stream => {
                             this.localCamStream = stream;
-                this.stopRecording();
+                            this.stopRecording();
                             this.setLocalStream(stream, {
-                                isScreenSharing: false
-                    isRecording: false,
+                                isScreenSharing: false,
+                                isRecording: false,
                             });
                             resolve()
                         })
