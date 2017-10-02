@@ -80,7 +80,7 @@ export class App extends React.Component<{}, {}> {
             <div className='docs-conf'>
                 {localStream ? (
                     <div className='docs-conf-local-stream'>
-                        <Stream mirror={!localStream.isScreenSharing} stream={localStream.stream} muted={true} />
+                        <Stream mirror={!localStream.isScreenSharing} stream={localStream.stream} muted={true} isRecording={localStream.isRecording} />
                     </div>
                 ) : null}
 
@@ -94,6 +94,7 @@ export class App extends React.Component<{}, {}> {
                         <MediaStreamControl
                             audioEnabled={localStream.audioEnabled}
                             videoEnabled={localStream.videoEnabled}
+                            recording={localStream.isRecording}
                             toggleAudioEnabled={toggleAudioEnabled}
                             toggleVideoEnabled={toggleVideoEnabled}
                             toggleScreenShare={toggleLocalScreenShare}

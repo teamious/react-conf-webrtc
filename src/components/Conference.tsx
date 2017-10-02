@@ -55,6 +55,7 @@ export interface ConferenceStream {
     audioEnabled: boolean;
     videoEnabled: boolean;
     isScreenSharing: boolean;
+    isRecording: boolean;
 }
 
 export interface IStreamsRendererProps {
@@ -232,15 +233,19 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
 
     private onToggleRecoding() {
         if (this.streamRecorder) {
-            this.streamRecorder.stop();
-            this.streamRecorder.download('recoding.webm');
-            this.streamRecorder = undefined;
+            this.stopRecording();
+            this.setLocalStream(this.state.localStream.stream, {
+                isRecording: false
+            });
         }
         else {
             if (this.state.localStream && this.state.localStream.stream) {
                 this.streamRecorder = new StreamRecorder(this.state.localStream.stream);
                 if (this.streamRecorder.canRecord) {
                     this.streamRecorder.start();
+                    this.setLocalStream(this.state.localStream.stream, {
+                        isRecording: true
+                    });
                 }
                 else {
                     console.error('cannot record');
@@ -447,8 +452,10 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                     navigator.mediaDevices.getUserMedia(constrains)
                         .then(stream => {
                             this.localCamStream = stream;
+                            this.stopRecording();
                             this.setLocalStream(stream, {
-                                isScreenSharing: false
+                                isScreenSharing: false,
+                                isRecording: false,
                             });
                             resolve()
                         })
@@ -484,8 +491,10 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                 }
 
                 stream.getVideoTracks()[0].onended = this.onScreenMediaEnded;
+                this.stopRecording();
                 this.setLocalStream(stream, {
-                    isScreenSharing: true
+                    isScreenSharing: true,
+                    isRecording: false
                 });
 
             })
@@ -525,6 +534,22 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                 peerConnection.addStream(stream);
             }
         }
+    }
+
+    private getRecordName() {
+        // TODO(gaolw): define recording name.
+        return 'recoding.webm';
+    }
+
+    private stopRecording() {
+        if (this.streamRecorder) {
+            this.streamRecorder.stop();
+            this.streamRecorder.download(this.getRecordName());
+            this.streamRecorder = undefined;
+            return true;
+        }
+
+        return false;
     }
 
     private createAudioMonitor() {

@@ -4,6 +4,7 @@ import { ConferenceStream, ChromeExtension, DownloadUtil } from 'react-conf-webr
 interface IMediaStreamControlProps {
     audioEnabled: boolean;
     videoEnabled: boolean;
+    recording: boolean;
     toggleAudioEnabled: (stream?: ConferenceStream) => void;
     toggleVideoEnabled: (stream?: ConferenceStream) => void;
     toggleScreenShare?: () => void;
@@ -51,8 +52,8 @@ export class MediaStreamControl extends React.Component<IMediaStreamControlProps
     render() {
         const muteText = this.props.audioEnabled ? 'Mute Audio' : 'Unmute Audio';
         const disableText = this.props.videoEnabled ? 'Disable Video' : 'Enable Video';
-        const shareText = this.props.videoEnabled ? 'Share Screen' : 'Stop';
-        const recodingText = 'Record';
+        const shareText = 'Share Screen';
+        const recodingText = !this.props.recording ? 'Record' : 'Stop recordig';
         return (
             <div className='rcw-stream-controls'>
                 <button className='rcw-stream-control-mute' onClick={this.onToggleAudioEnabled}>{muteText}</button>
