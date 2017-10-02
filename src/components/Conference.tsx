@@ -233,9 +233,10 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
 
     private onToggleRecoding() {
         if (this.streamRecorder) {
-            this.streamRecorder.stop();
-            this.streamRecorder.download(this.getRecordName());
-            this.streamRecorder = undefined;
+            this.stopRecording();
+            this.setLocalStream(this.state.localStream.stream, {
+                isRecording: false
+            });
         }
         else {
             if (this.state.localStream && this.state.localStream.stream) {
@@ -451,8 +452,10 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                     navigator.mediaDevices.getUserMedia(constrains)
                         .then(stream => {
                             this.localCamStream = stream;
+                this.stopRecording();
                             this.setLocalStream(stream, {
                                 isScreenSharing: false
+                    isRecording: false,
                             });
                             resolve()
                         })
@@ -488,8 +491,10 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                 }
 
                 stream.getVideoTracks()[0].onended = this.onScreenMediaEnded;
+                this.stopRecording();
                 this.setLocalStream(stream, {
-                    isScreenSharing: true
+                    isScreenSharing: true,
+                    isRecording: false
                 });
 
             })
@@ -520,12 +525,6 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         })
 
         if (oldStream !== stream) {
-            // NOTE(gaolw): Recording mode should stop
-            if (this.streamRecorder) {
-                this.streamRecorder.stop();
-                this.streamRecorder.download(this.getRecordName());
-            }
-
             for (let peerId in this.peerConnections) {
                 let peerConnection = this.peerConnections[peerId];
                 if (oldStream) {
@@ -540,6 +539,17 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     private getRecordName() {
         // TODO(gaolw): define recording name.
         return 'recoding.webm';
+    }
+
+    private stopRecording() {
+        if (this.streamRecorder) {
+            this.streamRecorder.stop();
+            this.streamRecorder.download(this.getRecordName());
+            this.streamRecorder = undefined;
+            return true;
+        }
+
+        return false;
     }
 
     private createAudioMonitor() {
