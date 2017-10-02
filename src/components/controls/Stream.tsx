@@ -11,6 +11,8 @@ export interface IStreamProps {
     // 1: each client get their own audioActivityLevel and send to other clients through RTCDataChannel.
     // or 2: each client get the remote clients' audioActivityLevel from the remote stream.
     // audioActivityLevel?: number;
+
+    isRecording?: boolean;
 };
 
 const mirrorStyle = {
@@ -42,10 +44,11 @@ export class Stream extends React.PureComponent<IStreamProps, {}> {
     }
 
     public render() {
-        const { className, muted, onClick, mirror } = this.props;
+        const { className, muted, onClick, mirror, isRecording } = this.props;
 
         return (
             <div className={classnames(this.props.className, 'rcw-stream')} onClick={onClick}>
+                {isRecording && <span>Recording</span>}
                 <video
                     style={mirror ? mirrorStyle : undefined}
                     className='rcw-stream-video'

@@ -13,7 +13,7 @@ export class StreamRecorder {
         this.onStopped = this.onStopped.bind(this);
         this.onDataAvailable = this.onDataAvailable.bind(this);
 
-        this.createRecorder(mediaStream);
+        this.createRecorder(mediaStream.clone());
     }
 
     public canRecord() {
@@ -25,6 +25,15 @@ export class StreamRecorder {
             this.mediaRecoder.start(CollectFrequency);
         }
     }
+
+    // NOTE(gaolw): Switch doesn't work. Need more investigation.
+    // public switch(mediaStream: MediaStream) {
+    //     console.log('swtich');
+    //     const recordingStream: MediaStream = this.mediaRecoder.stream;
+    //     recordingStream.getVideoTracks().forEach(track => recordingStream.removeTrack(track));
+
+    //     mediaStream.getVideoTracks().forEach(track => recordingStream.addTrack(track));
+    // }
 
     public stop() {
         if (this.mediaRecoder) {

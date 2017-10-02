@@ -55,6 +55,7 @@ export interface ConferenceStream {
     audioEnabled: boolean;
     videoEnabled: boolean;
     isScreenSharing: boolean;
+    isRecording: boolean;
 }
 
 export interface IStreamsRendererProps {
@@ -233,7 +234,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     private onToggleRecoding() {
         if (this.streamRecorder) {
             this.streamRecorder.stop();
-            this.streamRecorder.download('recoding.webm');
+            this.streamRecorder.download(this.getRecordName());
             this.streamRecorder = undefined;
         }
         else {
@@ -241,6 +242,9 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                 this.streamRecorder = new StreamRecorder(this.state.localStream.stream);
                 if (this.streamRecorder.canRecord) {
                     this.streamRecorder.start();
+                    this.setLocalStream(this.state.localStream.stream, {
+                        isRecording: true
+                    });
                 }
                 else {
                     console.error('cannot record');
@@ -516,6 +520,12 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         })
 
         if (oldStream !== stream) {
+            // NOTE(gaolw): Recording mode should stop
+            if (this.streamRecorder) {
+                this.streamRecorder.stop();
+                this.streamRecorder.download(this.getRecordName());
+            }
+
             for (let peerId in this.peerConnections) {
                 let peerConnection = this.peerConnections[peerId];
                 if (oldStream) {
@@ -525,6 +535,11 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                 peerConnection.addStream(stream);
             }
         }
+    }
+
+    private getRecordName() {
+        // TODO(gaolw): define recording name.
+        return 'recoding.webm';
     }
 
     private createAudioMonitor() {
