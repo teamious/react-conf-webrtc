@@ -1,6 +1,6 @@
 {
   "name": "react-conf-webrtc",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "",
   "main": "./dist/index.js",
   "scripts": {
@@ -31,6 +31,7 @@
     "detectrtc": "^1.3.5",
     "es6-promise": "^4.1.1",
     "hark": "^1.1.5",
+    "screen-capture-chrome-extension": "file:screen-capture-chrome-extension",
     "webrtc-adapter": "^5.0.4"
   }
 }
