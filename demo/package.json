@@ -26,6 +26,7 @@
     "html-webpack-plugin": "2.29.0",
     "node-sass": "4.5.3",
     "react": "15.6.1",
+    "react-conf-webrtc": "0.0.2",
     "react-dom": "15.6.1",
     "rimraf": "2.6.1",
     "sass-loader": "6.0.6",
