@@ -234,7 +234,6 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         if (this.streamRecorder) {
             this.stopRecording();
             this.setLocalStream(this.state.localStream.stream, {
-            this.setLocalStream(this.state.localStream.stream, {
                 isRecording: false
             });
         }
