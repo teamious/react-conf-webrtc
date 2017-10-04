@@ -1,6 +1,6 @@
 import { Promise } from 'es6-promise';
 import * as broswer from 'bowser';
-import * as Message from '../../screen-capture-chrome-extension/src/message';
+import * as Message from 'screen-capture-chrome-extension/dist/message';
 
 const IsExtensionAvailableTimeout = 1000; // 1000 MS
 
