@@ -1,6 +1,6 @@
 {
   "name": "react-conf-webrtc",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "",
   "main": "./dist/index.js",
   "scripts": {
@@ -22,7 +22,8 @@
     "react": "^15.6.1"
   },
   "files": [
-    "dist/"
+    "dist/",
+    "src/"
   ],
   "typings": "./dist/index.d.ts",
   "dependencies": {
