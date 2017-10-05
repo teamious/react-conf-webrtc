@@ -7,7 +7,6 @@ module.exports = {
     entry: {
         content: path.join(__dirname, 'src/content.ts'),
         background: path.join(__dirname, 'src/background.ts'),
-        message: path.join(__dirname, 'src/message.ts'),
     },
     output: {
         path: path.join(__dirname, 'dist/'),
