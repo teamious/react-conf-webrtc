@@ -92,6 +92,11 @@ export interface IConferenceProps {
     onError?: (error: ConferenceError) => void;
 }
 
+const WebCamConstraints = {
+    audio: true,
+    video: true,
+}
+
 const SDPConstraints = {
     offerToReceiveAudio: 1,
     offerToReceiveVideo: 1
@@ -428,37 +433,30 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     private getUserMedia() {
-        // NOTE(yunsi): DetectRTC.load() makes sure that all devices are captured and valid result is set for relevant properties.
         return new Promise((resolve: () => void) => {
-            DetectRTC.load(() => {
-                if (DetectRTC.isWebsiteHasWebcamPermissions === false) {
-                    this.onError(createConferenceErrorWebcamPermissions())
-                }
-                if (DetectRTC.isWebsiteHasMicrophonePermissions === false) {
-                    this.onError(createConferenceErrorMicPermissions())
-                }
-
-                const constrains = {
-                    audio: DetectRTC.isWebsiteHasMicrophonePermissions,
-                    video: DetectRTC.isWebsiteHasWebcamPermissions,
-                }
-
-                if (constrains.audio || constrains.video) {
-                    navigator.mediaDevices.getUserMedia(constrains)
-                        .then(stream => {
-                            this.localCamStream = stream;
-                            this.stopRecording();
-                            this.setLocalStream(stream, {
-                                isScreenSharing: false,
-                                isRecording: false,
-                            });
-                            resolve()
-                        })
-                        .catch(this.handleMediaException);
-                } else {
+            return this.getWebCamMedia()
+                .then(stream => {
+                    this.localCamStream = stream;
+                    this.stopRecording();
+                    this.setLocalStream(stream, {
+                        isScreenSharing: false,
+                        isRecording: false,
+                    });
                     resolve()
-                }
-            })
+                })
+                .catch(err => {
+                    // NOTE(yunsi): Didn't get stream
+                    this.handleMediaException(err)
+                    resolve()
+                });
+        })
+    }
+
+    private getWebCamMedia() {
+        return new Promise((resolve: (stream: MediaStream) => void, reject: (err?: any) => void) => {
+            navigator.mediaDevices.getUserMedia(WebCamConstraints)
+                .then(stream => resolve(stream))
+                .catch(err => reject(err));
         })
     }
 
