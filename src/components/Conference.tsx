@@ -434,7 +434,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
 
     private getUserMedia() {
         return new Promise((resolve: () => void) => {
-            return this.getWebCamMedia()
+            navigator.mediaDevices.getUserMedia(WebCamConstraints)
                 .then(stream => {
                     this.localCamStream = stream;
                     this.stopRecording();
@@ -449,14 +449,6 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                     this.handleMediaException(err)
                     resolve()
                 });
-        })
-    }
-
-    private getWebCamMedia() {
-        return new Promise((resolve: (stream: MediaStream) => void, reject: (err?: any) => void) => {
-            navigator.mediaDevices.getUserMedia(WebCamConstraints)
-                .then(stream => resolve(stream))
-                .catch(err => reject(err));
         })
     }
 
