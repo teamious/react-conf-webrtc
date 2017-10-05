@@ -2,9 +2,11 @@
   "name": "screen-capture-chrome-extension",
   "version": "0.1.5",
   "description": "Chrome extension for screen capture",
-  "main": "dist/index.js",
+  "main": "dist/message",
+  "typings": "dist/message",
   "scripts": {
-    "build": "./node_modules/.bin/webpack"
+    "clean": "rimraf dist",
+    "build": "tsc -d && webpack"
   },
   "author": "",
   "license": "MIT",
