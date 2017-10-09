@@ -51,6 +51,7 @@ function translateWelcomeMessage(data: SpreedMessageWelcome, message: SpreedResp
         return {
             type: 'AddPeer',
             Id: u.Id,
+            profile: u.Status,
         }
     });
 }
@@ -82,6 +83,7 @@ function translateJoinedMessage(data: SpreedMessageJoined, message: SpreedRespon
     return {
         type: 'AddPeer',
         Id: data.Id,
+        profile: data.Status,
     }
 }
 

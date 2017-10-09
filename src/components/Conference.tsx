@@ -12,6 +12,7 @@ import {
     IConfIncomingMessageAnswer,
     IConfMessageAddPeer,
     IConfMessageRemovePeer,
+    IConfMessageProfile,
     IConfOutgoingMessage,
     ConfUserID,
     IDataChannelMessage,
@@ -57,6 +58,7 @@ export interface ConferenceStream {
     videoEnabled: boolean;
     isScreenSharing: boolean;
     isRecording: boolean;
+    profile: any;
 }
 
 export interface IStreamsRendererProps {
@@ -591,7 +593,15 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         }
 
         if (id === this.state.localStream.id) {
+            if (message.profile) {
+                this.handleProfileMessage(message)
+            }
             return;
+        } else {
+            this.createRemoteStreamById(id);
+            if (message.profile) {
+                this.handleProfileMessage(message)
+            }
         }
 
         // NOTE(yunsi): Check if a PeerConnection is already established for the given ID.
@@ -892,6 +902,28 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                     peerConnection.addIceCandidate(rtcIceCandidate);
                 }
             }
+        }
+    }
+
+    private handleProfileMessage(message: IConfMessageProfile | IConfMessageAddPeer) {
+        const id = message.Id
+        if (id === this.state.localStream.id) {
+            this.setState({
+                localStream: {
+                    ...this.state.localStream,
+                    profile: message.profile,
+                }
+            })
+        } else {
+            this.setState({
+                remoteStreams: {
+                    ...this.state.remoteStreams,
+                    [id]: {
+                        ...this.state.remoteStreams[id],
+                        profile: message.profile,
+                    }
+                }
+            })
         }
     }
 }

@@ -6,7 +6,8 @@ export type IConfIncomingMessage =
     IConfIncomingMessageOffer |
     IConfIncomingMessageAnswer |
     IConfMessageAddPeer |
-    IConfMessageRemovePeer
+    IConfMessageRemovePeer |
+    IConfMessageProfile
 
 export type IConfOutgoingMessage =
     IConfMessageJoin |
@@ -78,6 +79,7 @@ export interface IConfOutgoingMessageAnswer extends IConfMessageAnswer, IConfOut
 export interface IConfMessageAddPeer {
     type: 'AddPeer';
     Id: ConfUserID;
+    profile?: ConfUserProfile;
 }
 
 // NOTE(yunsi): IConMessageRemovePeer is received when someone left the conference room.
@@ -91,6 +93,15 @@ export interface IConfMessageBye {
     type: 'Bye';
 }
 
+export interface IConfMessageProfile {
+    type: 'Profile';
+    Id: ConfUserID;
+    profile: ConfUserProfile
+}
+
 export type ConfRoom = string;
 
 export type ConfUserID = string;
+
+// TODO(yunsi): Type UserProfile.
+export type ConfUserProfile = any;
