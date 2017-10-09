@@ -12,7 +12,6 @@ import {
     IConfIncomingMessageAnswer,
     IConfMessageAddPeer,
     IConfMessageRemovePeer,
-    IConfMessageProfile,
     IConfOutgoingMessage,
     ConfUserID,
     IConfUserProfile,

@@ -6,8 +6,7 @@ export type IConfIncomingMessage =
     IConfIncomingMessageOffer |
     IConfIncomingMessageAnswer |
     IConfMessageAddPeer |
-    IConfMessageRemovePeer |
-    IConfMessageProfile
+    IConfMessageRemovePeer
 
 export type IConfOutgoingMessage =
     IConfMessageJoin |
