@@ -138,7 +138,7 @@ export interface SpreedUser {
 // NOTE(andrews): SpreedUserStatus contains UI relevant data for a User such as
 // their displayName or picture.
 export interface SpreedUserStatus {
-    BuddyPicture: any; // TODO(andrews): Determine type
+    BuddyPicture: string;
     DisplayName: string;
     Message?: string;
 }
