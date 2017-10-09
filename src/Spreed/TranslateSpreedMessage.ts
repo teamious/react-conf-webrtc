@@ -48,10 +48,12 @@ export function TranslateSpreedMessage(message: SpreedResponse): IConfIncomingMe
 
 function translateWelcomeMessage(data: SpreedMessageWelcome, message: SpreedResponse): IConfMessageAddPeer[] | undefined {
     return data.Users.map<IConfMessageAddPeer>(u => {
+        const { Status } = u;
+        const userProfile = Status ? { avatar: Status.BuddyPicture, name: Status.DisplayName } : undefined;
         return {
             type: 'AddPeer',
             Id: u.Id,
-            profile: u.Status,
+            profile: userProfile,
         }
     });
 }
@@ -80,10 +82,12 @@ function translateLeftMessage(data: SpreedMessageLeft, message: SpreedResponse):
 }
 
 function translateJoinedMessage(data: SpreedMessageJoined, message: SpreedResponse): IConfMessageAddPeer | undefined {
+    const { Status } = data;
+    const userProfile = Status ? { avatar: Status.BuddyPicture, name: Status.DisplayName } : undefined;
     return {
         type: 'AddPeer',
         Id: data.Id,
-        profile: data.Status,
+        profile: userProfile,
     }
 }
 

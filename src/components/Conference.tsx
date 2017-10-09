@@ -15,6 +15,7 @@ import {
     IConfMessageProfile,
     IConfOutgoingMessage,
     ConfUserID,
+    IConfUserProfile,
     IDataChannelMessage,
     IDataChannelMessageSpeech,
     IDataChannelMessageAudio,
@@ -58,7 +59,7 @@ export interface ConferenceStream {
     videoEnabled: boolean;
     isScreenSharing: boolean;
     isRecording: boolean;
-    profile: any;
+    profile: IConfUserProfile;
 }
 
 export interface IStreamsRendererProps {
@@ -594,13 +595,13 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
 
         if (id === this.state.localStream.id) {
             if (message.profile) {
-                this.handleProfileMessage(message)
+                this.handleProfile(message.profile, id)
             }
             return;
         } else {
             this.createRemoteStreamById(id);
             if (message.profile) {
-                this.handleProfileMessage(message)
+                this.handleProfile(message.profile, id)
             }
         }
 
@@ -905,13 +906,12 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         }
     }
 
-    private handleProfileMessage(message: IConfMessageProfile | IConfMessageAddPeer) {
-        const id = message.Id
+    private handleProfile(profile: IConfUserProfile, id: string) {
         if (id === this.state.localStream.id) {
             this.setState({
                 localStream: {
                     ...this.state.localStream,
-                    profile: message.profile,
+                    profile,
                 }
             })
         } else {
@@ -920,7 +920,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                     ...this.state.remoteStreams,
                     [id]: {
                         ...this.state.remoteStreams[id],
-                        profile: message.profile,
+                        profile,
                     }
                 }
             })
