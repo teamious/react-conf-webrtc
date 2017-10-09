@@ -14,6 +14,7 @@ import {
     IConfMessageRemovePeer,
     IConfOutgoingMessage,
     ConfUserID,
+    IConfUserProfile,
     IDataChannelMessage,
     IDataChannelMessageSpeech,
     IDataChannelMessageAudio,
@@ -57,6 +58,7 @@ export interface ConferenceStream {
     videoEnabled: boolean;
     isScreenSharing: boolean;
     isRecording: boolean;
+    profile: IConfUserProfile;
 }
 
 export interface IStreamsRendererProps {
@@ -591,6 +593,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         }
 
         if (id === this.state.localStream.id) {
+            this.updatePeerProfile(message.profile, id)
             return;
         }
 
@@ -601,6 +604,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         }
         const peerConnection = this.createPeerConnectionById(id);
         this.createRemoteStreamById(id);
+        this.updatePeerProfile(message.profile, id)
 
         // NOTE(yunsi): When two clients both recieved an AddPeer event with the other client's id,
         // they will do a compare to see who should create and send the offer and dataChannel.
@@ -892,6 +896,31 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                     peerConnection.addIceCandidate(rtcIceCandidate);
                 }
             }
+        }
+    }
+
+    private updatePeerProfile(profile: IConfUserProfile | undefined, id: string) {
+        if (!profile) {
+            return;
+        }
+
+        if (id === this.state.localStream.id) {
+            this.setState({
+                localStream: {
+                    ...this.state.localStream,
+                    profile,
+                }
+            })
+        } else {
+            this.setState({
+                remoteStreams: {
+                    ...this.state.remoteStreams,
+                    [id]: {
+                        ...this.state.remoteStreams[id],
+                        profile,
+                    }
+                }
+            })
         }
     }
 }

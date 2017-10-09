@@ -95,6 +95,7 @@ export interface SpreedMessageJoined {
     Id: SpreedUserID;
     Type: 'Joined';
     Prio: number;
+    Status?: SpreedUserStatus;
     Ua?: string; // NOTE(andrews): Ua stands for user agent (eg. Chrome 58)
 }
 
@@ -137,9 +138,9 @@ export interface SpreedUser {
 // NOTE(andrews): SpreedUserStatus contains UI relevant data for a User such as
 // their displayName or picture.
 export interface SpreedUserStatus {
-    buddyPicture: any; // TODO(andrews): Determine type
-    displayName: string;
-    message: string;
+    BuddyPicture: string;
+    DisplayName: string;
+    Message?: string;
 }
 
 // NOTE(andrews): SpreedMessageHello joins a room by Name.
