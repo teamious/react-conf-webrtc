@@ -593,15 +593,8 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         }
 
         if (id === this.state.localStream.id) {
-            if (message.profile) {
-                this.handleProfile(message.profile, id)
-            }
+            this.updatePeerProfile(message.profile, id)
             return;
-        } else {
-            this.createRemoteStreamById(id);
-            if (message.profile) {
-                this.handleProfile(message.profile, id)
-            }
         }
 
         // NOTE(yunsi): Check if a PeerConnection is already established for the given ID.
@@ -611,6 +604,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         }
         const peerConnection = this.createPeerConnectionById(id);
         this.createRemoteStreamById(id);
+        this.updatePeerProfile(message.profile, id)
 
         // NOTE(yunsi): When two clients both recieved an AddPeer event with the other client's id,
         // they will do a compare to see who should create and send the offer and dataChannel.
@@ -905,7 +899,11 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         }
     }
 
-    private handleProfile(profile: IConfUserProfile, id: string) {
+    private updatePeerProfile(profile: IConfUserProfile | undefined, id: string) {
+        if (!profile) {
+            return;
+        }
+
         if (id === this.state.localStream.id) {
             this.setState({
                 localStream: {
