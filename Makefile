@@ -22,9 +22,13 @@ all: build ut
 build:
 	@@echo "$(OK_COLOR)"'building>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' && echo "$(NO_COLOR)"
 	@npm run build
-	@cd docs && npm run build:prod
-	@cd docs && docker build -t react-conf-webrtc-docs .
+	@cd demo && npm run build:prod
+	@cd demo && docker build -t react-conf-webrtc-docs .
 	@$(BUILD_CMD)
+
+test:
+	@@echo "$(OK_COLOR)"'building>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' && echo "$(NO_COLOR)"
+	@npm run build
 
 ut:
 	@@echo "$(OK_COLOR)"'running unit tests>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' && echo "$(NO_COLOR)"
