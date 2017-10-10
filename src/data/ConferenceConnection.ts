@@ -29,7 +29,7 @@ export interface MessageHandler {
     (message: any, done: () => void): void
 }
 
-// ConferenceConnection Connection class is responsible for controlling the communication
+// ConferenceConnection class is responsible for controlling the communication
 // between the IConnection and IMessageAdapter instances. It exposes an API
 // for subscribers to hook into the IConnection event stream. This means
 // that anytime the server sends a message to the IConnection, you
