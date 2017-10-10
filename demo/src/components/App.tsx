@@ -5,7 +5,7 @@ import { env } from '../config/config';
 
 import {
     Conference,
-    Connect,
+    SpreedConnect,
     ConferenceStream,
     Stream,
     IMediaStreamControlRendererProps,
@@ -123,7 +123,7 @@ export class App extends React.Component<{}, {}> {
 // TODO(andrew): Figure out how to make this work with env
 function connect() {
     const webRTCUrl = env.SPREED_URL ? env.SPREED_URL : location.hostname + ":8443";
-    const conn = Connect('wss://' + webRTCUrl + '/ws');
+    const conn = SpreedConnect('wss://' + webRTCUrl + '/ws');
     conn.onconnmessage = (msg, done) => {
         console.log('Intercepted SpreedResponse message with type: %s', msg.Data.Type);
         done()
