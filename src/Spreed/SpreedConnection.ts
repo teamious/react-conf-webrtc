@@ -1,3 +1,4 @@
+import { IConnection } from '../data/';
 import { SpreedResponse } from './SpreedResponse';
 import { SpreedRequest } from './SpreedRequest';
 
@@ -5,7 +6,7 @@ import { SpreedRequest } from './SpreedRequest';
 // It will queue any responses (messages from the server) and requests (messages from the client)
 // if no receiver is ready. Messages from the server are processed once an `onmessage` handler is assigned.
 // Likewise, messages from the client are only processed once the WebSocket connection is open.
-export class SpreedConnection {
+export class SpreedConnection implements IConnection {
     private conn: WebSocket;
     private onCloseHandler: SpreedConnCloseHandler;
     private onErrorHandler: SpreedConnErrorHandler;
@@ -15,7 +16,7 @@ export class SpreedConnection {
     // queue of client -> server messages
     private requests: SpreedRequest[] = [];
 
-    constructor(url: string) {
+    public connect(url: string) {
         this.conn = new WebSocket(url);
         this.conn.onmessage = this.onConnMessage.bind(this);
         this.conn.onclose = this.onConnClose.bind(this);
