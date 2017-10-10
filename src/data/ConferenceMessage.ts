@@ -97,6 +97,7 @@ export type ConfRoom = string;
 export type ConfUserID = string;
 
 export interface IConfUserProfile {
-    avatar: string;
-    name: string;
+    avatar?: string;
+    name?: string;
+    message?: string;
 };
