@@ -138,9 +138,10 @@ export interface SpreedUser {
 // NOTE(andrews): SpreedUserStatus contains UI relevant data for a User such as
 // their displayName or picture.
 export interface SpreedUserStatus {
-    BuddyPicture: string;
-    DisplayName: string;
+    BuddyPicture?: string;
+    DisplayName?: string;
     Message?: string;
+    UserInfo?: string;
 }
 
 // NOTE(andrews): SpreedMessageHello joins a room by Name.

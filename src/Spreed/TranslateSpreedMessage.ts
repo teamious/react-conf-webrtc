@@ -17,6 +17,7 @@ import {
     SpreedMessageWelcome,
     SpreedMessageSelf,
     SpreedMessageConference,
+    SpreedUserStatus,
 } from './SpreedMessage';
 
 // NOTE(andrews): TranslateSpreedMessage delegates the work of translating the message
@@ -48,12 +49,10 @@ export function TranslateSpreedMessage(message: SpreedResponse): IConfIncomingMe
 
 function translateWelcomeMessage(data: SpreedMessageWelcome, message: SpreedResponse): IConfMessageAddPeer[] | undefined {
     return data.Users.map<IConfMessageAddPeer>(u => {
-        const { Status } = u;
-        const userProfile = Status ? { avatar: Status.BuddyPicture, name: Status.DisplayName } : undefined;
         return {
             type: 'AddPeer',
             Id: u.Id,
-            profile: userProfile,
+            profile: translateStatus(u.Status),
         }
     });
 }
@@ -82,12 +81,10 @@ function translateLeftMessage(data: SpreedMessageLeft, message: SpreedResponse):
 }
 
 function translateJoinedMessage(data: SpreedMessageJoined, message: SpreedResponse): IConfMessageAddPeer | undefined {
-    const { Status } = data;
-    const userProfile = Status ? { avatar: Status.BuddyPicture, name: Status.DisplayName } : undefined;
     return {
         type: 'AddPeer',
         Id: data.Id,
-        profile: userProfile,
+        profile: translateStatus(data.Status),
     }
 }
 
@@ -125,4 +122,21 @@ function translateOfferMessage(data: SpreedMessageOffer, message: SpreedResponse
         sessionDescription: data.Offer,
         from: message.From,
     }
+}
+
+// TODO(yunsi): Extend the translator and remove this.
+function translateStatus(Status: SpreedUserStatus | undefined) {
+    if (!Status) {
+        return
+    }
+
+    let userProfile;
+    if (Status.UserInfo) {
+        const userInfo = JSON.parse(Status.UserInfo);
+        userProfile = userInfo ? { avatar: userInfo.avatar, name: userInfo.displayName } : undefined;
+    } else {
+        userProfile = { avatar: Status.BuddyPicture, name: Status.DisplayName, message: Status.Message };
+    }
+
+    return userProfile
 }
