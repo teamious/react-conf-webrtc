@@ -42,6 +42,7 @@ export function TranslateConferenceMessage(message: IConfOutgoingMessage): Spree
 
 function translateJoinMessage(message: IConfMessageJoin): SpreedRequestHello {
      // TODO(andrews): Determine if we really need Version, UA properties.
+     // NOTE(yunsi): Name value in the hello message determins which room the user eventually join.
     return createHelloRequest({
         Type: 'Conference',
         Name: message.room,
