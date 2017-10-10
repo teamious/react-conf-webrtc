@@ -99,5 +99,4 @@ export type ConfUserID = string;
 export interface IConfUserProfile {
     avatar?: string;
     name?: string;
-    message?: string;
 };

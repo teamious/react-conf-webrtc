@@ -135,7 +135,7 @@ function translateStatus(Status: SpreedUserStatus | undefined) {
         const userInfo = JSON.parse(Status.UserInfo);
         userProfile = userInfo ? { avatar: userInfo.avatar, name: userInfo.displayName } : undefined;
     } else {
-        userProfile = { avatar: Status.BuddyPicture, name: Status.DisplayName, message: Status.Message };
+        userProfile = { avatar: Status.BuddyPicture, name: Status.DisplayName };
     }
 
     return userProfile
