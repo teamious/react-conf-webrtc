@@ -141,7 +141,6 @@ export interface SpreedUserStatus {
     BuddyPicture: string;
     DisplayName: string;
     Message: string;
-    UserInfo: string;
 }
 
 // NOTE(andrews): SpreedMessageHello joins a room by Name.
