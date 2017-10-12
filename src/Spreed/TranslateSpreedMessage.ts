@@ -124,19 +124,10 @@ function translateOfferMessage(data: SpreedMessageOffer, message: SpreedResponse
     }
 }
 
-// TODO(yunsi): Extend the translator and remove this.
 function translateStatus(Status: SpreedUserStatus | undefined) {
     if (!Status) {
         return
     }
 
-    let userProfile;
-    if (Status.UserInfo) {
-        const userInfo = JSON.parse(Status.UserInfo);
-        userProfile = userInfo ? { avatar: userInfo.avatar, name: userInfo.displayName } : undefined;
-    } else {
-        userProfile = { avatar: Status.BuddyPicture, name: Status.DisplayName };
-    }
-
-    return userProfile
+    return { avatar: Status.BuddyPicture, name: Status.DisplayName };
 }
