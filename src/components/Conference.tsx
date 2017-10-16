@@ -424,6 +424,10 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     private leaveRoom() {
+        const { audioMonitor } = this.state;
+        if (audioMonitor) {
+            audioMonitor.stop();
+        }
         // NOTE(yunsi): Send Bye message to spreed server.
         const message = createOutgoingMessageBye()
         this.sendMessage(message);
