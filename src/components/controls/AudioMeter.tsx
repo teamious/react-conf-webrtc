@@ -29,10 +29,6 @@ export class AudioMeter extends React.PureComponent<IAudioMeterProps, {}> {
         })
     }
 
-    public componentWillUnmount() {
-        this.audioMonitor.stop();
-    }
-
     public refBar(element: HTMLDivElement) {
         this.audioMeterBar = element;
     }
