@@ -24,8 +24,9 @@ var react_conf_webrtc_1 = __webpack_require__(80);
 var MediaStreamControl_1 = __webpack_require__(238);
 var config = {
     'iceServers': [
-        { 'urls': 'stun:stun.services.mozilla.com' },
-        { 'urls': 'stun:stun.l.google.com:19302' }
+        // { 'urls': 'stun:stun.services.mozilla.com' },
+        // { 'urls': 'stun:stun.l.google.com:19302' }
+        { 'urls': 'stun:coturn.jingoal.ltd:3478' }
     ]
 };
 var App = (function (_super) {
@@ -2232,4 +2233,4 @@ ReactDOM.render(React.createElement(App_1.App, null), document.getElementById('r
 /***/ })
 
 },[96]);
-//# sourceMappingURL=main-044f15f2432e756f153a.js.map
+//# sourceMappingURL=main-4458977b7e7aecb3c7fd.js.map
