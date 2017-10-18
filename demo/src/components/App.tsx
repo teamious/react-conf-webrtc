@@ -19,9 +19,9 @@ import { MediaStreamControl } from './MediaStreamControl';
 
 const config: RTCConfiguration = {
     'iceServers': [
-        // { 'urls': 'stun:stun.services.mozilla.com' },
-        // { 'urls': 'stun:stun.l.google.com:19302' }
-        { 'urls': 'stun:coturn.jingoal.ltd:3478' }
+        { 'urls': 'stun:stun.services.mozilla.com' },
+        { 'urls': 'stun:stun.l.google.com:19302' }
+        //{ 'urls': 'stun:coturn.jingoal.ltd:3478' }
     ]
 };
 
