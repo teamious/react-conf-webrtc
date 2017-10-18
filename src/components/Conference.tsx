@@ -195,12 +195,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     public componentWillUnmount() {
-        if (this.state.localStream.stream) {
-            MediaStreamUtil.stopMediaStream(this.state.localStream.stream);
-        }
-        if (this.connection) {
-            this.leaveRoom();
-        }
+        this.leaveRoom();
     }
 
     // NOTE(andrews): toggleAudioEnabled allows you to control the audio tracks
@@ -424,6 +419,19 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     private leaveRoom() {
+        const { audioMonitor, localStream } = this.state;
+
+        if (localStream.stream) {
+            MediaStreamUtil.stopMediaStream(localStream.stream);
+        }
+
+        if (audioMonitor) {
+            audioMonitor.stop();
+        }
+
+        if (!this.connection) {
+            return
+        }
         // NOTE(yunsi): Send Bye message to spreed server.
         const message = createOutgoingMessageBye()
         this.sendMessage(message);
