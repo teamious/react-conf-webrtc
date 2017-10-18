@@ -868,6 +868,10 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                 return promise;
             })
             .then(sessionDescription => this.setLocalAndSendMessage(sessionDescription, 'Answer', id))
+            .catch(err => {
+                console.warn('setRemoteDescription,', err);
+                this.onError(createConferenceErrorSetRemoteDescription(err, id));
+            })
         // TODO(yunsi): Add error handling.
     }
 
@@ -885,6 +889,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             .setRemoteDescription(rtcSessionDescription)
             .then(() => this.processCandidates(id))
             .catch(err => {
+                console.warn('setRemoteDescription,', err);
                 this.onError(createConferenceErrorSetRemoteDescription(err, id));
             })
     }
