@@ -24,9 +24,9 @@ var react_conf_webrtc_1 = __webpack_require__(80);
 var MediaStreamControl_1 = __webpack_require__(238);
 var config = {
     'iceServers': [
-        // { 'urls': 'stun:stun.services.mozilla.com' },
-        // { 'urls': 'stun:stun.l.google.com:19302' }
-        { 'urls': 'stun:coturn.jingoal.ltd:3478' }
+        { 'urls': 'stun:stun.services.mozilla.com' },
+        { 'urls': 'stun:stun.l.google.com:19302' }
+        //{ 'urls': 'stun:coturn.jingoal.ltd:3478' }
     ]
 };
 var App = (function (_super) {
@@ -581,15 +581,15 @@ var Conference = (function (_super) {
         this.updatePeerProfile(message.profile, id);
         // NOTE(yunsi): When two clients both recieved an AddPeer event with the other client's id,
         // they will do a compare to see who should create and send the offer and dataChannel.
-        if (this.state.localStream.id.localeCompare(id) === 1) {
-            var dataChannel = peerConnection.createDataChannel('dataChannel');
-            this.setDataChannelMessageHandler(dataChannel, id);
-            return peerConnection.createOffer(function (sessionDescription) {
-                _this.setLocalAndSendMessage(sessionDescription, 'Offer', id);
-            }, function (err) {
-                _this.onError(services_1.createConferenceErrorCreateOffer(err, id));
-            }, SDPConstraints);
-        }
+        //if (this.state.localStream.id.localeCompare(id) === 1) {
+        var dataChannel = peerConnection.createDataChannel('dataChannel');
+        this.setDataChannelMessageHandler(dataChannel, id);
+        return peerConnection.createOffer(function (sessionDescription) {
+            _this.setLocalAndSendMessage(sessionDescription, 'Offer', id);
+        }, function (err) {
+            _this.onError(services_1.createConferenceErrorCreateOffer(err, id));
+        }, SDPConstraints);
+        //}
     };
     Conference.prototype.setDataChannelMessageHandler = function (dataChannel, id) {
         var _this = this;
@@ -2233,4 +2233,4 @@ ReactDOM.render(React.createElement(App_1.App, null), document.getElementById('r
 /***/ })
 
 },[96]);
-//# sourceMappingURL=main-4458977b7e7aecb3c7fd.js.map
+//# sourceMappingURL=main-5146c9b7b17e776066a5.js.map
