@@ -19,6 +19,7 @@ export type IConfOutgoingMessage =
 export interface IConfMessageSelf {
     type: 'Self';
     Id: ConfUserID;
+    pcConfig?: RTCConfiguration;
 }
 
 // NOTE(yunsi): IConfMessageJoin is sent out when you try to join a conference room.

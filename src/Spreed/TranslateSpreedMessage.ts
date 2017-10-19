@@ -67,9 +67,37 @@ function translateConferenceMessage(data: SpreedMessageConference, message: Spre
 }
 
 function translateSelfMessage(data: SpreedMessageSelf, message: SpreedResponse): IConfMessageSelf | undefined {
+    let pcConfig;
+    let iceServers = [] as RTCIceServer[];
+
+    // NOTE(yunsi): Stun is an empty array if Stun is not configured by spreed.
+    if (data.Stun.length > 0) {
+        iceServers.push(
+            {
+                urls: data.Stun,
+            }
+        )
+    }
+
+    // NOTE(yunsi): Turn.urls is undefined if Turn is not configured by spreed.
+    if (data.Turn.urls) {
+        iceServers.push(
+            {
+                urls: data.Turn.urls,
+                username: data.Turn.username,
+                credential: data.Turn.password,
+            }
+        )
+    }
+
+    if (iceServers.length > 0) {
+        pcConfig = { iceServers }
+    }
+
     return {
         type: 'Self',
         Id: data.Id,
+        pcConfig: pcConfig,
     }
 }
 
