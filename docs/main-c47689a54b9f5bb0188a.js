@@ -581,15 +581,15 @@ var Conference = (function (_super) {
         this.updatePeerProfile(message.profile, id);
         // NOTE(yunsi): When two clients both recieved an AddPeer event with the other client's id,
         // they will do a compare to see who should create and send the offer and dataChannel.
-        //if (this.state.localStream.id.localeCompare(id) === 1) {
-        var dataChannel = peerConnection.createDataChannel('dataChannel');
-        this.setDataChannelMessageHandler(dataChannel, id);
-        return peerConnection.createOffer(function (sessionDescription) {
-            _this.setLocalAndSendMessage(sessionDescription, 'Offer', id);
-        }, function (err) {
-            _this.onError(services_1.createConferenceErrorCreateOffer(err, id));
-        }, SDPConstraints);
-        //}
+        if (this.state.localStream.id.localeCompare(id) === 1) {
+            var dataChannel = peerConnection.createDataChannel('dataChannel');
+            this.setDataChannelMessageHandler(dataChannel, id);
+            return peerConnection.createOffer(function (sessionDescription) {
+                _this.setLocalAndSendMessage(sessionDescription, 'Offer', id);
+            }, function (err) {
+                _this.onError(services_1.createConferenceErrorCreateOffer(err, id));
+            }, SDPConstraints);
+        }
     };
     Conference.prototype.setDataChannelMessageHandler = function (dataChannel, id) {
         var _this = this;
@@ -604,6 +604,7 @@ var Conference = (function (_super) {
             _this.handleIceCandidate(event, id);
         };
         peerConnection.onaddstream = function (event) {
+            console.log('peerConnection.onaddstream', event);
             _this.handleRemoteStreamAdded(event, id);
         };
         peerConnection.onremovestream = function (event) {
@@ -2233,4 +2234,4 @@ ReactDOM.render(React.createElement(App_1.App, null), document.getElementById('r
 /***/ })
 
 },[96]);
-//# sourceMappingURL=main-5146c9b7b17e776066a5.js.map
+//# sourceMappingURL=main-c47689a54b9f5bb0188a.js.map
