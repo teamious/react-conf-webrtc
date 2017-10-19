@@ -616,7 +616,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
 
         // NOTE(yunsi): When two clients both recieved an AddPeer event with the other client's id,
         // they will do a compare to see who should create and send the offer and dataChannel.
-        //if (this.state.localStream.id.localeCompare(id) === 1) {
+        if (this.state.localStream.id.localeCompare(id) === 1) {
             const dataChannel = peerConnection.createDataChannel('dataChannel');
             this.setDataChannelMessageHandler(dataChannel, id);
             return peerConnection.createOffer(
@@ -628,7 +628,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                 },
                 SDPConstraints
             )
-        //}
+        }
     }
 
     private setDataChannelMessageHandler(dataChannel: RTCDataChannel, id: string) {
@@ -643,6 +643,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             this.handleIceCandidate(event, id)
         };
         peerConnection.onaddstream = (event) => {
+            console.log('peerConnection.onaddstream', event);
             this.handleRemoteStreamAdded(event, id)
         };
         peerConnection.onremovestream = (event) => {
