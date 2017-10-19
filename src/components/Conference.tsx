@@ -643,7 +643,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             this.handleIceCandidate(event, id)
         };
         peerConnection.onaddstream = (event) => {
-            console.log('peerConnection.onaddstream', event);
+            console.log('peerConnection.onaddstream', event, peerConnection.signalingState);
             this.handleRemoteStreamAdded(event, id)
         };
         peerConnection.onremovestream = (event) => {
@@ -884,6 +884,8 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             console.warn('handleAnswerMessage(): Missing connection Id: %s', id);
             return
         }
+
+        console.log('handleAnswerMessage:', peerConnection);
 
         const rtcSessionDescription = message.sessionDescription;
         peerConnection

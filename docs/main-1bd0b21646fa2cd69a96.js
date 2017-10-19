@@ -604,7 +604,7 @@ var Conference = (function (_super) {
             _this.handleIceCandidate(event, id);
         };
         peerConnection.onaddstream = function (event) {
-            console.log('peerConnection.onaddstream', event);
+            console.log('peerConnection.onaddstream', event, peerConnection.signalingState);
             _this.handleRemoteStreamAdded(event, id);
         };
         peerConnection.onremovestream = function (event) {
@@ -793,6 +793,7 @@ var Conference = (function (_super) {
             console.warn('handleAnswerMessage(): Missing connection Id: %s', id);
             return;
         }
+        console.log('handleAnswerMessage:', peerConnection);
         var rtcSessionDescription = message.sessionDescription;
         peerConnection
             .setRemoteDescription(rtcSessionDescription)
@@ -2234,4 +2235,4 @@ ReactDOM.render(React.createElement(App_1.App, null), document.getElementById('r
 /***/ })
 
 },[96]);
-//# sourceMappingURL=main-c47689a54b9f5bb0188a.js.map
+//# sourceMappingURL=main-1bd0b21646fa2cd69a96.js.map
