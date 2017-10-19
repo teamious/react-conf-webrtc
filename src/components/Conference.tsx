@@ -120,6 +120,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     private localCamStream: MediaStream;
     private renegotiation: { [id: string]: boolean } = {};
     private streamRecorder: StreamRecorder | undefined;
+    private pcConfig: RTCConfiguration | undefined;
 
     constructor(props: IConferenceProps) {
         super(props);
@@ -589,6 +590,9 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     private handleSelfMessage(message: IConfMessageSelf) {
+        if (message.pcConfig) {
+            this.pcConfig = message.pcConfig;
+        }
         this.setState({ localStream: { ...this.state.localStream, id: message.Id } });
     }
 
@@ -616,7 +620,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
 
         // NOTE(yunsi): When two clients both recieved an AddPeer event with the other client's id,
         // they will do a compare to see who should create and send the offer and dataChannel.
-        //if (this.state.localStream.id.localeCompare(id) === 1) {
+        if (this.state.localStream.id.localeCompare(id) === 1) {
             const dataChannel = peerConnection.createDataChannel('dataChannel');
             this.setDataChannelMessageHandler(dataChannel, id);
             return peerConnection.createOffer(
@@ -628,7 +632,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                 },
                 SDPConstraints
             )
-        //}
+        }
     }
 
     private setDataChannelMessageHandler(dataChannel: RTCDataChannel, id: string) {
@@ -637,7 +641,8 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     private createPeerConnectionById(id: string) {
-        const peerConnection = this.pcManager.createPeerConnectionById(id, this.props.peerConnectionConfig);
+        const pcConfig = this.getPcConfig();
+        const peerConnection = this.pcManager.createPeerConnectionById(id, pcConfig);
         // TODO(yunsi): Add data channel config
         peerConnection.onicecandidate = (event) => {
             this.handleIceCandidate(event, id)
@@ -671,6 +676,16 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         }
 
         return peerConnection;
+    }
+
+    private getPcConfig() {
+        if (this.props.peerConnectionConfig) {
+            return this.props.peerConnectionConfig
+        }
+        if (this.pcConfig) {
+            return this.pcConfig
+        }
+        return {}
     }
 
     private handleIceCandidate(event: RTCPeerConnectionIceEvent, id: string) {
