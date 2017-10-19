@@ -77,7 +77,6 @@ function translateSelfMessage(data: SpreedMessageSelf, message: SpreedResponse):
                 urls: data.Stun,
             }
         )
-        iceServers = [...iceServers, { urls: data.Stun }]
     }
 
     // NOTE(yunsi): Turn.urls is undefined if Turn is not configured by spreed.
