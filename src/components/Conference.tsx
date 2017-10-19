@@ -643,6 +643,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             this.handleIceCandidate(event, id)
         };
         peerConnection.onaddstream = (event) => {
+            console.log('peerConnection.onaddstream', event);
             this.handleRemoteStreamAdded(event, id)
         };
         peerConnection.onremovestream = (event) => {
