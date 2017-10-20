@@ -89,7 +89,7 @@ export interface ConferenceRenderer {
 export interface IConferenceProps {
     connect: () => ConferenceConnection;
     room: string;
-    peerConnectionConfig: RTCConfiguration;
+    peerConnectionConfig?: RTCConfiguration;
     render?: ConferenceRenderer;
     onError?: (error: ConferenceError) => void;
 }
