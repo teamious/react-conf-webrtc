@@ -625,15 +625,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         if (this.state.localStream.id.localeCompare(id) === 1) {
             const dataChannel = peerConnection.createDataChannel('dataChannel');
             this.setDataChannelMessageHandler(dataChannel, id);
-            return peerConnection.createOffer(
-                (sessionDescription: RTCSessionDescription) => {
-                    this.setLocalAndSendMessage(sessionDescription, 'Offer', id)
-                },
-                (err) => {
-                    this.onError(createConferenceErrorCreateOffer(err, id))
-                },
-                SDPConstraints
-            )
+            return this.createPeerConnectionOffer(peerConnection, id);
         }
     }
 
@@ -666,11 +658,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                 console.log('peerConnection.onnegotiationneeded:createOffer', peerConnection);
                 // NOTE(gaolw): Somehow the onnegotiationneeded will fire twice, so that offer will be created twice which will cause some errors when answering.
                 this.renegotiation[id] = false;
-                peerConnection.createOffer(undefined, undefined, SDPConstraints)
-                    .then(sessionDescription => this.setLocalAndSendMessage(sessionDescription, 'Offer', id))
-                    .catch(err => {
-                        this.onError(createConferenceErrorCreateOffer(err, id));
-                    });
+                this.createPeerConnectionOffer(peerConnection, id);
             }
         }
 
@@ -704,6 +692,17 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         }
 
         return peerConnection;
+    }
+
+    private createPeerConnectionOffer(peerConnection: RTCPeerConnection, id: string) {
+        return peerConnection.createOffer(
+            (sessionDescription: RTCSessionDescription) => {
+                this.setLocalAndSendMessage(sessionDescription, 'Offer', id)
+            },
+            (err) => {
+                this.onError(createConferenceErrorCreateOffer(err, id))
+            },
+            SDPConstraints);
     }
 
     private getPcConfig() {
