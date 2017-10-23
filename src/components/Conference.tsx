@@ -21,6 +21,7 @@ import {
     IDataChannelMessageVideo,
     DataChannelReadyState,
     ConferenceError,
+    PeerConnectionState,
 } from '../data';
 import {
     createOutgoingMessageJoin,
@@ -59,6 +60,7 @@ export interface ConferenceStream {
     isScreenSharing: boolean;
     isRecording: boolean;
     profile: IConfUserProfile;
+    connectionState: string;
 }
 
 export interface IStreamsRendererProps {
@@ -664,12 +666,37 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                 console.log('peerConnection.onnegotiationneeded:createOffer', peerConnection);
                 // NOTE(gaolw): Somehow the onnegotiationneeded will fire twice, so that offer will be created twice which will cause some errors when answering.
                 this.renegotiation[id] = false;
-                peerConnection.createOffer()
+                peerConnection.createOffer(undefined, undefined, SDPConstraints)
                     .then(sessionDescription => this.setLocalAndSendMessage(sessionDescription, 'Offer', id))
                     .catch(err => {
                         this.onError(createConferenceErrorCreateOffer(err, id));
                     });
             }
+        }
+
+        peerConnection.oniceconnectionstatechange = (event) => {
+            const connectionState = peerConnection.iceConnectionState;
+            console.log('peerConnection.oniceconnectionstatechange', connectionState);
+
+            this.setState({
+                remoteStreams: {
+                    ...this.state.remoteStreams,
+                    [id]: {
+                        ...this.state.remoteStreams[id],
+                        connectionState: connectionState
+                    }
+                }
+            });
+
+            if (connectionState === PeerConnectionState.Failed ||
+                connectionState === PeerConnectionState.Disconnected ||
+                connectionState === PeerConnectionState.Closed) {
+                console.warn('peerConnection failed', id);
+            }
+        }
+
+        peerConnection.onicegatheringstatechange = (event) => {
+            console.log('peerConnection.onicegatheringstatechange', peerConnection.iceGatheringState);
         }
 
         if (this.state.localStream.stream) {
