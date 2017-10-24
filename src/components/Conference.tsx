@@ -21,6 +21,7 @@ import {
     IDataChannelMessageVideo,
     DataChannelReadyState,
     ConferenceError,
+    PeerConnectionState,
 } from '../data';
 import {
     createOutgoingMessageJoin,
@@ -59,6 +60,7 @@ export interface ConferenceStream {
     isScreenSharing: boolean;
     isRecording: boolean;
     profile: IConfUserProfile;
+    connectionState: string;
 }
 
 export interface IStreamsRendererProps {
@@ -623,15 +625,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         if (this.state.localStream.id.localeCompare(id) === 1) {
             const dataChannel = peerConnection.createDataChannel('dataChannel');
             this.setDataChannelMessageHandler(dataChannel, id);
-            return peerConnection.createOffer(
-                (sessionDescription: RTCSessionDescription) => {
-                    this.setLocalAndSendMessage(sessionDescription, 'Offer', id)
-                },
-                (err) => {
-                    this.onError(createConferenceErrorCreateOffer(err, id))
-                },
-                SDPConstraints
-            )
+            return this.createPeerConnectionOffer(peerConnection, id);
         }
     }
 
@@ -664,12 +658,33 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                 console.log('peerConnection.onnegotiationneeded:createOffer', peerConnection);
                 // NOTE(gaolw): Somehow the onnegotiationneeded will fire twice, so that offer will be created twice which will cause some errors when answering.
                 this.renegotiation[id] = false;
-                peerConnection.createOffer()
-                    .then(sessionDescription => this.setLocalAndSendMessage(sessionDescription, 'Offer', id))
-                    .catch(err => {
-                        this.onError(createConferenceErrorCreateOffer(err, id));
-                    });
+                this.createPeerConnectionOffer(peerConnection, id);
             }
+        }
+
+        peerConnection.oniceconnectionstatechange = (event) => {
+            const connectionState = peerConnection.iceConnectionState;
+            console.log('peerConnection.oniceconnectionstatechange', connectionState);
+
+            this.setState({
+                remoteStreams: {
+                    ...this.state.remoteStreams,
+                    [id]: {
+                        ...this.state.remoteStreams[id],
+                        connectionState: connectionState
+                    }
+                }
+            });
+
+            if (connectionState === PeerConnectionState.Failed ||
+                connectionState === PeerConnectionState.Disconnected ||
+                connectionState === PeerConnectionState.Closed) {
+                console.warn('peerConnection failed', id);
+            }
+        }
+
+        peerConnection.onicegatheringstatechange = (event) => {
+            console.log('peerConnection.onicegatheringstatechange', peerConnection.iceGatheringState);
         }
 
         if (this.state.localStream.stream) {
@@ -677,6 +692,17 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         }
 
         return peerConnection;
+    }
+
+    private createPeerConnectionOffer(peerConnection: RTCPeerConnection, id: string) {
+        return peerConnection.createOffer(
+            (sessionDescription: RTCSessionDescription) => {
+                this.setLocalAndSendMessage(sessionDescription, 'Offer', id)
+            },
+            (err) => {
+                this.onError(createConferenceErrorCreateOffer(err, id))
+            },
+            SDPConstraints);
     }
 
     private getPcConfig() {
