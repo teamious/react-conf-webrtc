@@ -664,6 +664,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
 
         peerConnection.oniceconnectionstatechange = (event) => {
             const connectionState = peerConnection.iceConnectionState;
+            console.log('peerConnection.oniceconnectionstatechange', connectionState);
 
             // NOTE(yunsi): Stop setting connectionState after remoteStream got removed.
             if (this.state.remoteStreams[id]) {
