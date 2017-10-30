@@ -155,7 +155,8 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
 
         const connection = this.props.connect();
         if (!connection) {
-            throw createConferenceErrorConnect()
+            this.onError(createConferenceErrorConnect())
+            return
         }
         this.connection = connection
         this.joinRoom(this.props.room);
