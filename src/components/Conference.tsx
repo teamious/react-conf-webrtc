@@ -41,6 +41,7 @@ import {
     createConferenceErrorSetRemoteDescription,
     createConferenceErrorWebcamPermissions,
     createConferenceErrorWebRTCNotSupported,
+    createConferenceErrorConnect
 } from '../services';
 import { createAudioMonitor, AudioMonitor } from '../utils/createAudioMonitor';
 import * as MediaStreamUtil from '../utils/MediaStreamUtil';
@@ -154,7 +155,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
 
         const connection = this.props.connect();
         if (!connection) {
-            return
+            throw createConferenceErrorConnect()
         }
         this.connection = connection
         this.joinRoom(this.props.room);
