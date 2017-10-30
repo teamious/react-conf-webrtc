@@ -41,6 +41,7 @@ import {
     createConferenceErrorSetRemoteDescription,
     createConferenceErrorWebcamPermissions,
     createConferenceErrorWebRTCNotSupported,
+    createConferenceErrorConnect
 } from '../services';
 import { createAudioMonitor, AudioMonitor } from '../utils/createAudioMonitor';
 import * as MediaStreamUtil from '../utils/MediaStreamUtil';
@@ -89,7 +90,7 @@ export interface ConferenceRenderer {
 }
 
 export interface IConferenceProps {
-    connect: () => ConferenceConnection;
+    connect: () => ConferenceConnection | undefined;
     room: string;
     peerConnectionConfig?: RTCConfiguration;
     render?: ConferenceRenderer;
@@ -152,7 +153,12 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             return;
         };
 
-        this.connection = this.props.connect();
+        const connection = this.props.connect();
+        if (!connection) {
+            this.onError(createConferenceErrorConnect())
+            return
+        }
+        this.connection = connection
         this.joinRoom(this.props.room);
         this.getUserMedia().then(() => {
             this.connection.subscribe(this.handleIncomingMessage)

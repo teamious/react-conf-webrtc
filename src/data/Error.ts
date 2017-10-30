@@ -5,7 +5,8 @@ export type ConferenceError = ConferenceErrorWebcamPermissions |
     ConferenceErrorCreateOffer |
     ConferenceErrorCreateAnswer |
     ConferenceErrorWebRTCNotSupported |
-    ConferenceErrorGetUserMedia;
+    ConferenceErrorGetUserMedia |
+    ConferenceErrorConnect;
 
 export interface ConferenceErrorWebcamPermissions {
     type: 'ConferenceErrorWebcamPermissions';
@@ -48,6 +49,10 @@ export interface ConferenceErrorGetUserMedia {
     error: MediaStreamError;
 }
 
+export interface ConferenceErrorConnect {
+    type: 'ConferenceErrorConnect';
+}
+
 export const ConferenceError = {
     WebcamPermissions: 'ConferenceErrorWebcamPermissions',
     MicPermissions: 'ConferenceErrorMicPermissions',
@@ -57,4 +62,5 @@ export const ConferenceError = {
     CreateAnswer: 'ConferenceErrorCreateAnswer',
     WebRTCNotSupported: 'ConferenceErrorWebRTCNotSupported',
     GetUserMedia: 'ConferenceErrorGetUserMedia',
+    ConferenceErrorConnect: 'ConferenceErrorConnect',
 }

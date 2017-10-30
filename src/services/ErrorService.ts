@@ -56,3 +56,9 @@ export function createConferenceErrorGetUserMedia(error: any): data.ConferenceEr
         error,
     }
 }
+
+export function createConferenceErrorConnect(): data.ConferenceErrorConnect {
+    return {
+        type: 'ConferenceErrorConnect'
+    }
+}
