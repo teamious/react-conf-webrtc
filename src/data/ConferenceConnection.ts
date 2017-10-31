@@ -1,3 +1,5 @@
+import { Promise } from 'es6-promise';
+
 import { IConfOutgoingMessage, IConfIncomingMessage } from './ConferenceMessage';
 
 // NOTE(andrews): ConferenceConnection is an interface that your connection object
@@ -10,7 +12,8 @@ export interface IConferenceConnection {
 }
 
 export interface IConnection {
-    connect: (url: string) => void;
+    // connect: (url: string) => void;
+    connect: any;
     onmessage: (message: any) => void;
     send: (message: any) => void;
     close: () => void;
@@ -37,24 +40,56 @@ export interface MessageHandler {
 export class ConferenceConnection implements IConferenceConnection {
     private conn: IConnection;
     private adapter: IMessageAdapter;
+    private url: string;
     private conferenceMessageHandler?: ConferenceConnectionSubscriber;
     private onConnMessageHandler?: MessageHandler;
     private incomingMessages: IConfIncomingMessage[] = [];
 
     constructor(url: string, conn: IConnection, adapter: IMessageAdapter) {
         this.conn = conn;
-        this.conn.connect(url);
+        this.url = url;
+        // this.conn.connect(url)
+        //     .then(() => {
+        //         this.conn.onmessage = (msg) => {
+        //             if (this.onConnMessageHandler) {
+        //                 this.onConnMessageHandler(msg, () => {
+        //                     this.handleIncomingMessage(msg);
+        //                 })
+        //                 return
+        //             }
+        //             this.handleIncomingMessage(msg);
+        //         }
+        //     });
         this.adapter = adapter;
 
-        this.conn.onmessage = (msg) => {
-            if (this.onConnMessageHandler) {
-                this.onConnMessageHandler(msg, () => {
-                    this.handleIncomingMessage(msg);
-                })
-                return
-            }
-            this.handleIncomingMessage(msg);
-        }
+        // this.conn.onmessage = (msg) => {
+        //     if (this.onConnMessageHandler) {
+        //         this.onConnMessageHandler(msg, () => {
+        //             this.handleIncomingMessage(msg);
+        //         })
+        //         return
+        //     }
+        //     this.handleIncomingMessage(msg);
+        // }
+        console.log(this.conn)
+    }
+
+    public connect() {
+        return new Promise((resolve, reject) => {
+            this.conn.connect(this.url)
+                .then(() => {
+                    this.conn.onmessage = (msg) => {
+                        if (this.onConnMessageHandler) {
+                            this.onConnMessageHandler(msg, () => {
+                                this.handleIncomingMessage(msg);
+                            })
+                            resolve()
+                        }
+                        this.handleIncomingMessage(msg);
+                        resolve()
+                    }
+                });
+        })
     }
 
     public subscribe(handler: ConferenceConnectionSubscriber) {

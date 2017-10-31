@@ -90,7 +90,7 @@ export interface ConferenceRenderer {
 }
 
 export interface IConferenceProps {
-    connect: () => ConferenceConnection | undefined;
+    connect: () => ConferenceConnection;
     room: string;
     peerConnectionConfig?: RTCConfiguration;
     render?: ConferenceRenderer;
@@ -154,15 +154,20 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         };
 
         const connection = this.props.connect();
-        if (!connection) {
-            this.onError(createConferenceErrorConnect())
-            return
-        }
+        // if (!connection) {
+        //     this.onError(createConferenceErrorConnect())
+        //     return
+        // }
         this.connection = connection
-        this.joinRoom(this.props.room);
-        this.getUserMedia().then(() => {
-            this.connection.subscribe(this.handleIncomingMessage)
-        });
+        this.connection.connect().then(
+            () => {
+                this.joinRoom(this.props.room);
+                this.getUserMedia().then(() => {
+                    this.connection.subscribe(this.handleIncomingMessage)
+                });
+            }
+        )
+
     }
 
     public render() {

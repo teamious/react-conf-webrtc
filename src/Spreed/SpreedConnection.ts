@@ -1,6 +1,9 @@
 import { IConnection } from '../data/';
 import { SpreedResponse } from './SpreedResponse';
 import { SpreedRequest } from './SpreedRequest';
+import { createWebSocketConnection } from '../utils'
+
+import { Promise } from 'es6-promise';
 
 // NOTE(andrews): SpreedConnection is a wrapper around the WebSocket connection.
 // It will queue any responses (messages from the server) and requests (messages from the client)
@@ -17,11 +20,33 @@ export class SpreedConnection implements IConnection {
     private requests: SpreedRequest[] = [];
 
     public connect(url: string) {
-        this.conn = new WebSocket(url);
-        this.conn.onmessage = this.onConnMessage.bind(this);
-        this.conn.onclose = this.onConnClose.bind(this);
-        this.conn.onerror = this.onConnError.bind(this);
-        this.conn.onopen = this.onConnOpen.bind(this);
+        // this.conn = new WebSocket(url);
+        // this.conn.onmessage = this.onConnMessage.bind(this);
+        // this.conn.onclose = this.onConnClose.bind(this);
+        // this.conn.onerror = this.onConnError.bind(this);
+        // this.conn.onopen = this.onConnOpen.bind(this);
+
+        // createWebSocketConnection(url)
+        //     .then((conn) => {
+        //         this.conn = conn
+        //         this.conn.onmessage = this.onConnMessage.bind(this);
+        //         this.conn.onclose = this.onConnClose.bind(this);
+        //         this.conn.onerror = this.onConnError.bind(this);
+        //         this.conn.onopen = this.onConnOpen.bind(this);
+        //         console.log(this.conn)
+        //     })
+
+        return new Promise((resolve, reject) => {
+            createWebSocketConnection(url)
+                .then((conn) => {
+                    this.conn = conn
+                    this.conn.onmessage = this.onConnMessage.bind(this);
+                    this.conn.onclose = this.onConnClose.bind(this);
+                    this.conn.onerror = this.onConnError.bind(this);
+                    this.conn.onopen = this.onConnOpen.bind(this);
+                    resolve()
+                })
+        })
     }
 
     private onConnOpen() {
