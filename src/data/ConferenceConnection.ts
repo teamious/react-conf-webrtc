@@ -6,13 +6,14 @@ import { IConfOutgoingMessage, IConfIncomingMessage } from './ConferenceMessage'
 // must satisfy. The Conference component will depend on this interface when it calls
 // the createConnection API.
 export interface IConferenceConnection {
+    connect: () => Promise<any>;
     subscribe: (subscriber: ConferenceConnectionSubscriber) => void;
     publish: (message: IConfOutgoingMessage) => void;
     close: () => void;
 }
 
 export interface IConnection {
-    // connect: (url: string) => void;
+    // connect: (url: string) => Promise<any>;
     connect: any;
     onmessage: (message: any) => void;
     send: (message: any) => void;
@@ -48,30 +49,7 @@ export class ConferenceConnection implements IConferenceConnection {
     constructor(url: string, conn: IConnection, adapter: IMessageAdapter) {
         this.conn = conn;
         this.url = url;
-        // this.conn.connect(url)
-        //     .then(() => {
-        //         this.conn.onmessage = (msg) => {
-        //             if (this.onConnMessageHandler) {
-        //                 this.onConnMessageHandler(msg, () => {
-        //                     this.handleIncomingMessage(msg);
-        //                 })
-        //                 return
-        //             }
-        //             this.handleIncomingMessage(msg);
-        //         }
-        //     });
         this.adapter = adapter;
-
-        // this.conn.onmessage = (msg) => {
-        //     if (this.onConnMessageHandler) {
-        //         this.onConnMessageHandler(msg, () => {
-        //             this.handleIncomingMessage(msg);
-        //         })
-        //         return
-        //     }
-        //     this.handleIncomingMessage(msg);
-        // }
-        console.log(this.conn)
     }
 
     public connect() {
@@ -88,6 +66,9 @@ export class ConferenceConnection implements IConferenceConnection {
                         this.handleIncomingMessage(msg);
                         resolve()
                     }
+                })
+                .catch(() => {
+                    reject()
                 });
         })
     }

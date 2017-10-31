@@ -153,21 +153,19 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             return;
         };
 
-        const connection = this.props.connect();
-        // if (!connection) {
-        //     this.onError(createConferenceErrorConnect())
-        //     return
-        // }
-        this.connection = connection
-        this.connection.connect().then(
-            () => {
+        this.connection = this.props.connect();
+
+        // NOTE(yunsi): Create websocket connection, if succeed then join room, if failed then fire error.
+        this.connection.connect()
+            .then(() => {
                 this.joinRoom(this.props.room);
                 this.getUserMedia().then(() => {
                     this.connection.subscribe(this.handleIncomingMessage)
                 });
-            }
-        )
-
+            })
+            .catch(() => {
+                this.onError(createConferenceErrorConnect())
+            })
     }
 
     public render() {

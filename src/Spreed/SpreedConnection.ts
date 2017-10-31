@@ -20,22 +20,6 @@ export class SpreedConnection implements IConnection {
     private requests: SpreedRequest[] = [];
 
     public connect(url: string) {
-        // this.conn = new WebSocket(url);
-        // this.conn.onmessage = this.onConnMessage.bind(this);
-        // this.conn.onclose = this.onConnClose.bind(this);
-        // this.conn.onerror = this.onConnError.bind(this);
-        // this.conn.onopen = this.onConnOpen.bind(this);
-
-        // createWebSocketConnection(url)
-        //     .then((conn) => {
-        //         this.conn = conn
-        //         this.conn.onmessage = this.onConnMessage.bind(this);
-        //         this.conn.onclose = this.onConnClose.bind(this);
-        //         this.conn.onerror = this.onConnError.bind(this);
-        //         this.conn.onopen = this.onConnOpen.bind(this);
-        //         console.log(this.conn)
-        //     })
-
         return new Promise((resolve, reject) => {
             createWebSocketConnection(url)
                 .then((conn) => {
@@ -46,10 +30,16 @@ export class SpreedConnection implements IConnection {
                     this.conn.onopen = this.onConnOpen.bind(this);
                     resolve()
                 })
+                // NOTE(yunsi): Catch error if websocket creation failed.
+                .catch((err) => {
+                    console.warn(err)
+                    reject()
+                })
         })
     }
 
     private onConnOpen() {
+        console.log('onConnOpen')
         this.processRequests();
     }
 
