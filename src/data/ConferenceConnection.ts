@@ -13,8 +13,7 @@ export interface IConferenceConnection {
 }
 
 export interface IConnection {
-    // connect: (url: string) => Promise<any>;
-    connect: any;
+    connect: (url: string) => Promise<any>;
     onmessage: (message: any) => void;
     send: (message: any) => void;
     close: () => void;

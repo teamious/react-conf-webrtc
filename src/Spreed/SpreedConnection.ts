@@ -1,9 +1,9 @@
+import { Promise } from 'es6-promise';
+
 import { IConnection } from '../data/';
 import { SpreedResponse } from './SpreedResponse';
 import { SpreedRequest } from './SpreedRequest';
-import { createWebSocketConnection } from '../utils'
-
-import { Promise } from 'es6-promise';
+import { createWebSocketConnection } from '../utils';
 
 // NOTE(andrews): SpreedConnection is a wrapper around the WebSocket connection.
 // It will queue any responses (messages from the server) and requests (messages from the client)
@@ -39,7 +39,6 @@ export class SpreedConnection implements IConnection {
     }
 
     private onConnOpen() {
-        console.log('onConnOpen')
         this.processRequests();
     }
 
