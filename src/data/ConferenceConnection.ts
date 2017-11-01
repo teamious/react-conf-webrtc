@@ -6,14 +6,14 @@ import { IConfOutgoingMessage, IConfIncomingMessage } from './ConferenceMessage'
 // must satisfy. The Conference component will depend on this interface when it calls
 // the createConnection API.
 export interface IConferenceConnection {
-    connect: () => Promise<any>;
+    connect: () => Promise<void>;
     subscribe: (subscriber: ConferenceConnectionSubscriber) => void;
     publish: (message: IConfOutgoingMessage) => void;
     close: () => void;
 }
 
 export interface IConnection {
-    connect: (url: string) => Promise<any>;
+    connect: (url: string) => Promise<void>;
     onmessage: (message: any) => void;
     send: (message: any) => void;
     close: () => void;

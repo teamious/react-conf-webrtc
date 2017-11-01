@@ -158,13 +158,12 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         // NOTE(yunsi): Create websocket connection, if succeed then join room, if failed then fire error.
         this.connection.connect()
             .then(() => {
+                // NOTE(yunsi): Convert joinRoom to promise-based API.
                 this.joinRoom(this.props.room);
                 this.getUserMedia().then(() => {
                     this.connection.subscribe(this.handleIncomingMessage)
                 });
-            })
-            .catch((err) => {
-                console.warn(err)
+            }, (err) => {
                 this.onError(createConferenceErrorConnect())
             })
     }

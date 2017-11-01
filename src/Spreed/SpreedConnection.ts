@@ -18,7 +18,7 @@ export class SpreedConnection implements IConnection {
     // queue of client -> server messages
     private requests: SpreedRequest[] = [];
 
-    public connect(url: string) {
+    public connect(url: string): Promise<void> {
         return new Promise((resolve, reject) => {
             this.conn = new WebSocket(url)
             this.conn.onmessage = this.onConnMessage.bind(this);
