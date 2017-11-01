@@ -52,24 +52,19 @@ export class ConferenceConnection implements IConferenceConnection {
     }
 
     public connect() {
-        return new Promise((resolve, reject) => {
-            this.conn.connect(this.url)
-                .then(() => {
-                    this.conn.onmessage = (msg) => {
-                        if (this.onConnMessageHandler) {
-                            this.onConnMessageHandler(msg, () => {
-                                this.handleIncomingMessage(msg);
-                            })
-                            resolve()
-                        }
-                        this.handleIncomingMessage(msg);
-                        resolve()
+        return this.conn.connect(this.url)
+            .then(() => {
+                this.conn.onmessage = (msg) => {
+                    if (this.onConnMessageHandler) {
+                        this.onConnMessageHandler(msg, () => {
+                            this.handleIncomingMessage(msg);
+                        })
+                        return
                     }
-                })
-                .catch(() => {
-                    reject()
-                });
-        })
+                    this.handleIncomingMessage(msg);
+                    return
+                }
+            })
     }
 
     public subscribe(handler: ConferenceConnectionSubscriber) {

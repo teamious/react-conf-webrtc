@@ -3,7 +3,6 @@ import { Promise } from 'es6-promise';
 import { IConnection } from '../data/';
 import { SpreedResponse } from './SpreedResponse';
 import { SpreedRequest } from './SpreedRequest';
-import { createWebSocketConnection } from '../utils';
 
 // NOTE(andrews): SpreedConnection is a wrapper around the WebSocket connection.
 // It will queue any responses (messages from the server) and requests (messages from the client)
@@ -21,25 +20,16 @@ export class SpreedConnection implements IConnection {
 
     public connect(url: string) {
         return new Promise((resolve, reject) => {
-            createWebSocketConnection(url)
-                .then((conn) => {
-                    this.conn = conn
-                    this.conn.onmessage = this.onConnMessage.bind(this);
-                    this.conn.onclose = this.onConnClose.bind(this);
-                    this.conn.onerror = this.onConnError.bind(this);
-                    this.conn.onopen = this.onConnOpen.bind(this);
-                    resolve()
-                })
-                // NOTE(yunsi): Catch error if websocket creation failed.
-                .catch((err) => {
-                    console.warn(err)
-                    reject()
-                })
+            this.conn = new WebSocket(url)
+            this.conn.onmessage = this.onConnMessage.bind(this);
+            this.conn.onclose = this.onConnClose.bind(this);
+            this.conn.onopen = () => {
+                resolve()
+            };
+            this.conn.onerror = (err) => {
+                reject(err)
+            };
         })
-    }
-
-    private onConnOpen() {
-        this.processRequests();
     }
 
     private processResponses() {
@@ -57,12 +47,6 @@ export class SpreedConnection implements IConnection {
             if (req) {
                 this.send(req);
             }
-        }
-    }
-
-    private onConnError(event: Event) {
-        if (this.onErrorHandler) {
-            this.onErrorHandler(event);
         }
     }
 

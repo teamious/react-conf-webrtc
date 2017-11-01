@@ -163,7 +163,8 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                     this.connection.subscribe(this.handleIncomingMessage)
                 });
             })
-            .catch(() => {
+            .catch((err) => {
+                console.warn(err)
                 this.onError(createConferenceErrorConnect())
             })
     }
