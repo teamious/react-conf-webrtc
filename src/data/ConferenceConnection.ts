@@ -1,16 +1,19 @@
+import { Promise } from 'es6-promise';
+
 import { IConfOutgoingMessage, IConfIncomingMessage } from './ConferenceMessage';
 
 // NOTE(andrews): ConferenceConnection is an interface that your connection object
 // must satisfy. The Conference component will depend on this interface when it calls
 // the createConnection API.
 export interface IConferenceConnection {
+    connect: () => Promise<void>;
     subscribe: (subscriber: ConferenceConnectionSubscriber) => void;
     publish: (message: IConfOutgoingMessage) => void;
     close: () => void;
 }
 
 export interface IConnection {
-    connect: (url: string) => void;
+    connect: (url: string) => Promise<void>;
     onmessage: (message: any) => void;
     send: (message: any) => void;
     close: () => void;
@@ -37,24 +40,31 @@ export interface MessageHandler {
 export class ConferenceConnection implements IConferenceConnection {
     private conn: IConnection;
     private adapter: IMessageAdapter;
+    private url: string;
     private conferenceMessageHandler?: ConferenceConnectionSubscriber;
     private onConnMessageHandler?: MessageHandler;
     private incomingMessages: IConfIncomingMessage[] = [];
 
     constructor(url: string, conn: IConnection, adapter: IMessageAdapter) {
         this.conn = conn;
-        this.conn.connect(url);
+        this.url = url;
         this.adapter = adapter;
+    }
 
-        this.conn.onmessage = (msg) => {
-            if (this.onConnMessageHandler) {
-                this.onConnMessageHandler(msg, () => {
+    public connect() {
+        return this.conn.connect(this.url)
+            .then(() => {
+                this.conn.onmessage = (msg) => {
+                    if (this.onConnMessageHandler) {
+                        this.onConnMessageHandler(msg, () => {
+                            this.handleIncomingMessage(msg);
+                        })
+                        return
+                    }
                     this.handleIncomingMessage(msg);
-                })
-                return
-            }
-            this.handleIncomingMessage(msg);
-        }
+                    return
+                }
+            })
     }
 
     public subscribe(handler: ConferenceConnectionSubscriber) {

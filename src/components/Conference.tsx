@@ -90,7 +90,7 @@ export interface ConferenceRenderer {
 }
 
 export interface IConferenceProps {
-    connect: () => ConferenceConnection | undefined;
+    connect: () => ConferenceConnection;
     room: string;
     peerConnectionConfig?: RTCConfiguration;
     render?: ConferenceRenderer;
@@ -153,16 +153,19 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             return;
         };
 
-        const connection = this.props.connect();
-        if (!connection) {
-            this.onError(createConferenceErrorConnect())
-            return
-        }
-        this.connection = connection
-        this.joinRoom(this.props.room);
-        this.getUserMedia().then(() => {
-            this.connection.subscribe(this.handleIncomingMessage)
-        });
+        this.connection = this.props.connect();
+
+        // NOTE(yunsi): Create websocket connection, if succeed then join room, if failed then fire error.
+        this.connection.connect()
+            .then(() => {
+                // NOTE(yunsi): Convert joinRoom to promise-based API.
+                this.joinRoom(this.props.room);
+                this.getUserMedia().then(() => {
+                    this.connection.subscribe(this.handleIncomingMessage)
+                });
+            }, (err) => {
+                this.onError(createConferenceErrorConnect())
+            })
     }
 
     public render() {

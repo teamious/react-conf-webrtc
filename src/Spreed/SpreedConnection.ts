@@ -1,3 +1,5 @@
+import { Promise } from 'es6-promise';
+
 import { IConnection } from '../data/';
 import { SpreedResponse } from './SpreedResponse';
 import { SpreedRequest } from './SpreedRequest';
@@ -16,16 +18,18 @@ export class SpreedConnection implements IConnection {
     // queue of client -> server messages
     private requests: SpreedRequest[] = [];
 
-    public connect(url: string) {
-        this.conn = new WebSocket(url);
-        this.conn.onmessage = this.onConnMessage.bind(this);
-        this.conn.onclose = this.onConnClose.bind(this);
-        this.conn.onerror = this.onConnError.bind(this);
-        this.conn.onopen = this.onConnOpen.bind(this);
-    }
-
-    private onConnOpen() {
-        this.processRequests();
+    public connect(url: string): Promise<void> {
+        return new Promise((resolve, reject) => {
+            this.conn = new WebSocket(url)
+            this.conn.onmessage = this.onConnMessage.bind(this);
+            this.conn.onclose = this.onConnClose.bind(this);
+            this.conn.onopen = () => {
+                resolve()
+            };
+            this.conn.onerror = (err) => {
+                reject(err)
+            };
+        })
     }
 
     private processResponses() {
@@ -43,12 +47,6 @@ export class SpreedConnection implements IConnection {
             if (req) {
                 this.send(req);
             }
-        }
-    }
-
-    private onConnError(event: Event) {
-        if (this.onErrorHandler) {
-            this.onErrorHandler(event);
         }
     }
 
