@@ -172,9 +172,9 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         this.connection.connect()
             .then(() => {
                 // NOTE(yunsi): Convert joinRoom to promise-based API.
-                this.joinRoom(this.props.room);
                 this.getUserMedia().then(() => {
-                    this.connection.subscribe(this.handleIncomingMessage)
+                    this.joinRoom(this.props.room);
+                    this.connection.subscribe(this.handleIncomingMessage);
                 });
             }, (err) => {
                 this.onError(createConferenceErrorConnect())
