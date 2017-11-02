@@ -176,7 +176,6 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                 this.joinRoom(this.props.room);
                 this.getUserMedia();
             }, (err) => {
-                console.log(err)
                 this.onError(createConferenceErrorConnect())
             })
     }
@@ -480,31 +479,14 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         });
     }
 
-    private getStream() {
-        return new Promise((resolve: (stream: MediaStream) => void, reject: (err: any) => void) => {
-            navigator.mediaDevices.getUserMedia(AudioAndVideoConstraints)
-                .then((stream) => {
-                    resolve(stream)
-                })
-                // NOTE(yunsi): If cannot get full stream, try get audio only stream.
-                .catch((err) => {
-                    return navigator.mediaDevices.getUserMedia(AudioConstraints)
-                        .then((stream) => {
-                            resolve(stream)
-                        })
-                })
-                // NOTE(yunsi): If cannot get audio only stream, try get video only stream.
-                .catch((err) => {
-                    return navigator.mediaDevices.getUserMedia(VideoConstraints)
-                        .then((stream) => {
-                            resolve(stream)
-                        })
-                })
-                // NOTE(yunsi): If cannot get any stream, reject error.
-                .catch((err) => {
-                    reject(err)
-                });
-        })
+    private getStream(): Promise<MediaStream> {
+        return navigator.mediaDevices.getUserMedia(AudioAndVideoConstraints)
+            .catch(() => {
+                return navigator.mediaDevices.getUserMedia(AudioConstraints)
+            })
+            .catch(() => {
+                return navigator.mediaDevices.getUserMedia(VideoConstraints)
+            })
     }
 
     private getScreenMedia() {
