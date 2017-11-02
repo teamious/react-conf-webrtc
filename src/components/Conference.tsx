@@ -171,10 +171,11 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         // NOTE(yunsi): Create websocket connection, if succeed then join room, if failed then fire error.
         this.connection.connect()
             .then(() => {
-                this.connection.subscribe(this.handleIncomingMessage)
                 // NOTE(yunsi): Convert joinRoom to promise-based API.
                 this.joinRoom(this.props.room);
-                this.getUserMedia();
+                this.getUserMedia().then(() => {
+                    this.connection.subscribe(this.handleIncomingMessage)
+                });
             }, (err) => {
                 this.onError(createConferenceErrorConnect())
             })
@@ -467,19 +468,26 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     private getUserMedia() {
-        this.getStream().then((stream) => {
-            this.localCamStream = stream;
-            this.stopRecording();
-            this.setLocalStream(stream, {
-                isScreenSharing: false,
-                isRecording: false,
-            });
-        }, (err) => {
-            this.onError(createConferenceErrorGetUserMedia(err))
-        });
+        return new Promise((resolve: () => void) => {
+            this.getWebCamStream().then(
+                (stream) => {
+                    this.localCamStream = stream;
+                    this.stopRecording();
+                    this.setLocalStream(stream, {
+                        isScreenSharing: false,
+                        isRecording: false,
+                    });
+                    resolve()
+                },
+                (err) => {
+                    // NOTE(yunsi): Didn't get stream
+                    this.handleMediaException(err)
+                    resolve()
+                });
+        })
     }
 
-    private getStream(): Promise<MediaStream> {
+    private getWebCamStream(): Promise<MediaStream> {
         return navigator.mediaDevices.getUserMedia(AudioAndVideoConstraints)
             // NOTE(yunsi): If cannot get full stream, try get audio only stream.
             .catch(() => {
