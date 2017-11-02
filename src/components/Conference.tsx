@@ -481,9 +481,11 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
 
     private getStream(): Promise<MediaStream> {
         return navigator.mediaDevices.getUserMedia(AudioAndVideoConstraints)
+            // NOTE(yunsi): If cannot get full stream, try get audio only stream.
             .catch(() => {
                 return navigator.mediaDevices.getUserMedia(AudioConstraints)
             })
+            // NOTE(yunsi): If cannot get audio only stream, try get video only stream.
             .catch(() => {
                 return navigator.mediaDevices.getUserMedia(VideoConstraints)
             })
