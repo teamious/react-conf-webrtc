@@ -539,16 +539,19 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     private getWebCamStream() {
+        const audioDeviceId = this.state.audioInputId ? { exact: this.state.audioInputId } : undefined;
+        const videoDeviceId = this.state.videoInputId ? { exact: this.state.videoInputId } : undefined;
+
         const constraints = {
-            audio: { deviceId: this.state.audioInputId ? { exact: this.state.audioInputId } : undefined },
-            video: { deviceId: this.state.videoInputId ? { exact: this.state.videoInputId } : undefined }
+            audio: { deviceId: audioDeviceId },
+            video: { deviceId: audioDeviceId }
         }
 
         return navigator.mediaDevices.getUserMedia(constraints)
             // NOTE(yunsi): If cannot get full stream, try get audio only stream.
             .catch(() => {
                 const audioOnlyConstraints = {
-                    audio: { deviceId: this.state.audioInputId ? { exact: this.state.audioInputId } : undefined },
+                    audio: { deviceId: audioDeviceId },
                     video: false
                 }
                 return navigator.mediaDevices.getUserMedia(audioOnlyConstraints)
@@ -557,7 +560,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             .catch(() => {
                 const videoOnlyConstraints = {
                     audio: false,
-                    video: { deviceId: this.state.videoInputId ? { exact: this.state.videoInputId } : undefined }
+                    video: { deviceId: videoDeviceId }
                 }
                 return navigator.mediaDevices.getUserMedia(videoOnlyConstraints)
             })
