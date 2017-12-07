@@ -6,7 +6,8 @@ export type ConferenceError = ConferenceErrorWebcamPermissions |
     ConferenceErrorCreateAnswer |
     ConferenceErrorWebRTCNotSupported |
     ConferenceErrorGetUserMedia |
-    ConferenceErrorConnect;
+    ConferenceErrorConnect |
+    ConferenceErrorEnumerateDevices;
 
 export interface ConferenceErrorWebcamPermissions {
     type: 'ConferenceErrorWebcamPermissions';
@@ -53,6 +54,11 @@ export interface ConferenceErrorConnect {
     type: 'ConferenceErrorConnect';
 }
 
+export interface ConferenceErrorEnumerateDevices {
+    type: 'ConferenceErrorEnumerateDevices';
+    error: any;
+}
+
 export const ConferenceError = {
     WebcamPermissions: 'ConferenceErrorWebcamPermissions',
     MicPermissions: 'ConferenceErrorMicPermissions',
@@ -63,4 +69,5 @@ export const ConferenceError = {
     WebRTCNotSupported: 'ConferenceErrorWebRTCNotSupported',
     GetUserMedia: 'ConferenceErrorGetUserMedia',
     ConferenceErrorConnect: 'ConferenceErrorConnect',
+    ConferenceErrorEnumerateDevices: 'ConferenceErrorEnumerateDevices',
 }

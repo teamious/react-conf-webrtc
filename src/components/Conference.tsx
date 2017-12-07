@@ -39,7 +39,8 @@ import {
     createConferenceErrorSetLocalDescription,
     createConferenceErrorSetRemoteDescription,
     createConferenceErrorWebRTCNotSupported,
-    createConferenceErrorConnect
+    createConferenceErrorConnect,
+    createConferenceErrorEnumerateDevices
 } from '../services';
 import { createAudioMonitor, AudioMonitor } from '../utils/createAudioMonitor';
 import * as MediaStreamUtil from '../utils/MediaStreamUtil';
@@ -158,28 +159,28 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         if (!this.checkBrowserSupport()) {
             return;
         };
-        this.enumerateDevices()
 
-        this.connection = this.props.connect();
+        this.enumerateDevices().then(() => {
+            this.connection = this.props.connect();
 
-        // NOTE(yunsi): Create websocket connection, if succeed then join room, if failed then fire error.
-        this.connection.connect()
-            .then(() => {
-                this.getUserMedia().then(() => {
-                    this.connection.subscribe(this.handleIncomingMessage)
-                    // NOTE(yunsi): Convert joinRoom to promise-based API.
-                    this.joinRoom(this.props.room)
-                });
-            }, (err) => {
-                this.onError(createConferenceErrorConnect())
-            })
+            // NOTE(yunsi): Create websocket connection, if succeed then join room, if failed then fire error.
+            this.connection.connect()
+                .then(() => {
+                    this.getUserMedia().then(() => {
+                        this.connection.subscribe(this.handleIncomingMessage)
+                        // NOTE(yunsi): Convert joinRoom to promise-based API.
+                        this.joinRoom(this.props.room)
+                    });
+                }, (err) => {
+                    this.onError(createConferenceErrorConnect())
+                })
+        })
     }
 
     private enumerateDevices() {
-        navigator.mediaDevices.enumerateDevices()
-            .then(this.gotDevices)
-            .catch((error: any) => {
-                console.warn('enumerateDevices got error', error)
+        return navigator.mediaDevices.enumerateDevices()
+            .then(this.gotDevices, (err: any) => {
+                this.onError(createConferenceErrorEnumerateDevices(err))
             })
     }
 
@@ -544,7 +545,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
 
         const constraints = {
             audio: { deviceId: audioDeviceId },
-            video: { deviceId: audioDeviceId }
+            video: { deviceId: videoDeviceId }
         }
 
         return navigator.mediaDevices.getUserMedia(constraints)

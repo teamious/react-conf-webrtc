@@ -62,3 +62,10 @@ export function createConferenceErrorConnect(): data.ConferenceErrorConnect {
         type: 'ConferenceErrorConnect'
     }
 }
+
+export function createConferenceErrorEnumerateDevices(error: any): data.ConferenceErrorEnumerateDevices {
+    return {
+        type: 'ConferenceErrorEnumerateDevices',
+        error,
+    }
+}
