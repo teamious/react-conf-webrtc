@@ -77,8 +77,8 @@ export interface IMediaStreamControlRendererProps {
     toggleVideoEnabled: ToggleVideoEnabledHandler;
     toggleLocalScreenShare: () => void;
     toggleRecording: () => void;
-    changeVideoInput: (deviceId: string) => void;
-    changeAudioInput: (deviceId: string) => void;
+    changeAudioInput: (audioInputId: string) => void;
+    changeVideoInput: (videoInputId: string) => void;
 }
 
 export interface ToggleAudioEnabledHandler {
@@ -99,26 +99,6 @@ export interface IConferenceProps {
     peerConnectionConfig?: RTCConfiguration;
     render?: ConferenceRenderer;
     onError?: (error: ConferenceError) => void;
-}
-
-export interface IGetUserMediaConstraints {
-    audio: boolean;
-    video: boolean;
-}
-
-const AudioAndVideoConstraints: IGetUserMediaConstraints = {
-    audio: true,
-    video: true,
-}
-
-const AudioConstraints: IGetUserMediaConstraints = {
-    audio: true,
-    video: false
-}
-
-const VideoConstraints: IGetUserMediaConstraints = {
-    audio: false,
-    video: true,
 }
 
 const SDPConstraints = {
