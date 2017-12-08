@@ -67,8 +67,8 @@ export interface IStreamsRendererProps {
     localStream: ConferenceStream | undefined;
     remoteStreams: ConferenceStream[];
     audioMonitor?: AudioMonitor;
-    audioInputDevices?: MediaDeviceInfo[];
-    videoInputDevices?: MediaDeviceInfo[];
+    audioInputDevices: MediaDeviceInfo[];
+    videoInputDevices: MediaDeviceInfo[];
     videoInputId?: string;
     audioInputId?: string;
 }
@@ -114,8 +114,8 @@ export interface IConferenceState {
     localStream: ConferenceStream;
     remoteStreams: { [id: string]: ConferenceStream };
     audioMonitor?: AudioMonitor;
-    audioInputDevices?: MediaDeviceInfo[];
-    videoInputDevices?: MediaDeviceInfo[];
+    audioInputDevices: MediaDeviceInfo[];
+    videoInputDevices: MediaDeviceInfo[];
     videoInputId?: string;
     audioInputId?: string;
 }
@@ -152,6 +152,8 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         this.state = {
             localStream: { audioEnabled: true, videoEnabled: true } as ConferenceStream,
             remoteStreams: {},
+            audioInputDevices: [],
+            videoInputDevices: []
         }
     }
 
