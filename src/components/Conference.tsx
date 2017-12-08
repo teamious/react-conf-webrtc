@@ -39,7 +39,8 @@ import {
     createConferenceErrorSetLocalDescription,
     createConferenceErrorSetRemoteDescription,
     createConferenceErrorWebRTCNotSupported,
-    createConferenceErrorConnect
+    createConferenceErrorConnect,
+    createConferenceErrorEnumerateDevices
 } from '../services';
 import { createAudioMonitor, AudioMonitor } from '../utils/createAudioMonitor';
 import * as MediaStreamUtil from '../utils/MediaStreamUtil';
@@ -66,6 +67,10 @@ export interface IStreamsRendererProps {
     localStream: ConferenceStream | undefined;
     remoteStreams: ConferenceStream[];
     audioMonitor?: AudioMonitor;
+    audioInputDevices: MediaDeviceInfo[];
+    videoInputDevices: MediaDeviceInfo[];
+    videoInputId?: string;
+    audioInputId?: string;
 }
 
 export interface IMediaStreamControlRendererProps {
@@ -73,6 +78,8 @@ export interface IMediaStreamControlRendererProps {
     toggleVideoEnabled: ToggleVideoEnabledHandler;
     toggleLocalScreenShare: () => void;
     toggleRecording: () => void;
+    changeAudioInput: (audioInputId: string) => void;
+    changeVideoInput: (videoInputId: string) => void;
 }
 
 export interface ToggleAudioEnabledHandler {
@@ -95,26 +102,6 @@ export interface IConferenceProps {
     onError?: (error: ConferenceError) => void;
 }
 
-export interface IGetUserMediaConstraints {
-    audio: boolean;
-    video: boolean;
-}
-
-const AudioAndVideoConstraints: IGetUserMediaConstraints = {
-    audio: true,
-    video: true,
-}
-
-const AudioConstraints: IGetUserMediaConstraints = {
-    audio: true,
-    video: false
-}
-
-const VideoConstraints: IGetUserMediaConstraints = {
-    audio: false,
-    video: true,
-}
-
 const SDPConstraints = {
     offerToReceiveAudio: 1,
     offerToReceiveVideo: 1
@@ -127,6 +114,10 @@ export interface IConferenceState {
     localStream: ConferenceStream;
     remoteStreams: { [id: string]: ConferenceStream };
     audioMonitor?: AudioMonitor;
+    audioInputDevices: MediaDeviceInfo[];
+    videoInputDevices: MediaDeviceInfo[];
+    videoInputId?: string;
+    audioInputId?: string;
 }
 
 export class Conference extends React.Component<IConferenceProps, IConferenceState> {
@@ -154,10 +145,15 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         this.onToggleRecoding = this.onToggleRecoding.bind(this);
         this.onScreenSharing = this.onScreenSharing.bind(this);
         this.onScreenMediaEnded = this.onScreenMediaEnded.bind(this);
+        this.gotDevices = this.gotDevices.bind(this);
+        this.onChangeVideoInput = this.onChangeVideoInput.bind(this);
+        this.onChangeAudioInput = this.onChangeAudioInput.bind(this);
 
         this.state = {
             localStream: { audioEnabled: true, videoEnabled: true } as ConferenceStream,
             remoteStreams: {},
+            audioInputDevices: [],
+            videoInputDevices: []
         }
     }
 
@@ -166,26 +162,63 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             return;
         };
 
-        this.connection = this.props.connect();
+        this.enumerateDevices().then(() => {
+            this.connection = this.props.connect();
 
-        // NOTE(yunsi): Create websocket connection, if succeed then join room, if failed then fire error.
-        this.connection.connect()
-            .then(() => {
-                this.getUserMedia().then(() => {
-                    this.connection.subscribe(this.handleIncomingMessage)
-                    // NOTE(yunsi): Convert joinRoom to promise-based API.
-                    this.joinRoom(this.props.room)
-                });
-            }, (err) => {
-                this.onError(createConferenceErrorConnect())
+            // NOTE(yunsi): Create websocket connection, if succeed then join room, if failed then fire error.
+            this.connection.connect()
+                .then(() => {
+                    this.getUserMedia().then(() => {
+                        this.connection.subscribe(this.handleIncomingMessage)
+                        // NOTE(yunsi): Convert joinRoom to promise-based API.
+                        this.joinRoom(this.props.room)
+                    });
+                }, (err) => {
+                    this.onError(createConferenceErrorConnect())
+                })
+        })
+    }
+
+    private enumerateDevices() {
+        return navigator.mediaDevices.enumerateDevices()
+            .then(this.gotDevices, (err: any) => {
+                this.onError(createConferenceErrorEnumerateDevices(err))
             })
+    }
+
+    private gotDevices(devices: MediaDeviceInfo[]) {
+        let audioInputDevices: MediaDeviceInfo[] = []
+        let videoInputDevices: MediaDeviceInfo[] = []
+
+        devices.forEach((device) => {
+            switch (device.kind) {
+                case 'audioinput':
+                    audioInputDevices.push(device)
+                    break
+                case 'videoinput':
+                    videoInputDevices.push(device)
+                    break
+                default:
+                    break
+            }
+        })
+
+        const audioInputId = audioInputDevices[0] ? audioInputDevices[0].deviceId : undefined;
+        const videoInputId = videoInputDevices[0] ? videoInputDevices[0].deviceId : undefined;
+
+        this.setState({
+            audioInputDevices,
+            videoInputDevices,
+            audioInputId,
+            videoInputId,
+        })
     }
 
     public render() {
         const remoteStreams = this.getRemoteConferenceStreams();
         const localStream = this.getLocalConferenceStream();
         const { render } = this.props;
-        const { audioMonitor } = this.state;
+        const { audioMonitor, audioInputDevices, videoInputDevices, videoInputId, audioInputId } = this.state;
 
         if (localStream) {
             this.changeAudioTrackEnabled(localStream.audioEnabled);
@@ -193,16 +226,25 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         }
 
         if (render) {
-            return render({
-                localStream,
-                remoteStreams,
-                audioMonitor,
-            }, {
+            return render(
+                {
+                    localStream,
+                    remoteStreams,
+                    audioMonitor,
+                    audioInputDevices,
+                    videoInputDevices,
+                    audioInputId,
+                    videoInputId,
+                },
+                {
                     toggleAudioEnabled: this.toggleAudioEnabled,
                     toggleVideoEnabled: this.toggleVideoEnabled,
                     toggleLocalScreenShare: this.onScreenSharing,
                     toggleRecording: this.onToggleRecoding,
-                });
+                    changeAudioInput: this.onChangeAudioInput,
+                    changeVideoInput: this.onChangeVideoInput,
+                }
+            );
         }
 
         if (!localStream) {
@@ -282,6 +324,18 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                 console.error('No local stream for recording');
             }
         }
+    }
+
+    private onChangeAudioInput(audioInputId: string) {
+        this.setState({ audioInputId }, () => {
+            this.getUserMedia();
+        })
+    }
+
+    private onChangeVideoInput(videoInputId: string) {
+        this.setState({ videoInputId }, () => {
+            this.getUserMedia();
+        })
     }
 
     private renderMediaStreamControlDefault(): JSX.Element | null | false {
@@ -487,15 +541,31 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         })
     }
 
-    private getWebCamStream(): Promise<MediaStream> {
-        return navigator.mediaDevices.getUserMedia(AudioAndVideoConstraints)
+    private getWebCamStream() {
+        const audioDeviceId = this.state.audioInputId ? { exact: this.state.audioInputId } : undefined;
+        const videoDeviceId = this.state.videoInputId ? { exact: this.state.videoInputId } : undefined;
+
+        const constraints = {
+            audio: { deviceId: audioDeviceId },
+            video: { deviceId: videoDeviceId }
+        }
+
+        return navigator.mediaDevices.getUserMedia(constraints)
             // NOTE(yunsi): If cannot get full stream, try get audio only stream.
             .catch(() => {
-                return navigator.mediaDevices.getUserMedia(AudioConstraints)
+                const audioOnlyConstraints = {
+                    audio: { deviceId: audioDeviceId },
+                    video: false
+                }
+                return navigator.mediaDevices.getUserMedia(audioOnlyConstraints)
             })
             // NOTE(yunsi): If cannot get audio only stream, try get video only stream.
             .catch(() => {
-                return navigator.mediaDevices.getUserMedia(VideoConstraints)
+                const videoOnlyConstraints = {
+                    audio: false,
+                    video: { deviceId: videoDeviceId }
+                }
+                return navigator.mediaDevices.getUserMedia(videoOnlyConstraints)
             })
     }
 
