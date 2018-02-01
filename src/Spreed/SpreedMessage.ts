@@ -151,3 +151,19 @@ export interface SpreedMessageHello {
     Ua: string;
     Version: string;
 }
+
+export interface SpreedMessageChat {
+    Type: 'Chat';
+    Chat: SpreedChat;
+    To?: SpreedUserID;
+    From?: SpreedUserID;
+}
+
+export interface SpreedChat {
+    Message: string;
+    Mid?: string;
+    NoEcho: boolean;
+
+    Status?: string;
+    Time?: string;
+}

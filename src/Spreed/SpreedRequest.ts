@@ -4,7 +4,8 @@ import {
     SpreedMessageHello,
     SpreedMessageOffer,
     SpreedMessageAnswer,
-    SpreedMessageCandidate
+    SpreedMessageCandidate,
+    SpreedMessageChat
 } from './SpreedMessage';
 
 // NOTE(andrews): SpreedRequest is the type that actually gets
@@ -15,7 +16,8 @@ export type SpreedRequest =
     SpreedRequestHello |
     SpreedRequestOffer |
     SpreedRequestAnswer |
-    SpreedRequestCandidate;
+    SpreedRequestCandidate |
+    SpreedRequestChat;
 
 // NOTE(andrews): SpreedRequestMessage defines all of the possible
 // message types that can be sent to the server.
@@ -23,7 +25,8 @@ export type SpreedRequestMessage =
     SpreedMessageHello |
     SpreedMessageOffer |
     SpreedMessageAnswer |
-    SpreedMessageCandidate;
+    SpreedMessageCandidate |
+    SpreedMessageChat;
 
 export interface SpreedRequestHello {
     Type: 'Hello';
@@ -43,4 +46,9 @@ export interface SpreedRequestAnswer {
 export interface SpreedRequestCandidate {
     Type: 'Candidate';
     Candidate: SpreedMessageCandidate;
+}
+
+export interface SpreedRequestChat {
+    Type: 'Chat';
+    Chat: SpreedMessageChat;
 }

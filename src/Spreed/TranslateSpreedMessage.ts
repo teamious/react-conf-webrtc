@@ -7,6 +7,8 @@ import {
     IConfMessageAddPeer,
     IConfMessageRemovePeer,
     IConfMessageSelf,
+    IConfMessageChat,
+    IConfChat
 } from '../data/ConferenceMessage'
 import {
     SpreedMessageOffer,
@@ -18,6 +20,8 @@ import {
     SpreedMessageSelf,
     SpreedMessageConference,
     SpreedUserStatus,
+    SpreedMessageChat,
+    SpreedChat
 } from './SpreedMessage';
 
 // NOTE(andrews): TranslateSpreedMessage delegates the work of translating the message
@@ -42,6 +46,9 @@ export function TranslateSpreedMessage(message: SpreedResponse): IConfIncomingMe
             return translateSelfMessage(message.Data, message);
         case 'Conference':
             return translateConferenceMessage(message.Data, message);
+        case 'Chat':
+            console.log('receive chat message', message)
+            return translateChatMessage(message.Data, message);
         default:
             return undefined;
     }
@@ -158,4 +165,21 @@ function translateStatus(Status: SpreedUserStatus | undefined) {
     }
 
     return { avatar: Status.BuddyPicture, name: Status.DisplayName };
+}
+
+function translateChatMessage(data: SpreedMessageChat, message: SpreedResponse): IConfMessageChat | undefined {
+    if (!message.From) {
+        console.warn('translateChatMessage(): Failed to translate "Chat" message. "From" member not found.')
+        return;
+    }
+    return {
+        type: 'Chat',
+        chat: translateChat(data.Chat),
+        from: message.From,
+        to: message.To
+    };
+}
+
+function translateChat(Chat: SpreedChat): IConfChat {
+    return { message: Chat.Message, mid: Chat.Mid, status: Chat.Status, time: Chat.Time };
 }

@@ -11,7 +11,8 @@ import {
     SpreedMessageStatus,
     SpreedMessageAnswer,
     SpreedMessageConference,
-    SpreedMessageCandidate
+    SpreedMessageCandidate,
+    SpreedMessageChat
 } from './SpreedMessage';
 
 // NOTE(andrews): SpreedResponse represents any message sent from the Spreed WSS.
@@ -37,4 +38,5 @@ SpreedMessageJoined |
 SpreedMessageStatus |
 SpreedMessageAnswer |
 SpreedMessageConference |
-SpreedMessageCandidate;
+SpreedMessageCandidate |
+SpreedMessageChat;
