@@ -45,7 +45,7 @@ export function createOutgoingMessageBye(): IConfMessageBye {
     }
 }
 
-export function createOutgoingMessageChat(chat: IConfChat, id: string): IConfMessageChat {
+export function createOutgoingMessageChat(chat: IConfChat, id?: string): IConfMessageChat {
     return {
         type: 'Chat',
         chat: chat,

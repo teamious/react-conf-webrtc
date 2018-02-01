@@ -49,6 +49,7 @@ import { createAudioMonitor, AudioMonitor } from '../utils/createAudioMonitor';
 import * as MediaStreamUtil from '../utils/MediaStreamUtil';
 import { StreamRecorder } from '../utils/StreamRecorder';
 import { ChromeExtension } from '../utils/ChromeExtensionUtil';
+import { randomGen } from '../utils/RandomGenUtil';
 import { PeerConnectionManager } from '../utils/PeerConnectionManager';
 import { AudioMeter } from './controls/AudioMeter';
 import { Stream } from './controls/Stream';
@@ -355,18 +356,20 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     private onChatMessage(chatMessage: string) {
-        console.log('Conference.onInputChange', chatMessage)
-        const chat = { message: chatMessage, mid: Math.floor(Math.random() * 1000000000).toString() }
-        const message = createOutgoingMessageChat(chat, '');
-        console.log('Conference.onInputChange message', message)
+        const chat = { message: chatMessage, mid: randomGen.random({ hex: true }) };
+        const message = createOutgoingMessageChat(chat);
         this.sendMessage(message);
-        console.log('Conference.onInputChange old state chats', this.state.chats)
+        this.handleLocalChatMessage(chat);
+    }
+
+    private handleLocalChatMessage(chat: { message: string, mid: string }) {
         const sender = this.state.localStream.profile ? this.state.localStream.profile.name : '';
-        this.setState({
-            chats: [...this.state.chats, { ...chat, time: new Date().toISOString(), sender, local: true }]
-        }, () => {
-            console.log('Conference.onInputChange new state chats', this.state.chats)
-        })
+        const localChat = { ...chat, time: new Date().toISOString(), sender, local: true };
+        this.addChat(localChat);
+    }
+
+    private addChat(chat: ConferenceChat) {
+        this.setState({ chats: [...this.state.chats, chat] })
     }
 
     private renderMediaStreamControlDefault(): JSX.Element | null | false {
@@ -1102,12 +1105,8 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
 
     private handleChatMessage(message: IConfMessageChat) {
         const profile = this.getProfileById(message.from);
-        const newChat: ConferenceChat = { ...message.chat, sender: profile ? profile.name : '' };
-        this.setState({
-            chats: [...this.state.chats, newChat]
-        }, () => {
-            console.log('Conference.handleChatMessage new state chats', this.state.chats)
-        })
+        const newChat = { ...message.chat, sender: profile ? profile.name : '' };
+        this.addChat(newChat);
     }
 
     private getProfileById(id?: string) {
