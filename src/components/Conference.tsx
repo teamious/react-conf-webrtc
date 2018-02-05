@@ -23,7 +23,8 @@ import {
     IDataChannelMessageVideo,
     DataChannelReadyState,
     ConferenceError,
-    PeerConnectionState
+    PeerConnectionState,
+    ConferenceType
 } from '../data';
 import {
     createOutgoingMessageJoin,
@@ -111,7 +112,7 @@ export interface IConferenceProps {
     peerConnectionConfig?: RTCConfiguration;
     render?: ConferenceRenderer;
     onError?: (error: ConferenceError) => void;
-    isChatRoom?: boolean;
+    type?: string;
 }
 
 const SDPConstraints = {
@@ -556,27 +557,28 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     private getUserMedia() {
-        console.log('Conference.getUserMedia')
         return new Promise((resolve: () => void) => {
-            if (this.props.isChatRoom) {
-                console.log('Conference.getUserMedia this is chat only room')
-                resolve()
-            } else {
-                this.getWebCamStream().then(
-                    (stream) => {
-                        this.localCamStream = stream;
-                        this.stopRecording();
-                        this.setLocalStream(stream, {
-                            isScreenSharing: false,
-                            isRecording: false,
+            switch (this.props.type) {
+                case ConferenceType.CHATROOM:
+                    console.log('getUserMedia(): this is a chat room')
+                    return resolve();
+                default:
+                    console.log('getUserMedia(): this is a conference room')
+                    this.getWebCamStream().then(
+                        (stream) => {
+                            this.localCamStream = stream;
+                            this.stopRecording();
+                            this.setLocalStream(stream, {
+                                isScreenSharing: false,
+                                isRecording: false,
+                            });
+                            return resolve();
+                        },
+                        (err) => {
+                            // NOTE(yunsi): Didn't get stream
+                            this.handleMediaException(err);
+                            return resolve();
                         });
-                        resolve()
-                    },
-                    (err) => {
-                        // NOTE(yunsi): Didn't get stream
-                        this.handleMediaException(err)
-                        resolve()
-                    });
             }
         })
     }
