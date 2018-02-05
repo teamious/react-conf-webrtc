@@ -47,7 +47,6 @@ export function TranslateSpreedMessage(message: SpreedResponse): IConfIncomingMe
         case 'Conference':
             return translateConferenceMessage(message.Data, message);
         case 'Chat':
-            console.log('receive chat message', message)
             return translateChatMessage(message.Data, message);
         default:
             return undefined;

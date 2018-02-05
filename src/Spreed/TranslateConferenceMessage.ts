@@ -30,20 +30,14 @@ import {
 export function TranslateConferenceMessage(message: IConfOutgoingMessage): SpreedRequest | undefined {
     switch (message.type) {
         case 'Join':
-            console.log('translate join', message);
-            console.log('translated join', translateJoinMessage(message));
             return translateJoinMessage(message);
         case 'Answer':
             return translateAnswerMessage(message);
         case 'Offer':
             return translateOfferMessage(message);
         case 'Candidate':
-            console.log('translate candidate', message);
-            console.log('translated candidate', translateCandidateMessage(message));
             return translateCandidateMessage(message);
         case 'Chat':
-            console.log('translate chat', message)
-            console.log('translated chat', translateChatMessage(message))
             return translateChatMessage(message);
         default:
             console.log('TranslateConferenceMessag(): Messge type not handled: %s.', message.type);
