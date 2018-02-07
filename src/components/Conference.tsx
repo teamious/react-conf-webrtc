@@ -81,7 +81,7 @@ export interface IStreamsRendererProps {
     videoInputDevices: MediaDeviceInfo[];
     videoInputId?: string;
     audioInputId?: string;
-    chats: ConferenceChat[];
+    chatHistory: ConferenceChat[];
 }
 
 export interface IMediaStreamControlRendererProps {
@@ -131,7 +131,7 @@ export interface IConferenceState {
     videoInputDevices: MediaDeviceInfo[];
     videoInputId?: string;
     audioInputId?: string;
-    chats: ConferenceChat[];
+    chatHistory: ConferenceChat[];
 }
 
 export class Conference extends React.Component<IConferenceProps, IConferenceState> {
@@ -169,7 +169,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             remoteStreams: {},
             audioInputDevices: [],
             videoInputDevices: [],
-            chats: []
+            chatHistory: []
         }
     }
 
@@ -234,7 +234,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         const remoteStreams = this.getRemoteConferenceStreams();
         const localStream = this.getLocalConferenceStream();
         const { render } = this.props;
-        const { audioMonitor, audioInputDevices, videoInputDevices, videoInputId, audioInputId, chats } = this.state;
+        const { audioMonitor, audioInputDevices, videoInputDevices, videoInputId, audioInputId, chatHistory } = this.state;
 
         if (localStream) {
             this.changeAudioTrackEnabled(localStream.audioEnabled);
@@ -251,7 +251,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                     videoInputDevices,
                     audioInputId,
                     videoInputId,
-                    chats
+                    chatHistory
                 },
                 {
                     toggleAudioEnabled: this.toggleAudioEnabled,
@@ -366,11 +366,11 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     private handleLocalChatMessage(chat: { message: string, mid: string }) {
         const sender = this.state.localStream.profile ? this.state.localStream.profile.name : '';
         const localChat = { ...chat, time: new Date().toISOString(), sender, local: true };
-        this.addChat(localChat);
+        this.addToChatHistory(localChat);
     }
 
-    private addChat(chat: ConferenceChat) {
-        this.setState({ chats: [...this.state.chats, chat] })
+    private addToChatHistory(chat: ConferenceChat) {
+        this.setState({ chatHistory: [...this.state.chatHistory, chat] })
     }
 
     private renderMediaStreamControlDefault(): JSX.Element | null | false {
@@ -1108,7 +1108,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     private handleChatMessage(message: IConfMessageChat) {
         const profile = this.getProfileById(message.from);
         const newChat = { ...message.chat, sender: profile ? profile.name : '' };
-        this.addChat(newChat);
+        this.addToChatHistory(newChat);
     }
 
     private getProfileById(id?: string) {
