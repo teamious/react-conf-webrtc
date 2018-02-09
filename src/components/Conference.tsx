@@ -357,7 +357,10 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     private onChatMessage(chatMessage: string) {
-        const chat = { message: chatMessage, mid: randomGen.random({ hex: true }) };
+        const chat = {
+            message: chatMessage,
+            mid: randomGen.random({ hex: true })
+        };
         const message = createOutgoingMessageChat(chat);
         this.sendMessage(message);
         this.handleLocalChatMessage(chat);
@@ -365,7 +368,12 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
 
     private handleLocalChatMessage(chat: { message: string, mid: string }) {
         const sender = this.state.localStream.profile ? this.state.localStream.profile.name : '';
-        const localChat = { ...chat, time: new Date().toISOString(), sender, local: true };
+        const localChat = {
+            ...chat,
+            time: new Date().toISOString(),
+            sender,
+            local: true
+        };
         this.addToChatHistory(localChat);
     }
 
