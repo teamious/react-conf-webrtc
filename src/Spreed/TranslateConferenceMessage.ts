@@ -1,9 +1,10 @@
-import { SpreedICECandidate } from './SpreedMessage';
+import { SpreedICECandidate, SpreedChat } from './SpreedMessage';
 import {
     createCandidateRequest,
     createOfferRequest,
     createAnswerRequest,
     createHelloRequest,
+    createChatRequest,
 } from './SpreedAPI';
 import {
     IConfOutgoingMessage,
@@ -11,6 +12,7 @@ import {
     IConfOutgoingMessageOffer,
     IConfOutgoingMessageAnswer,
     IConfMessageJoin,
+    IConfMessageChat,
 } from '../data/ConferenceMessage';
 import {
     SpreedRequest,
@@ -18,6 +20,7 @@ import {
     SpreedRequestOffer,
     SpreedRequestAnswer,
     SpreedRequestHello,
+    SpreedRequestChat,
 } from './SpreedRequest'
 
 // NOTE(andrews): TranslateConferenceMessage delegates the work of translating the message
@@ -34,6 +37,8 @@ export function TranslateConferenceMessage(message: IConfOutgoingMessage): Spree
             return translateOfferMessage(message);
         case 'Candidate':
             return translateCandidateMessage(message);
+        case 'Chat':
+            return translateChatMessage(message);
         default:
             console.log('TranslateConferenceMessag(): Messge type not handled: %s.', message.type);
             return;
@@ -41,8 +46,8 @@ export function TranslateConferenceMessage(message: IConfOutgoingMessage): Spree
 }
 
 function translateJoinMessage(message: IConfMessageJoin): SpreedRequestHello {
-     // TODO(andrews): Determine if we really need Version, UA properties.
-     // NOTE(yunsi): Name value in the hello message determins which room the user eventually join.
+    // TODO(andrews): Determine if we really need Version, UA properties.
+    // NOTE(yunsi): Name value in the hello message determins which room the user eventually join.
     return createHelloRequest({
         Type: 'Conference',
         Name: message.room,
@@ -77,4 +82,18 @@ function translateCandidateMessage(message: IConfOutgoingMessageCandidate): Spre
         To: message.to,
         Candidate,
     });
+}
+
+function translateChatMessage(message: IConfMessageChat): SpreedRequestChat {
+    const Chat: SpreedChat = {
+        Message: message.chat.message,
+        Mid: message.chat.mid,
+        NoEcho: true,
+    }
+
+    return createChatRequest({
+        Type: 'Chat',
+        To: message.to,
+        Chat,
+    })
 }

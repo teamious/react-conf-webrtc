@@ -13,6 +13,8 @@ import {
     IConfMessageAddPeer,
     IConfMessageRemovePeer,
     IConfOutgoingMessage,
+    IConfMessageChat,
+    IConfChat,
     ConfUserID,
     IConfUserProfile,
     IDataChannelMessage,
@@ -22,6 +24,7 @@ import {
     DataChannelReadyState,
     ConferenceError,
     PeerConnectionState,
+    ConferenceType
 } from '../data';
 import {
     createOutgoingMessageJoin,
@@ -32,6 +35,7 @@ import {
     createDataChannelMessageSpeech,
     createDataChannelMessageAudio,
     createDataChannelMessageVideo,
+    createOutgoingMessageChat,
 
     createConferenceErrorCreateAnswer,
     createConferenceErrorCreateOffer,
@@ -46,9 +50,15 @@ import { createAudioMonitor, AudioMonitor } from '../utils/createAudioMonitor';
 import * as MediaStreamUtil from '../utils/MediaStreamUtil';
 import { StreamRecorder } from '../utils/StreamRecorder';
 import { ChromeExtension } from '../utils/ChromeExtensionUtil';
+import { randomGen } from '../utils/RandomGenUtil';
 import { PeerConnectionManager } from '../utils/PeerConnectionManager';
 import { AudioMeter } from './controls/AudioMeter';
 import { Stream } from './controls/Stream';
+
+export interface ConferenceChat extends IConfChat {
+    sender?: string;
+    local?: boolean;
+}
 
 export interface ConferenceStream {
     id: ConfUserID,
@@ -71,6 +81,7 @@ export interface IStreamsRendererProps {
     videoInputDevices: MediaDeviceInfo[];
     videoInputId?: string;
     audioInputId?: string;
+    chatHistory: ConferenceChat[];
 }
 
 export interface IMediaStreamControlRendererProps {
@@ -80,6 +91,7 @@ export interface IMediaStreamControlRendererProps {
     toggleRecording: () => void;
     changeAudioInput: (audioInputId: string) => void;
     changeVideoInput: (videoInputId: string) => void;
+    onChatMessage: (chatMessage: string) => void;
 }
 
 export interface ToggleAudioEnabledHandler {
@@ -100,6 +112,7 @@ export interface IConferenceProps {
     peerConnectionConfig?: RTCConfiguration;
     render?: ConferenceRenderer;
     onError?: (error: ConferenceError) => void;
+    type?: string;
 }
 
 const SDPConstraints = {
@@ -118,6 +131,7 @@ export interface IConferenceState {
     videoInputDevices: MediaDeviceInfo[];
     videoInputId?: string;
     audioInputId?: string;
+    chatHistory: ConferenceChat[];
 }
 
 export class Conference extends React.Component<IConferenceProps, IConferenceState> {
@@ -148,12 +162,14 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         this.gotDevices = this.gotDevices.bind(this);
         this.onChangeVideoInput = this.onChangeVideoInput.bind(this);
         this.onChangeAudioInput = this.onChangeAudioInput.bind(this);
+        this.onChatMessage = this.onChatMessage.bind(this);
 
         this.state = {
             localStream: { audioEnabled: true, videoEnabled: true } as ConferenceStream,
             remoteStreams: {},
             audioInputDevices: [],
-            videoInputDevices: []
+            videoInputDevices: [],
+            chatHistory: []
         }
     }
 
@@ -218,7 +234,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         const remoteStreams = this.getRemoteConferenceStreams();
         const localStream = this.getLocalConferenceStream();
         const { render } = this.props;
-        const { audioMonitor, audioInputDevices, videoInputDevices, videoInputId, audioInputId } = this.state;
+        const { audioMonitor, audioInputDevices, videoInputDevices, videoInputId, audioInputId, chatHistory } = this.state;
 
         if (localStream) {
             this.changeAudioTrackEnabled(localStream.audioEnabled);
@@ -235,6 +251,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                     videoInputDevices,
                     audioInputId,
                     videoInputId,
+                    chatHistory
                 },
                 {
                     toggleAudioEnabled: this.toggleAudioEnabled,
@@ -243,6 +260,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                     toggleRecording: this.onToggleRecoding,
                     changeAudioInput: this.onChangeAudioInput,
                     changeVideoInput: this.onChangeVideoInput,
+                    onChatMessage: this.onChatMessage,
                 }
             );
         }
@@ -336,6 +354,31 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         this.setState({ videoInputId }, () => {
             this.getUserMedia();
         })
+    }
+
+    private onChatMessage(chatMessage: string) {
+        const chat = {
+            message: chatMessage,
+            mid: randomGen.random({ hex: true })
+        };
+        const message = createOutgoingMessageChat(chat);
+        this.sendMessage(message);
+        this.handleLocalChatMessage(chat);
+    }
+
+    private handleLocalChatMessage(chat: { message: string, mid: string }) {
+        const sender = this.state.localStream.profile ? this.state.localStream.profile.name : '';
+        const localChat = {
+            ...chat,
+            time: new Date().toISOString(),
+            sender,
+            local: true
+        };
+        this.addToChatHistory(localChat);
+    }
+
+    private addToChatHistory(chat: ConferenceChat) {
+        this.setState({ chatHistory: [...this.state.chatHistory, chat] })
     }
 
     private renderMediaStreamControlDefault(): JSX.Element | null | false {
@@ -523,21 +566,28 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
 
     private getUserMedia() {
         return new Promise((resolve: () => void) => {
-            this.getWebCamStream().then(
-                (stream) => {
-                    this.localCamStream = stream;
-                    this.stopRecording();
-                    this.setLocalStream(stream, {
-                        isScreenSharing: false,
-                        isRecording: false,
-                    });
-                    resolve()
-                },
-                (err) => {
-                    // NOTE(yunsi): Didn't get stream
-                    this.handleMediaException(err)
-                    resolve()
-                });
+            switch (this.props.type) {
+                case ConferenceType.CHATROOM:
+                    console.log('getUserMedia(): this is a chat room')
+                    return resolve();
+                default:
+                    console.log('getUserMedia(): this is a conference room')
+                    this.getWebCamStream().then(
+                        (stream) => {
+                            this.localCamStream = stream;
+                            this.stopRecording();
+                            this.setLocalStream(stream, {
+                                isScreenSharing: false,
+                                isRecording: false,
+                            });
+                            return resolve();
+                        },
+                        (err) => {
+                            // NOTE(yunsi): Didn't get stream
+                            this.handleMediaException(err);
+                            return resolve();
+                        });
+            }
         })
     }
 
@@ -690,6 +740,8 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                 return this.handleOfferMessage(message);
             case 'Answer':
                 return this.handleAnswerMessage(message);
+            case 'Chat':
+                return this.handleChatMessage(message);
             default:
                 return console.log('Unkonw message type')
         }
@@ -1059,6 +1111,20 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                 }
             }
         }
+    }
+
+    private handleChatMessage(message: IConfMessageChat) {
+        const profile = this.getProfileById(message.from);
+        const newChat = { ...message.chat, sender: profile ? profile.name : '' };
+        this.addToChatHistory(newChat);
+    }
+
+    private getProfileById(id?: string) {
+        if (!id) {
+            console.log('Conference.getProfileById not valid id')
+            return
+        }
+        return this.state.remoteStreams[id].profile;
     }
 
     private updatePeerProfile(profile: IConfUserProfile | undefined, id: string) {

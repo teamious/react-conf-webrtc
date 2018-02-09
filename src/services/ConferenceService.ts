@@ -3,7 +3,9 @@ import {
     IConfOutgoingMessageCandidate,
     IConfOutgoingMessageOffer,
     IConfOutgoingMessageAnswer,
-    IConfMessageBye
+    IConfMessageBye,
+    IConfMessageChat,
+    IConfChat,
 } from '../data';
 
 export function createOutgoingMessageJoin(room: string): IConfMessageJoin {
@@ -40,5 +42,13 @@ export function createOutgoingMessageAnswer(sessionDescription: RTCSessionDescri
 export function createOutgoingMessageBye(): IConfMessageBye {
     return {
         type: 'Bye',
+    }
+}
+
+export function createOutgoingMessageChat(chat: IConfChat, id?: string): IConfMessageChat {
+    return {
+        type: 'Chat',
+        chat: chat,
+        to: id
     }
 }

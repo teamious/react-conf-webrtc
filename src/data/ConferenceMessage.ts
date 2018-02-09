@@ -6,14 +6,16 @@ export type IConfIncomingMessage =
     IConfIncomingMessageOffer |
     IConfIncomingMessageAnswer |
     IConfMessageAddPeer |
-    IConfMessageRemovePeer
+    IConfMessageRemovePeer |
+    IConfMessageChat
 
 export type IConfOutgoingMessage =
     IConfMessageJoin |
     IConfOutgoingMessageCandidate |
     IConfOutgoingMessageOffer |
     IConfOutgoingMessageAnswer |
-    IConfMessageBye
+    IConfMessageBye |
+    IConfMessageChat
 
 // NOTE(yunsi): IConfMessageSelf is received after the connection is created.
 export interface IConfMessageSelf {
@@ -93,6 +95,13 @@ export interface IConfMessageBye {
     type: 'Bye';
 }
 
+export interface IConfMessageChat {
+    type: 'Chat';
+    chat: IConfChat;
+    to?: ConfUserID;
+    from?: ConfUserID;
+}
+
 export type ConfRoom = string;
 
 export type ConfUserID = string;
@@ -101,3 +110,10 @@ export interface IConfUserProfile {
     avatar: string;
     name: string;
 };
+
+export interface IConfChat {
+    message: string,
+    mid?: string,
+    status?: any,
+    time?: string,
+}

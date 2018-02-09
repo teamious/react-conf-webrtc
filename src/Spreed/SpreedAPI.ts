@@ -5,6 +5,7 @@ import {
     SpreedRequestAnswer,
     SpreedRequestCandidate,
     SpreedRequestHello,
+    SpreedRequestChat,
 } from './SpreedRequest';
 
 import {
@@ -12,6 +13,7 @@ import {
     SpreedMessageAnswer,
     SpreedMessageCandidate,
     SpreedMessageHello,
+    SpreedMessageChat,
 } from './SpreedMessage';
 
 export function createOfferRequest(Offer: SpreedMessageOffer): SpreedRequestOffer {
@@ -39,5 +41,12 @@ export function createHelloRequest(Hello: SpreedMessageHello): SpreedRequestHell
     return {
         Type: 'Hello',
         Hello,
+    }
+}
+
+export function createChatRequest(Chat: SpreedMessageChat): SpreedRequestChat {
+    return {
+        Type: 'Chat',
+        Chat
     }
 }

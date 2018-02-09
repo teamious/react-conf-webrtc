@@ -14,3 +14,7 @@ export const PeerConnectionState = {
     Disconnected: 'disconnected',
     Closed: 'closed'
 }
+
+export const ConferenceType ={
+    CHATROOM: 'chatroom',
+}
