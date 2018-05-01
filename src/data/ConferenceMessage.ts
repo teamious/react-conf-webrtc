@@ -109,6 +109,7 @@ export type ConfUserID = string;
 export interface IConfUserProfile {
     avatar: string;
     name: string;
+    department?: string;
 };
 
 export interface IConfChat {
