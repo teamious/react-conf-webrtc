@@ -24,7 +24,8 @@ import {
     DataChannelReadyState,
     ConferenceError,
     PeerConnectionState,
-    ConferenceType
+    ConferenceType,
+    ChatMessageState
 } from '../data';
 import {
     createOutgoingMessageJoin,
@@ -58,6 +59,7 @@ import { Stream } from './controls/Stream';
 export interface ConferenceChat extends IConfChat {
     sender?: string;
     local?: boolean;
+    state?: string;
 }
 
 export interface ConferenceStream {
@@ -372,7 +374,8 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             ...chat,
             time: new Date().toISOString(),
             sender,
-            local: true
+            local: true,
+            state: ChatMessageState.SENDING,
         };
         this.addToChatHistory(localChat);
     }
@@ -1114,17 +1117,44 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     private handleChatMessage(message: IConfMessageChat) {
-        const profile = this.getProfileById(message.from);
-        const newChat = { ...message.chat, sender: profile ? profile.name : '' };
-        this.addToChatHistory(newChat);
+        const sender = this.getSenderById(message.from);
+        const newChat = { ...message.chat, sender: sender ? sender.profile.name : '', local: sender ? sender.local : false };
+
+        if (message.from === message.to) {
+            // NOTE(yunsi): This is a echo message
+            this.updateChatHistory(newChat)
+        } else {
+            this.addToChatHistory(newChat);
+        }
     }
 
-    private getProfileById(id?: string) {
+    private getSenderById(id?: string) {
         if (!id) {
-            console.log('Conference.getProfileById not valid id')
+            console.log('Conference.getProfileById not valid id');
             return
         }
-        return this.state.remoteStreams[id].profile;
+
+        if (this.state.remoteStreams[id]) {
+            return {
+                profile: this.state.remoteStreams[id].profile,
+                local: false,
+            };
+        } else if (this.state.localStream.id === id) {
+            return {
+                profile: this.state.localStream.profile,
+                local: true,
+            };
+        } else {
+            console.log('Conference.getProfileById no match');
+            return;
+        }
+    }
+
+    private updateChatHistory(newChat: ConferenceChat) {
+        let { chatHistory } = this.state;
+        // NOTE(yunsi): Update the local message by echo message from server
+        const updatedChatHistory = chatHistory.map(chat => chat.mid === newChat.mid ? { ...newChat, state: ChatMessageState.SENT } : chat);
+        this.setState({ chatHistory: updatedChatHistory })
     }
 
     private updatePeerProfile(profile: IConfUserProfile | undefined, id: string) {
