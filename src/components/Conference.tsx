@@ -57,7 +57,7 @@ import { AudioMeter } from './controls/AudioMeter';
 import { Stream } from './controls/Stream';
 
 export interface ConferenceChat extends IConfChat {
-    sender?: string;
+    sender?: IConfUserProfile;
     local?: boolean;
     state?: string;
 }
@@ -369,11 +369,10 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     private handleLocalChatMessage(chat: { message: string, mid: string }) {
-        const sender = this.state.localStream.profile ? this.state.localStream.profile.name : '';
         const localChat = {
             ...chat,
             time: new Date().toISOString(),
-            sender,
+            sender: this.state.localStream.profile,
             local: true,
             state: ChatMessageState.SENDING,
         };
@@ -1117,8 +1116,11 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     private handleChatMessage(message: IConfMessageChat) {
-        const sender = this.getSenderById(message.from);
-        const newChat = { ...message.chat, sender: sender ? sender.profile.name : '', local: sender ? sender.local : false };
+        const senderProfile = this.getSenderProfileById(message.from);
+        const newChat = {
+            ...message.chat,
+            ...senderProfile,
+        };
 
         if (message.from === message.to) {
             // NOTE(yunsi): This is a echo message
@@ -1128,24 +1130,24 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         }
     }
 
-    private getSenderById(id?: string) {
+    private getSenderProfileById(id?: string) {
         if (!id) {
-            console.log('Conference.getProfileById not valid id');
-            return
+            console.log('Conference.getChatProfileById not valid id');
+            return;
         }
 
         if (this.state.remoteStreams[id]) {
             return {
-                profile: this.state.remoteStreams[id].profile,
+                sender: this.state.remoteStreams[id].profile,
                 local: false,
             };
         } else if (this.state.localStream.id === id) {
             return {
-                profile: this.state.localStream.profile,
+                sender: this.state.localStream.profile,
                 local: true,
             };
         } else {
-            console.log('Conference.getProfileById no match');
+            console.log('Conference.getChatProfileById no match');
             return;
         }
     }
