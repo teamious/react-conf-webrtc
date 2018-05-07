@@ -1132,7 +1132,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
 
     private getSenderProfileById(id?: string) {
         if (!id) {
-            console.log('Conference.getChatProfileById not valid id');
+            console.log('Conference.getSenderProfileById not valid id');
             return;
         }
 
@@ -1147,7 +1147,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                 local: true,
             };
         } else {
-            console.log('Conference.getChatProfileById no match');
+            console.log('Conference.getSenderProfileById no match');
             return;
         }
     }
