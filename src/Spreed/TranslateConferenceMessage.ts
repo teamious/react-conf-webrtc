@@ -88,7 +88,7 @@ function translateChatMessage(message: IConfMessageChat): SpreedRequestChat {
     const Chat: SpreedChat = {
         Message: message.chat.message,
         Mid: message.chat.mid,
-        NoEcho: true,
+        NoEcho: false,
     }
 
     return createChatRequest({
