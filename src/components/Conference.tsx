@@ -3,6 +3,7 @@ import * as DetectRTC from 'detectrtc';
 import 'webrtc-adapter';
 import { Promise } from 'es6-promise';
 
+import { AudioMeter, Stream } from './controls';
 import {
     ConferenceConnection,
     IConfIncomingMessage,
@@ -47,14 +48,16 @@ import {
     createConferenceErrorConnect,
     createConferenceErrorEnumerateDevices
 } from '../services';
-import { createAudioMonitor, AudioMonitor } from '../utils/createAudioMonitor';
-import * as MediaStreamUtil from '../utils/MediaStreamUtil';
-import { StreamRecorder } from '../utils/StreamRecorder';
-import { ChromeExtension } from '../utils/ChromeExtensionUtil';
-import { randomGen } from '../utils/RandomGenUtil';
-import { PeerConnectionManager } from '../utils/PeerConnectionManager';
-import { AudioMeter } from './controls/AudioMeter';
-import { Stream } from './controls/Stream';
+import {
+    ChromeExtension,
+    createAudioMonitor,
+    AudioMonitor,
+    MediaStreamConstraintsUtil,
+    stopMediaStream,
+    PeerConnectionManager,
+    randomGen,
+    StreamRecorder
+} from '../utils';
 
 export interface ConferenceChat extends IConfChat {
     sender?: IConfUserProfile;
@@ -115,6 +118,7 @@ export interface IConferenceProps {
     render?: ConferenceRenderer;
     onError?: (error: ConferenceError) => void;
     type?: string;
+    mediaStreamConstraints?: MediaStreamConstraints;
 }
 
 const SDPConstraints = {
@@ -546,7 +550,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         const { audioMonitor, localStream } = this.state;
 
         if (localStream.stream) {
-            MediaStreamUtil.stopMediaStream(localStream.stream);
+            stopMediaStream(localStream.stream);
         }
 
         if (audioMonitor) {
@@ -594,29 +598,20 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     private getWebCamStream() {
-        const audioDeviceId = this.state.audioInputId ? { exact: this.state.audioInputId } : undefined;
-        const videoDeviceId = this.state.videoInputId ? { exact: this.state.videoInputId } : undefined;
+        const { mediaStreamConstraints } = this.props;
+        const { audioInputId, videoInputId } = this.state;
 
-        const constraints = {
-            audio: { deviceId: audioDeviceId },
-            video: { deviceId: videoDeviceId }
-        }
+        const constraints = MediaStreamConstraintsUtil.getConstraints(mediaStreamConstraints, audioInputId, videoInputId);
 
         return navigator.mediaDevices.getUserMedia(constraints)
             // NOTE(yunsi): If cannot get full stream, try get audio only stream.
             .catch(() => {
-                const audioOnlyConstraints = {
-                    audio: { deviceId: audioDeviceId },
-                    video: false
-                }
+                const audioOnlyConstraints = MediaStreamConstraintsUtil.getAudioOnlyConstraints(mediaStreamConstraints, audioInputId);
                 return navigator.mediaDevices.getUserMedia(audioOnlyConstraints)
             })
             // NOTE(yunsi): If cannot get audio only stream, try get video only stream.
             .catch(() => {
-                const videoOnlyConstraints = {
-                    audio: false,
-                    video: { deviceId: videoDeviceId }
-                }
+                const videoOnlyConstraints = MediaStreamConstraintsUtil.getVideoOnlyConstraints(mediaStreamConstraints, videoInputId);
                 return navigator.mediaDevices.getUserMedia(videoOnlyConstraints)
             })
     }
