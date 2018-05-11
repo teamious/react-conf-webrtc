@@ -54,10 +54,10 @@ import {
     AudioMonitor,
     MediaStreamConstraintsUtil,
     stopMediaStream,
-    PeerConnectionManager,
     randomGen,
     StreamRecorder
 } from '../utils';
+import { PeerConnectionManager } from '../utils/PeerConnectionManager';
 
 export interface ConferenceChat extends IConfChat {
     sender?: IConfUserProfile;
@@ -602,7 +602,6 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         const { audioInputId, videoInputId } = this.state;
 
         const constraints = MediaStreamConstraintsUtil.getConstraints(mediaStreamConstraints, audioInputId, videoInputId);
-
         return navigator.mediaDevices.getUserMedia(constraints)
             // NOTE(yunsi): If cannot get full stream, try get audio only stream.
             .catch(() => {
