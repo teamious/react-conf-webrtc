@@ -25,7 +25,6 @@ import {
     DataChannelReadyState,
     ConferenceError,
     PeerConnectionState,
-    ConferenceType,
     ChatMessageState
 } from '../data';
 import {
@@ -117,7 +116,6 @@ export interface IConferenceProps {
     peerConnectionConfig?: RTCConfiguration;
     render?: ConferenceRenderer;
     onError?: (error: ConferenceError) => void;
-    type?: string;
     mediaStreamConstraints?: MediaStreamConstraints;
 }
 
@@ -572,29 +570,35 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
 
     private getUserMedia() {
         return new Promise((resolve: () => void) => {
-            switch (this.props.type) {
-                case ConferenceType.CHATROOM:
-                    console.log('getUserMedia(): this is a chat room')
-                    return resolve();
-                default:
-                    console.log('getUserMedia(): this is a conference room')
-                    this.getWebCamStream().then(
-                        (stream) => {
-                            this.localCamStream = stream;
-                            this.stopRecording();
-                            this.setLocalStream(stream, {
-                                isScreenSharing: false,
-                                isRecording: false,
-                            });
-                            return resolve();
-                        },
-                        (err) => {
-                            // NOTE(yunsi): Didn't get stream
-                            this.handleMediaException(err);
-                            return resolve();
-                        });
+            // NOTE(yunsi): Do not get user media if conference is a text only room.
+            if (this.isTextOnlyRoom()) {
+                return resolve()
             }
+
+            this.getWebCamStream().then(
+                (stream) => {
+                    this.localCamStream = stream;
+                    this.stopRecording();
+                    this.setLocalStream(stream, {
+                        isScreenSharing: false,
+                        isRecording: false,
+                    });
+                    return resolve();
+                },
+                (err) => {
+                    // NOTE(yunsi): Didn't get stream
+                    this.handleMediaException(err);
+                    return resolve();
+                });
         })
+    }
+
+    private isTextOnlyRoom() {
+        const { mediaStreamConstraints } = this.props;
+        if (!mediaStreamConstraints || mediaStreamConstraints.audio || mediaStreamConstraints.video) {
+            return false
+        }
+        return true
     }
 
     private getWebCamStream() {
@@ -763,14 +767,20 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             return;
         }
 
+        this.createRemoteStreamById(id);
+        this.updatePeerProfile(message.profile, id)
+
+        // NOTE(yunsi): Do not create peerConnection is conference is a text only room.
+        if (this.isTextOnlyRoom()) {
+            return
+        }
+
         // NOTE(yunsi): Check if a PeerConnection is already established for the given ID.
         if (this.pcManager.getPeerConnectionById(id)) {
             console.log('PeerConnection is already established for the given ID: ' + id);
             return
         }
         const peerConnection = this.createPeerConnectionById(id);
-        this.createRemoteStreamById(id);
-        this.updatePeerProfile(message.profile, id)
 
         // NOTE(yunsi): When two clients both recieved an AddPeer event with the other client's id,
         // they will do a compare to see who should create and send the offer and dataChannel.

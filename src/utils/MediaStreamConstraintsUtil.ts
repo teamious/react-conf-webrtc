@@ -1,5 +1,4 @@
 export class MediaStreamConstraintsUtil {
-    // public static getConstraints(mediaStreamConstraints?: MediaStreamConstraints, audioDeviceId?: { exact: string }, videoDeviceId?: { exact: string }): MediaStreamConstraints {
     public static getConstraints(mediaStreamConstraints?: MediaStreamConstraints, audioInputId?: string, videoInputId?: string): MediaStreamConstraints {
 
         const audioConstraints = this.getAudioConstraints(mediaStreamConstraints, audioInputId)
