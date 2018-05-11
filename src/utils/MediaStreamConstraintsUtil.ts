@@ -1,30 +1,22 @@
 export class MediaStreamConstraintsUtil {
     public static getConstraints(mediaStreamConstraints?: MediaStreamConstraints, audioInputId?: string, videoInputId?: string): MediaStreamConstraints {
-
-        const audioConstraints = this.getAudioConstraints(mediaStreamConstraints, audioInputId)
-        const videoConstraints = this.getVideoConstraints(mediaStreamConstraints, videoInputId)
-
         return {
-            audio: audioConstraints,
-            video: videoConstraints
+            audio: this.getAudioConstraints(mediaStreamConstraints, audioInputId),
+            video: this.getVideoConstraints(mediaStreamConstraints, videoInputId)
         }
     }
 
     public static getAudioOnlyConstraints(mediaStreamConstraints?: MediaStreamConstraints, audioInputId?: string) {
-        const audioConstraints = this.getAudioConstraints(mediaStreamConstraints, audioInputId)
-
         return {
-            audio: audioConstraints,
+            audio: this.getAudioConstraints(mediaStreamConstraints, audioInputId),
             video: false
         }
     }
 
     public static getVideoOnlyConstraints(mediaStreamConstraints?: MediaStreamConstraints, videoInputId?: string) {
-        const videoConstraints = this.getVideoConstraints(mediaStreamConstraints, videoInputId)
-
         return {
             audio: false,
-            video: videoConstraints
+            video: this.getVideoConstraints(mediaStreamConstraints, videoInputId)
         }
     }
 
