@@ -594,11 +594,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     private isTextOnlyRoom() {
-        const { mediaStreamConstraints } = this.props;
-        if (!mediaStreamConstraints || mediaStreamConstraints.audio || mediaStreamConstraints.video) {
-            return false
-        }
-        return true
+        return !MediaStreamConstraintsUtil.mediaStreamEnabled(this.props.mediaStreamConstraints);
     }
 
     private getWebCamStream() {

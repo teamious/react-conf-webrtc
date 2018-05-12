@@ -1,4 +1,11 @@
 export class MediaStreamConstraintsUtil {
+    public static mediaStreamEnabled(mediaStreamConstraints?: MediaStreamConstraints) {
+        if (!mediaStreamConstraints || mediaStreamConstraints.audio || mediaStreamConstraints.video) {
+            return true
+        }
+        return false
+    }
+
     public static getConstraints(mediaStreamConstraints?: MediaStreamConstraints, audioInputId?: string, videoInputId?: string): MediaStreamConstraints {
         return {
             audio: this.getAudioConstraints(mediaStreamConstraints, audioInputId),
