@@ -3,6 +3,7 @@ import * as DetectRTC from 'detectrtc';
 import 'webrtc-adapter';
 import { Promise } from 'es6-promise';
 
+import { AudioMeter, Stream } from './controls';
 import {
     ConferenceConnection,
     IConfIncomingMessage,
@@ -24,7 +25,6 @@ import {
     DataChannelReadyState,
     ConferenceError,
     PeerConnectionState,
-    ConferenceType,
     ChatMessageState
 } from '../data';
 import {
@@ -47,14 +47,16 @@ import {
     createConferenceErrorConnect,
     createConferenceErrorEnumerateDevices
 } from '../services';
-import { createAudioMonitor, AudioMonitor } from '../utils/createAudioMonitor';
-import * as MediaStreamUtil from '../utils/MediaStreamUtil';
-import { StreamRecorder } from '../utils/StreamRecorder';
-import { ChromeExtension } from '../utils/ChromeExtensionUtil';
-import { randomGen } from '../utils/RandomGenUtil';
+import {
+    ChromeExtension,
+    createAudioMonitor,
+    AudioMonitor,
+    MediaStreamConstraintsUtil,
+    stopMediaStream,
+    randomGen,
+    StreamRecorder
+} from '../utils';
 import { PeerConnectionManager } from '../utils/PeerConnectionManager';
-import { AudioMeter } from './controls/AudioMeter';
-import { Stream } from './controls/Stream';
 
 export interface ConferenceChat extends IConfChat {
     sender?: IConfUserProfile;
@@ -114,7 +116,7 @@ export interface IConferenceProps {
     peerConnectionConfig?: RTCConfiguration;
     render?: ConferenceRenderer;
     onError?: (error: ConferenceError) => void;
-    type?: string;
+    mediaStreamConstraints?: MediaStreamConstraints;
 }
 
 const SDPConstraints = {
@@ -546,7 +548,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         const { audioMonitor, localStream } = this.state;
 
         if (localStream.stream) {
-            MediaStreamUtil.stopMediaStream(localStream.stream);
+            stopMediaStream(localStream.stream);
         }
 
         if (audioMonitor) {
@@ -568,55 +570,47 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
 
     private getUserMedia() {
         return new Promise((resolve: () => void) => {
-            switch (this.props.type) {
-                case ConferenceType.CHATROOM:
-                    console.log('getUserMedia(): this is a chat room')
-                    return resolve();
-                default:
-                    console.log('getUserMedia(): this is a conference room')
-                    this.getWebCamStream().then(
-                        (stream) => {
-                            this.localCamStream = stream;
-                            this.stopRecording();
-                            this.setLocalStream(stream, {
-                                isScreenSharing: false,
-                                isRecording: false,
-                            });
-                            return resolve();
-                        },
-                        (err) => {
-                            // NOTE(yunsi): Didn't get stream
-                            this.handleMediaException(err);
-                            return resolve();
-                        });
+            // NOTE(yunsi): Do not get user media if conference is a text only room.
+            if (this.isTextOnlyRoom()) {
+                return resolve()
             }
+
+            this.getWebCamStream().then(
+                (stream) => {
+                    this.localCamStream = stream;
+                    this.stopRecording();
+                    this.setLocalStream(stream, {
+                        isScreenSharing: false,
+                        isRecording: false,
+                    });
+                    return resolve();
+                },
+                (err) => {
+                    // NOTE(yunsi): Didn't get stream
+                    this.handleMediaException(err);
+                    return resolve();
+                });
         })
     }
 
+    private isTextOnlyRoom() {
+        return !MediaStreamConstraintsUtil.mediaStreamEnabled(this.props.mediaStreamConstraints);
+    }
+
     private getWebCamStream() {
-        const audioDeviceId = this.state.audioInputId ? { exact: this.state.audioInputId } : undefined;
-        const videoDeviceId = this.state.videoInputId ? { exact: this.state.videoInputId } : undefined;
+        const { mediaStreamConstraints } = this.props;
+        const { audioInputId, videoInputId } = this.state;
 
-        const constraints = {
-            audio: { deviceId: audioDeviceId },
-            video: { deviceId: videoDeviceId }
-        }
-
+        const constraints = MediaStreamConstraintsUtil.getConstraints(mediaStreamConstraints, audioInputId, videoInputId);
         return navigator.mediaDevices.getUserMedia(constraints)
             // NOTE(yunsi): If cannot get full stream, try get audio only stream.
             .catch(() => {
-                const audioOnlyConstraints = {
-                    audio: { deviceId: audioDeviceId },
-                    video: false
-                }
+                const audioOnlyConstraints = MediaStreamConstraintsUtil.getAudioOnlyConstraints(mediaStreamConstraints, audioInputId);
                 return navigator.mediaDevices.getUserMedia(audioOnlyConstraints)
             })
             // NOTE(yunsi): If cannot get audio only stream, try get video only stream.
             .catch(() => {
-                const videoOnlyConstraints = {
-                    audio: false,
-                    video: { deviceId: videoDeviceId }
-                }
+                const videoOnlyConstraints = MediaStreamConstraintsUtil.getVideoOnlyConstraints(mediaStreamConstraints, videoInputId);
                 return navigator.mediaDevices.getUserMedia(videoOnlyConstraints)
             })
     }
@@ -769,14 +763,20 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             return;
         }
 
+        this.createRemoteStreamById(id);
+        this.updatePeerProfile(message.profile, id)
+
+        // NOTE(yunsi): Do not create peerConnection is conference is a text only room.
+        if (this.isTextOnlyRoom()) {
+            return
+        }
+
         // NOTE(yunsi): Check if a PeerConnection is already established for the given ID.
         if (this.pcManager.getPeerConnectionById(id)) {
             console.log('PeerConnection is already established for the given ID: ' + id);
             return
         }
         const peerConnection = this.createPeerConnectionById(id);
-        this.createRemoteStreamById(id);
-        this.updatePeerProfile(message.profile, id)
 
         // NOTE(yunsi): When two clients both recieved an AddPeer event with the other client's id,
         // they will do a compare to see who should create and send the offer and dataChannel.

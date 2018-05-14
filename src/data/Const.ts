@@ -15,10 +15,6 @@ export const PeerConnectionState = {
     Closed: 'closed'
 }
 
-export const ConferenceType ={
-    CHATROOM: 'chatroom',
-}
-
 export const ChatMessageState = {
     SENDING: 'sending',
     SENT: 'sent',
