@@ -63,7 +63,6 @@ export interface ConferenceErrorEnumerateDevices {
 export interface ConferenceErrorIncomingMessage {
     type: 'ConferenceErrorIncomingMessage';
     error: any;
-    id: string;
 }
 
 export const ConferenceError = {

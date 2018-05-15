@@ -187,9 +187,10 @@ function translateChat(Chat: SpreedChat): IConfChat {
     return { message: Chat.Message, mid: Chat.Mid, status: Chat.Status, time: Chat.Time };
 }
 
-function translateErrorMessage(data: SpreedMessageError, message: SpreedResponse): IConfMessageError | undefined{
-    if (!message.From) {
-        return;
+function translateErrorMessage(data: SpreedMessageError, message: SpreedResponse): IConfMessageError | undefined {
+    if (!data.Code) {
+        console.warn('translateErrorMessage(): Failed to translate "Error" message. "Code" member not found.')
+        return
     }
     return {
         type: 'Error',

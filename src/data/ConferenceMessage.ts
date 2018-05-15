@@ -107,7 +107,7 @@ export interface IConfMessageError {
     type: 'Error',
     code: string;
     message: string;
-    from: ConfUserID;
+    from?: ConfUserID;
 }
 
 export type ConfRoom = string;
