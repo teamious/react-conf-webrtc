@@ -1189,6 +1189,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     private handleErrorMessage(message: IConfMessageError) {
-        this.onError(createConferenceErrorIncomingMessage(message));
+        const id = message.from;
+        this.onError(createConferenceErrorIncomingMessage(message, id));
     }
 }

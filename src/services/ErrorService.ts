@@ -70,9 +70,10 @@ export function createConferenceErrorEnumerateDevices(error: any): data.Conferen
     }
 }
 
-export function createConferenceErrorIncomingMessage(error: any): data.ConferenceErrorIncomingMessage {
+export function createConferenceErrorIncomingMessage(error: any, id: string): data.ConferenceErrorIncomingMessage {
     return {
         type: 'ConferenceErrorIncomingMessage',
-        error
+        error,
+        id
     }
 }
