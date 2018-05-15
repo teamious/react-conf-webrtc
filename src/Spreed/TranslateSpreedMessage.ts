@@ -187,7 +187,10 @@ function translateChat(Chat: SpreedChat): IConfChat {
     return { message: Chat.Message, mid: Chat.Mid, status: Chat.Status, time: Chat.Time };
 }
 
-function translateErrorMessage(data: SpreedMessageError, message: SpreedResponse): IConfMessageError {
+function translateErrorMessage(data: SpreedMessageError, message: SpreedResponse): IConfMessageError | undefined{
+    if (!message.From) {
+        return;
+    }
     return {
         type: 'Error',
         code: data.Code,
