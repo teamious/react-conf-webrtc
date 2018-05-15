@@ -167,3 +167,9 @@ export interface SpreedChat {
     Status?: string;
     Time?: string;
 }
+
+export interface SpreedMessageError {
+    Type: 'Error';
+    Code: string;
+    Message: string;
+}

@@ -8,7 +8,8 @@ import {
     IConfMessageRemovePeer,
     IConfMessageSelf,
     IConfMessageChat,
-    IConfChat
+    IConfChat,
+    IConfMessageError
 } from '../data/ConferenceMessage'
 import {
     SpreedMessageOffer,
@@ -21,7 +22,8 @@ import {
     SpreedMessageConference,
     SpreedUserStatus,
     SpreedMessageChat,
-    SpreedChat
+    SpreedChat,
+    SpreedMessageError
 } from './SpreedMessage';
 
 // NOTE(andrews): TranslateSpreedMessage delegates the work of translating the message
@@ -48,6 +50,8 @@ export function TranslateSpreedMessage(message: SpreedResponse): IConfIncomingMe
             return translateConferenceMessage(message.Data, message);
         case 'Chat':
             return translateChatMessage(message.Data, message);
+        case 'Error':
+            return translateErrorMessage(message.Data, message);
         default:
             return undefined;
     }
@@ -181,4 +185,17 @@ function translateChatMessage(data: SpreedMessageChat, message: SpreedResponse):
 
 function translateChat(Chat: SpreedChat): IConfChat {
     return { message: Chat.Message, mid: Chat.Mid, status: Chat.Status, time: Chat.Time };
+}
+
+function translateErrorMessage(data: SpreedMessageError, message: SpreedResponse): IConfMessageError | undefined {
+    if (!data.Code) {
+        console.warn('translateErrorMessage(): Failed to translate "Error" message. "Code" member not found.')
+        return
+    }
+    return {
+        type: 'Error',
+        code: data.Code,
+        message: data.Message,
+        from: message.From
+    }
 }

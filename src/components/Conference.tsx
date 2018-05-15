@@ -18,6 +18,7 @@ import {
     IConfChat,
     ConfUserID,
     IConfUserProfile,
+    IConfMessageError,
     IDataChannelMessage,
     IDataChannelMessageSpeech,
     IDataChannelMessageAudio,
@@ -45,7 +46,8 @@ import {
     createConferenceErrorSetRemoteDescription,
     createConferenceErrorWebRTCNotSupported,
     createConferenceErrorConnect,
-    createConferenceErrorEnumerateDevices
+    createConferenceErrorEnumerateDevices,
+    createConferenceErrorIncomingMessage
 } from '../services';
 import {
     ChromeExtension,
@@ -738,6 +740,8 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                 return this.handleAnswerMessage(message);
             case 'Chat':
                 return this.handleChatMessage(message);
+            case 'Error':
+                return this.handleErrorMessage(message);
             default:
                 return console.log('Unkonw message type')
         }
@@ -1182,5 +1186,9 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                 }
             })
         }
+    }
+
+    private handleErrorMessage(message: IConfMessageError) {
+        this.onError(createConferenceErrorIncomingMessage(message));
     }
 }

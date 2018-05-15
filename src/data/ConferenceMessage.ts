@@ -7,7 +7,8 @@ export type IConfIncomingMessage =
     IConfIncomingMessageAnswer |
     IConfMessageAddPeer |
     IConfMessageRemovePeer |
-    IConfMessageChat
+    IConfMessageChat |
+    IConfMessageError
 
 export type IConfOutgoingMessage =
     IConfMessageJoin |
@@ -99,6 +100,13 @@ export interface IConfMessageChat {
     type: 'Chat';
     chat: IConfChat;
     to?: ConfUserID;
+    from?: ConfUserID;
+}
+
+export interface IConfMessageError {
+    type: 'Error',
+    code: string;
+    message: string;
     from?: ConfUserID;
 }
 
