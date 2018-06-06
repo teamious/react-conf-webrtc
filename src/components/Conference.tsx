@@ -493,6 +493,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             })
         }
         const message = createDataChannelMessageAudio(stream.id, enabled);
+        console.log('onAudioEnabledChange', message)
         this.pcManager.broadcastMessage(message);
     }
 
@@ -516,6 +517,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             })
         }
         const message = createDataChannelMessageVideo(stream.id, enabled);
+        console.log('onVideoEnabledChange', message);
         this.pcManager.broadcastMessage(message);
     }
 
@@ -794,6 +796,14 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     private setDataChannelMessageHandler(dataChannel: RTCDataChannel, id: string) {
         this.pcManager.setDataChannel(dataChannel, id);
         dataChannel.onmessage = (messageEvent) => { this.handleDataChannelMessage(messageEvent, id) };
+        dataChannel.onopen = () => {
+            // NOTE(yunsi): Send local audio and video states remote.
+            const { localStream } = this.state;
+            const audioEnabledMessage = createDataChannelMessageAudio(localStream.id, localStream.audioEnabled);
+            const videoEnabledMessage = createDataChannelMessageVideo(localStream.id, localStream.videoEnabled);
+            dataChannel.send(JSON.stringify(audioEnabledMessage));
+            dataChannel.send(JSON.stringify(videoEnabledMessage));
+        }
     }
 
     private createPeerConnectionById(id: string) {
