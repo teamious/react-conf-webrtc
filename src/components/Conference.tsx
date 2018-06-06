@@ -493,7 +493,6 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             })
         }
         const message = createDataChannelMessageAudio(stream.id, enabled);
-        console.log('onAudioEnabledChange', message)
         this.pcManager.broadcastMessage(message);
     }
 
@@ -517,7 +516,6 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             })
         }
         const message = createDataChannelMessageVideo(stream.id, enabled);
-        console.log('onVideoEnabledChange', message);
         this.pcManager.broadcastMessage(message);
     }
 
