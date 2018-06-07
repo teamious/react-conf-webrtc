@@ -786,14 +786,22 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         // they will do a compare to see who should create and send the offer and dataChannel.
         if (this.state.localStream.id.localeCompare(id) === 1) {
             const dataChannel = peerConnection.createDataChannel('dataChannel');
-            this.setDataChannelMessageHandler(dataChannel, id);
+            this.setDataChannel(dataChannel, id);
             return this.createPeerConnectionOffer(peerConnection, id);
         }
     }
 
-    private setDataChannelMessageHandler(dataChannel: RTCDataChannel, id: string) {
+    private setDataChannel(dataChannel: RTCDataChannel, id: string) {
+        this.setDataChannelMessageHandler(dataChannel, id);
+        this.setDataChannelOpenHandler(dataChannel);
         this.pcManager.setDataChannel(dataChannel, id);
+    }
+
+    private setDataChannelMessageHandler(dataChannel: RTCDataChannel, id: string) {
         dataChannel.onmessage = (messageEvent) => { this.handleDataChannelMessage(messageEvent, id) };
+    }
+
+    private setDataChannelOpenHandler(dataChannel: RTCDataChannel) {
         dataChannel.onopen = () => {
             // NOTE(yunsi): Send local audio and video states remote.
             const { localStream } = this.state;
@@ -819,6 +827,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             console.log('peerConnection.onremovestream:', event);
         }
         peerConnection.ondatachannel = (event) => {
+            console.log('peerConnection.ondatachannel', event);
             this.handleDataChannelReceived(event, id)
         };
         peerConnection.onnegotiationneeded = (event) => {
@@ -936,7 +945,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
 
     private handleDataChannelReceived(event: RTCDataChannelEvent, id: string) {
         if (event.channel) {
-            this.setDataChannelMessageHandler(event.channel, id);
+            this.setDataChannel(event.channel, id);
         }
     }
 
