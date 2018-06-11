@@ -888,13 +888,18 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     private getPcConfig() {
+        // NOTE(yunsi): RTCConfiguration from package consumer
         if (this.props.peerConnectionConfig) {
-            return this.props.peerConnectionConfig
+            return this.props.peerConnectionConfig;
         }
+
+        // NOTE(yunsi): RTCConfiguration from signaling server
         if (this.pcConfig) {
-            return this.pcConfig
+            return this.pcConfig;
         }
-        return {}
+
+        // NOTE(yunsi): If no RTCConfiguration received, fallback to default config
+        return { iceServers: [] }
     }
 
     private handleIceCandidate(event: RTCPeerConnectionIceEvent, id: string) {
