@@ -939,9 +939,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                     ...this.state.remoteStreams,
                     [id]: {
                         ...this.state.remoteStreams[id],
-                        stream: event.stream,
-                        audioEnabled: true,
-                        videoEnabled: true,
+                        stream: event.stream
                     }
                 }
             })
