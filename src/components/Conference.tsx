@@ -939,9 +939,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                     ...this.state.remoteStreams,
                     [id]: {
                         ...this.state.remoteStreams[id],
-                        stream: event.stream,
-                        audioEnabled: true,
-                        videoEnabled: true,
+                        stream: event.stream
                     }
                 }
             })
@@ -957,6 +955,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     private handleDataChannelMessage(event: MessageEvent, id: string) {
         if (event.data) {
             const message: IDataChannelMessage = JSON.parse(event.data);
+            console.log('handleDataChannelMessage', message);
             switch (message.type) {
                 case 'Speech':
                     return this.handleSpeechMessage(id, message);
