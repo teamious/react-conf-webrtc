@@ -320,7 +320,11 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     private onScreenSharing(): void {
-        this.getScreenMedia();
+        if (this.state.localStream.isScreenSharing) {
+            this.endScreenMedia();
+        } else {
+            this.getScreenMedia();
+        }
     }
 
     private onToggleRecoding() {
@@ -649,6 +653,11 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
 
             })
             .catch(this.handleMediaException);;
+    }
+
+    private endScreenMedia() {
+        this.state.localStream.stream.getVideoTracks()[0].stop();
+        this.getUserMedia();
     }
 
     private onScreenMediaEnded(e: any) {
