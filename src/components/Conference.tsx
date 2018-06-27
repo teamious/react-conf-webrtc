@@ -163,7 +163,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         this.onToggleAudio = this.onToggleAudio.bind(this);
         this.onToggleVideo = this.onToggleVideo.bind(this);
         this.onToggleRecoding = this.onToggleRecoding.bind(this);
-        this.onScreenSharing = this.onScreenSharing.bind(this);
+        this.toggleLocalScreenShare = this.toggleLocalScreenShare.bind(this);
         this.onScreenMediaEnded = this.onScreenMediaEnded.bind(this);
         this.gotDevices = this.gotDevices.bind(this);
         this.onChangeVideoInput = this.onChangeVideoInput.bind(this);
@@ -262,7 +262,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                 {
                     toggleAudioEnabled: this.toggleAudioEnabled,
                     toggleVideoEnabled: this.toggleVideoEnabled,
-                    toggleLocalScreenShare: this.onScreenSharing,
+                    toggleLocalScreenShare: this.toggleLocalScreenShare,
                     toggleRecording: this.onToggleRecoding,
                     changeAudioInput: this.onChangeAudioInput,
                     changeVideoInput: this.onChangeVideoInput,
@@ -319,7 +319,8 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         this.toggleVideoEnabled();
     }
 
-    private onScreenSharing(): void {
+    private toggleLocalScreenShare(): void {
+        // NOTE(yunsi): toggleLocalScreenShare allows you to start and end screen sharing.
         if (this.state.localStream.isScreenSharing) {
             this.endScreenMedia();
         } else {
