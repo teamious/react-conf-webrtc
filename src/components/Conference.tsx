@@ -321,8 +321,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
 
     // NOTE(yunsi): toggleLocalScreenShare allows you to start and end screen sharing.
     private toggleLocalScreenShare(): void {
-        const stream = this.state.localStream;
-        if (stream.isScreenSharing) {
+        if (this.state.localStream.isScreenSharing) {
             this.endScreenMedia();
         } else {
             this.getScreenMedia();
