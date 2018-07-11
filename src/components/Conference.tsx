@@ -115,6 +115,7 @@ export interface ConferenceRenderer {
 export interface IConferenceProps {
     connect: () => ConferenceConnection;
     room: string;
+    roomPin?: string;
     peerConnectionConfig?: RTCConfiguration;
     render?: ConferenceRenderer;
     onError?: (error: ConferenceError) => void;
@@ -193,7 +194,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                     this.getUserMedia().then(() => {
                         this.connection.subscribe(this.handleIncomingMessage)
                         // NOTE(yunsi): Convert joinRoom to promise-based API.
-                        this.joinRoom(this.props.room)
+                        this.joinRoom(this.props.room, this.props.roomPin)
                     });
                 }, (err) => {
                     this.onError(createConferenceErrorConnect())
@@ -546,8 +547,8 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         this.connection.publish(message);
     }
 
-    private joinRoom(room: string) {
-        const message = createOutgoingMessageJoin(room);
+    private joinRoom(room: string, pin?: string) {
+        const message = createOutgoingMessageJoin(room, pin);
         this.sendMessage(message);
     }
 
