@@ -2,6 +2,7 @@ import * as React from 'react';
 import * as DetectRTC from 'detectrtc';
 import 'webrtc-adapter';
 import { Promise } from 'es6-promise';
+import * as Message from 'screen-capture-chrome-extension';
 
 import { AudioMeter, Stream } from './controls';
 import {
@@ -149,6 +150,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     private renegotiation: { [id: string]: boolean } = {};
     private streamRecorder: StreamRecorder | undefined;
     private pcConfig: RTCConfiguration | undefined;
+    private isExtensionOpen: boolean = false;
 
     constructor(props: IConferenceProps) {
         super(props);
@@ -631,6 +633,12 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     private getScreenMedia() {
+        if (this.isExtensionOpen) {
+            return
+        }
+
+        this.isExtensionOpen = true;
+
         const screenCaptureConstraints = {
             video: {
                 mandatory: {
@@ -659,7 +667,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                     isScreenSharing: true,
                     isRecording: false
                 });
-
+                this.isExtensionOpen = false;
             })
             .catch(this.handleMediaException);;
     }
@@ -674,7 +682,10 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         this.getUserMedia();
     }
 
-    private handleMediaException(error: MediaStreamError) {
+    private handleMediaException(error: any) {
+        if (error === Message.errors.screenPermissionDeied) {
+            this.isExtensionOpen = false;
+        }
         // Exception type list: https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
         this.onError(createConferenceErrorGetUserMedia(error));
     }
