@@ -8,10 +8,11 @@ import {
     IConfChat,
 } from '../data';
 
-export function createOutgoingMessageJoin(room: string): IConfMessageJoin {
+export function createOutgoingMessageJoin(room: string, pin?: string): IConfMessageJoin {
     return {
         type: 'Join',
         room: room,
+        pin: pin
     }
 }
 

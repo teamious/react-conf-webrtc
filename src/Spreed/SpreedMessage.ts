@@ -150,6 +150,11 @@ export interface SpreedMessageHello {
     Type: 'Conference';
     Ua: string;
     Version: string;
+    Credentials?: SpreedRoomCredentials;
+}
+
+export interface SpreedRoomCredentials {
+    PIN: string;
 }
 
 export interface SpreedMessageChat {

@@ -53,6 +53,7 @@ function translateJoinMessage(message: IConfMessageJoin): SpreedRequestHello {
         Name: message.room,
         Version: '',
         Ua: '',
+        Credentials: message.pin ? { PIN: message.pin } : undefined
     })
 }
 

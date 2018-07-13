@@ -2,6 +2,7 @@ import * as React from 'react';
 import * as DetectRTC from 'detectrtc';
 import 'webrtc-adapter';
 import { Promise } from 'es6-promise';
+import * as Message from 'screen-capture-chrome-extension';
 
 import { AudioMeter, Stream } from './controls';
 import {
@@ -115,6 +116,7 @@ export interface ConferenceRenderer {
 export interface IConferenceProps {
     connect: () => ConferenceConnection;
     room: string;
+    roomPin?: string;
     peerConnectionConfig?: RTCConfiguration;
     render?: ConferenceRenderer;
     onError?: (error: ConferenceError) => void;
@@ -148,6 +150,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     private renegotiation: { [id: string]: boolean } = {};
     private streamRecorder: StreamRecorder | undefined;
     private pcConfig: RTCConfiguration | undefined;
+    private isExtensionOpen: boolean = false;
 
     constructor(props: IConferenceProps) {
         super(props);
@@ -193,7 +196,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                     this.getUserMedia().then(() => {
                         this.connection.subscribe(this.handleIncomingMessage)
                         // NOTE(yunsi): Convert joinRoom to promise-based API.
-                        this.joinRoom(this.props.room)
+                        this.joinRoom(this.props.room, this.props.roomPin)
                     });
                 }, (err) => {
                     this.onError(createConferenceErrorConnect())
@@ -546,8 +549,8 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         this.connection.publish(message);
     }
 
-    private joinRoom(room: string) {
-        const message = createOutgoingMessageJoin(room);
+    private joinRoom(room: string, pin?: string) {
+        const message = createOutgoingMessageJoin(room, pin);
         this.sendMessage(message);
     }
 
@@ -556,6 +559,10 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
 
         if (localStream.stream) {
             stopMediaStream(localStream.stream);
+        }
+
+        if (this.localCamStream) {
+            stopMediaStream(this.localCamStream)
         }
 
         if (audioMonitor) {
@@ -584,6 +591,9 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
 
             this.getWebCamStream().then(
                 (stream) => {
+                    if (this.localCamStream) {
+                        stopMediaStream(this.localCamStream);
+                    }
                     this.localCamStream = stream;
                     this.stopRecording();
                     this.setLocalStream(stream, {
@@ -623,6 +633,12 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
     }
 
     private getScreenMedia() {
+        if (this.isExtensionOpen) {
+            return
+        }
+
+        this.isExtensionOpen = true;
+
         const screenCaptureConstraints = {
             video: {
                 mandatory: {
@@ -651,7 +667,7 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
                     isScreenSharing: true,
                     isRecording: false
                 });
-
+                this.isExtensionOpen = false;
             })
             .catch(this.handleMediaException);;
     }
@@ -666,7 +682,10 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
         this.getUserMedia();
     }
 
-    private handleMediaException(error: MediaStreamError) {
+    private handleMediaException(error: any) {
+        if (error === Message.errors.screenPermissionDeied) {
+            this.isExtensionOpen = false;
+        }
         // Exception type list: https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
         this.onError(createConferenceErrorGetUserMedia(error));
     }

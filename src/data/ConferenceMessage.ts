@@ -29,6 +29,7 @@ export interface IConfMessageSelf {
 export interface IConfMessageJoin {
     type: 'Join';
     room: ConfRoom;
+    pin?: ConfPin;
 }
 
 // NOTE(yunsi): IConfMessageConference is received when you joind a conference room, it contains an array of the id of users in the conference room.
@@ -111,6 +112,7 @@ export interface IConfMessageError {
 }
 
 export type ConfRoom = string;
+export type ConfPin = string;
 
 export type ConfUserID = string;
 
