@@ -559,6 +559,10 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
             stopMediaStream(localStream.stream);
         }
 
+        if (this.localCamStream) {
+            stopMediaStream(this.localCamStream)
+        }
+
         if (audioMonitor) {
             audioMonitor.stop();
         }
@@ -585,6 +589,9 @@ export class Conference extends React.Component<IConferenceProps, IConferenceSta
 
             this.getWebCamStream().then(
                 (stream) => {
+                    if (this.localCamStream) {
+                        stopMediaStream(this.localCamStream);
+                    }
                     this.localCamStream = stream;
                     this.stopRecording();
                     this.setLocalStream(stream, {
